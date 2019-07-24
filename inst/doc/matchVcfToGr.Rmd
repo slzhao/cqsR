@@ -1,0 +1,28 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# matchGrToVcfObj
+
+```{r}
+#library(VariantAnnotation)
+#library(data.table)
+devtools::load_all("d:/source/cqsR")
+
+library(cqsR)
+
+fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
+vcf <- readVcf(fl, "hg19")
+vcf <- VariantAnnotation::expand(x = vcf, row.names = TRUE)
+
+variantsTable=data.frame(chr="22", start=c(50300078,50300085), end=c(50300078,50300102), score=1:2)
+variantsTableGr=makeGRangesFromDataFrame(variantsTable)
+#matchGrToVcfObj(variantsTableGr,vcf)
+readVcfAndMatchGr(fl,variantsTableGr)
+
+```

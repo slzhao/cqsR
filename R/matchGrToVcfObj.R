@@ -1,17 +1,5 @@
-
-#library(VariantAnnotation)
-#library(data.table)
-
-fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
-vcf <- readVcf(fl, "hg19")
-vcf <- VariantAnnotation::expand(x = vcf, row.names = TRUE)
-
-variantsTable=data.frame(chr="22", start=c(50300078,50300085), end=c(50300078,50300102), score=1:2)
-variantsTableGr=makeGRangesFromDataFrame(variantsTable)
-#matchGrToVcfObj(variantsTableGr,vcf)
-readVcfAndMatchGr(fl,variantsTableGr)
-
-
+#' @export
+#'
 matchGrToVcfObj=function(gr,vcfYield,perfectMatch=FALSE,extracVcfCols=NULL,extracVcfInfos=NULL,includingVcfPos=TRUE) {
   if (is.null(extracVcfCols)) {
     vcfOutTable=mcols(vcfYield)
