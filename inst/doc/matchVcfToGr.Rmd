@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 #library(VariantAnnotation)
 #library(data.table)
-devtools::load_all("d:/source/cqsR")
+#devtools::load_all("d:/source/cqsR")
+#devtools::load_all(".")
 
 library(cqsR)
 
