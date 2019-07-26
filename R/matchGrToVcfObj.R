@@ -15,6 +15,8 @@ matchGrToVcfObj=function(gr,vcfYield,perfectMatch=FALSE,extracVcfCols=NULL,extra
     vcfOutTable=cbind(vcfPosTable,vcfOutTable)
   }
 
+  vcfOutTable=as.data.table(vcfOutTable) #make it into data.table to remove DNAStringSet in DataFrame
+
   if (perfectMatch) {
     match(gr,rowRanges(vcfYield))
   } else {
