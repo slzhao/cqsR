@@ -157,17 +157,56 @@ design
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
 MutationMut1=topTable(fit, coef="MutationMut")
+TreatTC1=topTable(fit, coef="TreatT")
 
 #Method 2
 design <- model.matrix(~0+Treat+Mutation)
 design
 fit <- lmFit(y, design)
-contrast.matrix <- makeContrasts(MutationMutWT=MutationMut, levels=design)
+contrast.matrix <- makeContrasts(MutationMutWT=MutationMut,TreatTC=TreatT-TreatC, levels=design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
 MutationMut2=topTable(fit2, coef="MutationMutWT")
+TreatTC2=topTable(fit2, coef="TreatTC")
 
+all.equal(TreatTC1,TreatTC2) #TRUE
 all.equal(MutationMut1,MutationMut2) #TRUE
+
+
+
+
+
+```
+
+
+## Two Factors: Mutation1+Mutation2
+
+```{r}
+########################################
+#Two Factors
+########################################
+#Method 1
+Mutation1 <- factor(c("WT","WT","WT","Mut","Mut","Mut","WT","WT","WT","WT"), levels=c("WT","Mut"))
+Mutation2 <- factor(c("Mut","Mut","Mut","Mut","Mut","Mut","WT","WT","WT","WT"), levels=c("WT","Mut"))
+design <- model.matrix(~Mutation1+Mutation2)
+design
+fit <- lmFit(y, design)
+fit <- eBayes(fit)
+Mutation1Mut1=topTable(fit, coef="Mutation1Mut")
+Mutation2Mut1=topTable(fit, coef="Mutation2Mut")
+
+#Method 2
+design <- model.matrix(~0+Mutation1+Mutation2)
+design
+fit <- lmFit(y, design)
+contrast.matrix <- makeContrasts(Mutation1Mut=Mutation1Mut-Mutation1WT,Mutation2Mut=Mutation2Mut, levels=design)
+fit2 <- contrasts.fit(fit, contrast.matrix)
+fit2 <- eBayes(fit2)
+Mutation1Mut2=topTable(fit2, coef="Mutation1Mut")
+Mutation2Mut2=topTable(fit2, coef="Mutation2Mut")
+
+all.equal(Mutation1Mut1,Mutation1Mut2) #TRUE
+all.equal(Mutation2Mut1,Mutation2Mut2) #TRUE
 
 
 
@@ -274,9 +313,81 @@ all.equal(MuvsWtinT1,MuvsWtinT3)
 ```
 
 
+# Make functions
+
+```{r}
+rawDataTable=y
+colnames(rawDataTable)=paste0("Sample",1:10)
+
+performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
+
+  factorNames=as.character(unique(factorTable[,2]))
+  designTable=matrix(0,nrow=ncol(rawDataTable),ncol=length(factorNames))
+  row.names(designTable)=colnames(rawDataTable)
+  colnames(designTable)=factorNames
+
+  designTable[as.matrix(factorTable)]=1
+  designTable
+  designTable=cbind(Intercept=1,designTable)
+
+#addInteractionTerm=T
+#if (addInteractionTerm) {
+#  
+#}
+
+  if (is.null(contrastsText)) {
+    contrastsText=c(colnames(designTable)[-1])
+  }
+  
+  fit <- lmFit(rawDataTable, designTable)
+  contrast.matrix <- makeContrasts(contrasts=contrastsText, levels=designTable)
+  fit2 <- contrasts.fit(fit, contrast.matrix)
+  fit2 <- eBayes(fit2)
+  return(fit2)
+}
 
 
+```
+
+## One Factor: Three Groups
+```{r}
+factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample7","Sample8","Sample9","Sample10"),Factor2=c("TreatT","TreatT","TreatT","TreatG","TreatG","TreatG","TreatG"),stringsAsFactors = FALSE)
+factorTable
+
+fit3=performLimma(rawDataTable,factorTable) 
+TreatT3=topTable(fit3, coef="TreatT")
+TreatG3=topTable(fit3, coef="TreatG")
+
+all.equal(TreatT1,TreatT3) #True
+all.equal(TreatG1,TreatG3) #True
+
+```
+
+## Two Factors: Paired Data
+```{r}
+factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample9","Sample10","Sample2","Sample3","Sample5","Sample6","Sample7","Sample8","Sample9","Sample10"),Factor2=c("TreatT","TreatT","TreatT","TreatT","TreatT","PatientB","PatientC","PatientB","PatientC","PatientD","PatientE","PatientD","PatientE"),stringsAsFactors = FALSE)
+factorTable
+
+fit3=performLimma(rawDataTable,factorTable) 
+TreatT3=topTable(fit3, coef="TreatT")
+
+all.equal(TreatT2,TreatT3) #True
 
 
+```
 
+
+## Two Factors: Treatment+Mutation
+```{r}
+factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample9","Sample10","Sample1","Sample2","Sample3","Sample4","Sample5","Sample6"),Factor2=c("TreatT","TreatT","TreatT","TreatT","TreatT","MutationMut","MutationMut","MutationMut","MutationMut","MutationMut","MutationMut"),stringsAsFactors = FALSE)
+factorTable
+
+fit3=performLimma(rawDataTable,factorTable) 
+TreatTC3=topTable(fit3, coef="TreatT")
+MutationMut3=topTable(fit3, coef="MutationMut")
+
+all.equal(TreatTC2,TreatTC3) #True
+all.equal(MutationMut2,MutationMut3) #True
+
+```
 

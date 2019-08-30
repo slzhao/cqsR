@@ -368,11 +368,9 @@ summary {
 
 
 <p><a href="https://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf" class="uri">https://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf</a></p>
-<div id="some-tests" class="section level1">
-<h1>Some Tests</h1>
 <pre class="r"><code>library(limma)</code></pre>
-<div id="one-factor-two-or-more-groups" class="section level2">
-<h2>One Factor, Two or More Groups:</h2>
+<div id="makedesign-and-contrast-in-one-factor-two-methods" class="section level1">
+<h1>MakeDesign and Contrast in One Factor: Two methods</h1>
 <p>Method 1</p>
 <pre class="r"><code>#####################################
 #Two groups
@@ -421,8 +419,19 @@ design</code></pre>
 <pre class="r"><code>#Or By
 design &lt;- model.matrix(~0+Group)
 colnames(design) &lt;- c(&quot;WT&quot;,&quot;MU&quot;)
-
-cont.matrix &lt;- makeContrasts(MUvsWT=MU-WT, levels=design)
+design</code></pre>
+<pre><code>##   WT MU
+## 1  1  0
+## 2  1  0
+## 3  0  1
+## 4  0  1
+## 5  0  1
+## attr(,&quot;assign&quot;)
+## [1] 1 1
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Group
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>cont.matrix &lt;- makeContrasts(MUvsWT=MU-WT, levels=design)
 cont.matrix</code></pre>
 <pre><code>##       Contrasts
 ## Levels MUvsWT
@@ -463,7 +472,520 @@ contrast.matrix</code></pre>
 ##   RNA3           0           1           1</code></pre>
 <pre class="r"><code>#fit &lt;- lmFit(eset, design)
 #fit2 &lt;- contrasts.fit(fit, contrast.matrix)
-#fit2 &lt;- eBayes(fit2)</code></pre>
+#fit2 &lt;- eBayes(fit2)
+#topTable(fit2, coef=1, adjust=&quot;BH&quot;)</code></pre>
+</div>
+<div id="examples-with-data" class="section level1">
+<h1>Examples with Data</h1>
+<pre class="r"><code>sd &lt;- 0.3*sqrt(4/rchisq(100,df=4))
+y &lt;- matrix(rnorm(100*10,sd=sd),100,10)
+rownames(y) &lt;- paste(&quot;Gene&quot;,1:100)
+y[1:2,4:6] &lt;- y[1:2,4:6] + 2</code></pre>
+<div id="one-factor-three-groups" class="section level2">
+<h2>One Factor: Three Groups</h2>
+<pre class="r"><code>#Method 1
+Treat &lt;- factor(c(&quot;C&quot;,&quot;C&quot;,&quot;C&quot;,&quot;T&quot;,&quot;T&quot;,&quot;T&quot;,&quot;G&quot;,&quot;G&quot;,&quot;G&quot;,&quot;G&quot;), levels=c(&quot;C&quot;,&quot;T&quot;,&quot;G&quot;))
+design &lt;- model.matrix(~Treat)
+design</code></pre>
+<pre><code>##    (Intercept) TreatT TreatG
+## 1            1      0      0
+## 2            1      0      0
+## 3            1      0      0
+## 4            1      1      0
+## 5            1      1      0
+## 6            1      1      0
+## 7            1      0      1
+## 8            1      0      1
+## 9            1      0      1
+## 10           1      0      1
+## attr(,&quot;assign&quot;)
+## [1] 0 1 1
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+fit &lt;- eBayes(fit)
+TreatT1=topTable(fit, coef=&quot;TreatT&quot;)
+TreatG1=topTable(fit, coef=&quot;TreatG&quot;)
+
+#Method 2
+design &lt;- model.matrix(~0+Treat)
+design</code></pre>
+<pre><code>##    TreatC TreatT TreatG
+## 1       1      0      0
+## 2       1      0      0
+## 3       1      0      0
+## 4       0      1      0
+## 5       0      1      0
+## 6       0      1      0
+## 7       0      0      1
+## 8       0      0      1
+## 9       0      0      1
+## 10      0      0      1
+## attr(,&quot;assign&quot;)
+## [1] 1 1 1
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+contrast.matrix &lt;- makeContrasts(TreatTC=TreatT-TreatC,TreatGC=TreatG-TreatC,TreatGT=TreatG-TreatT, levels=design)
+fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+fit2 &lt;- eBayes(fit2)
+TreatT2=topTable(fit2, coef=&quot;TreatTC&quot;)
+TreatG2=topTable(fit2, coef=&quot;TreatGC&quot;)
+TreatGT2=topTable(fit2, coef=&quot;TreatGT&quot;)
+
+all.equal(TreatT1,TreatT2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(TreatG1,TreatG2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="two-factors-paired-data" class="section level2">
+<h2>Two Factors: Paired Data</h2>
+<pre class="r"><code>#Method 1
+Treat &lt;- factor(c(&quot;C&quot;,&quot;C&quot;,&quot;C&quot;,&quot;T&quot;,&quot;T&quot;,&quot;T&quot;,&quot;C&quot;,&quot;C&quot;,&quot;T&quot;,&quot;T&quot;), levels=c(&quot;C&quot;,&quot;T&quot;))
+Patient &lt;- factor(c(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;D&quot;,&quot;E&quot;), levels=c(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;))
+design &lt;- model.matrix(~Treat+Patient)
+design</code></pre>
+<pre><code>##    (Intercept) TreatT PatientB PatientC PatientD PatientE
+## 1            1      0        0        0        0        0
+## 2            1      0        1        0        0        0
+## 3            1      0        0        1        0        0
+## 4            1      1        0        0        0        0
+## 5            1      1        1        0        0        0
+## 6            1      1        0        1        0        0
+## 7            1      0        0        0        1        0
+## 8            1      0        0        0        0        1
+## 9            1      1        0        0        1        0
+## 10           1      1        0        0        0        1
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2 2 2 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Patient
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+fit &lt;- eBayes(fit)
+TreatT1=topTable(fit, coef=&quot;TreatT&quot;)
+
+#Method 2
+design &lt;- model.matrix(~0+Treat+Patient)
+design</code></pre>
+<pre><code>##    TreatC TreatT PatientB PatientC PatientD PatientE
+## 1       1      0        0        0        0        0
+## 2       1      0        1        0        0        0
+## 3       1      0        0        1        0        0
+## 4       0      1        0        0        0        0
+## 5       0      1        1        0        0        0
+## 6       0      1        0        1        0        0
+## 7       1      0        0        0        1        0
+## 8       1      0        0        0        0        1
+## 9       0      1        0        0        1        0
+## 10      0      1        0        0        0        1
+## attr(,&quot;assign&quot;)
+## [1] 1 1 2 2 2 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Patient
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+contrast.matrix &lt;- makeContrasts(TreatTC=TreatT-TreatC, levels=design)
+fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+fit2 &lt;- eBayes(fit2)
+TreatT2=topTable(fit2, coef=&quot;TreatTC&quot;)
+
+all.equal(TreatT1,TreatT2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="two-factors-treatmentmutation" class="section level2">
+<h2>Two Factors: Treatment+Mutation</h2>
+<pre class="r"><code>########################################
+#Two Factors
+########################################
+#Method 1
+Treat &lt;- factor(c(&quot;C&quot;,&quot;C&quot;,&quot;C&quot;,&quot;T&quot;,&quot;T&quot;,&quot;T&quot;,&quot;C&quot;,&quot;C&quot;,&quot;T&quot;,&quot;T&quot;), levels=c(&quot;C&quot;,&quot;T&quot;))
+Mutation &lt;- factor(c(&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;), levels=c(&quot;WT&quot;,&quot;Mut&quot;))
+design &lt;- model.matrix(~Treat+Mutation)
+design</code></pre>
+<pre><code>##    (Intercept) TreatT MutationMut
+## 1            1      0           1
+## 2            1      0           1
+## 3            1      0           1
+## 4            1      1           1
+## 5            1      1           1
+## 6            1      1           1
+## 7            1      0           0
+## 8            1      0           0
+## 9            1      1           0
+## 10           1      1           0
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Mutation
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+fit &lt;- eBayes(fit)
+MutationMut1=topTable(fit, coef=&quot;MutationMut&quot;)
+TreatTC1=topTable(fit, coef=&quot;TreatT&quot;)
+
+#Method 2
+design &lt;- model.matrix(~0+Treat+Mutation)
+design</code></pre>
+<pre><code>##    TreatC TreatT MutationMut
+## 1       1      0           1
+## 2       1      0           1
+## 3       1      0           1
+## 4       0      1           1
+## 5       0      1           1
+## 6       0      1           1
+## 7       1      0           0
+## 8       1      0           0
+## 9       0      1           0
+## 10      0      1           0
+## attr(,&quot;assign&quot;)
+## [1] 1 1 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Mutation
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+contrast.matrix &lt;- makeContrasts(MutationMutWT=MutationMut,TreatTC=TreatT-TreatC, levels=design)
+fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+fit2 &lt;- eBayes(fit2)
+MutationMut2=topTable(fit2, coef=&quot;MutationMutWT&quot;)
+TreatTC2=topTable(fit2, coef=&quot;TreatTC&quot;)
+
+all.equal(TreatTC1,TreatTC2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(MutationMut1,MutationMut2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="two-factors-mutation1mutation2" class="section level2">
+<h2>Two Factors: Mutation1+Mutation2</h2>
+<pre class="r"><code>########################################
+#Two Factors
+########################################
+#Method 1
+Mutation1 &lt;- factor(c(&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;), levels=c(&quot;WT&quot;,&quot;Mut&quot;))
+Mutation2 &lt;- factor(c(&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;Mut&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;,&quot;WT&quot;), levels=c(&quot;WT&quot;,&quot;Mut&quot;))
+design &lt;- model.matrix(~Mutation1+Mutation2)
+design</code></pre>
+<pre><code>##    (Intercept) Mutation1Mut Mutation2Mut
+## 1            1            0            1
+## 2            1            0            1
+## 3            1            0            1
+## 4            1            1            1
+## 5            1            1            1
+## 6            1            1            1
+## 7            1            0            0
+## 8            1            0            0
+## 9            1            0            0
+## 10           1            0            0
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Mutation1
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Mutation2
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+fit &lt;- eBayes(fit)
+Mutation1Mut1=topTable(fit, coef=&quot;Mutation1Mut&quot;)
+Mutation2Mut1=topTable(fit, coef=&quot;Mutation2Mut&quot;)
+
+#Method 2
+design &lt;- model.matrix(~0+Mutation1+Mutation2)
+design</code></pre>
+<pre><code>##    Mutation1WT Mutation1Mut Mutation2Mut
+## 1            1            0            1
+## 2            1            0            1
+## 3            1            0            1
+## 4            0            1            1
+## 5            0            1            1
+## 6            0            1            1
+## 7            1            0            0
+## 8            1            0            0
+## 9            1            0            0
+## 10           1            0            0
+## attr(,&quot;assign&quot;)
+## [1] 1 1 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Mutation1
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Mutation2
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+contrast.matrix &lt;- makeContrasts(Mutation1Mut=Mutation1Mut-Mutation1WT,Mutation2Mut=Mutation2Mut, levels=design)
+fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+fit2 &lt;- eBayes(fit2)
+Mutation1Mut2=topTable(fit2, coef=&quot;Mutation1Mut&quot;)
+Mutation2Mut2=topTable(fit2, coef=&quot;Mutation2Mut&quot;)
+
+all.equal(Mutation1Mut1,Mutation1Mut2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(Mutation2Mut1,Mutation2Mut2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="with-interactions" class="section level2">
+<h2>With Interactions:</h2>
+<p>Method 2 is good and easy to write interactions</p>
+<p>Similar as usersguide 9.5 Interaction Models: 2 × 2 Factorial Designs. But with data to make it easier to reproduce.</p>
+<div id="analysing-as-for-a-single-factor" class="section level3">
+<h3>Analysing as for a Single Factor</h3>
+<pre class="r"><code>TS &lt;- paste(Mutation, Treat, sep=&quot;.&quot;)
+TS &lt;- factor(TS, levels=c(&quot;Mut.C&quot;, &quot;Mut.T&quot; ,&quot;WT.C&quot; , &quot;WT.T&quot; ))
+
+design &lt;- model.matrix(~0+TS)
+colnames(design) &lt;- levels(TS)
+design</code></pre>
+<pre><code>##    Mut.C Mut.T WT.C WT.T
+## 1      1     0    0    0
+## 2      1     0    0    0
+## 3      1     0    0    0
+## 4      0     1    0    0
+## 5      0     1    0    0
+## 6      0     1    0    0
+## 7      0     0    1    0
+## 8      0     0    1    0
+## 9      0     0    0    1
+## 10     0     0    0    1
+## attr(,&quot;assign&quot;)
+## [1] 1 1 1 1
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$TS
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+contrast.matrix &lt;- makeContrasts(
+  TvsCinWT=WT.T-WT.C,
+  TvsCinMu=Mut.T-Mut.C,
+  MuvsWtinC=Mut.C-WT.C,
+  MuvsWtinT=Mut.T-WT.T,
+  Diff=(Mut.T-Mut.C)-(WT.T-WT.C),
+  levels=design)
+fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+fit2 &lt;- eBayes(fit2)
+TvsCinMu1=topTable(fit2, coef=&quot;TvsCinMu&quot;)
+TvsCinWT1=topTable(fit2, coef=&quot;TvsCinWT&quot;)
+MuvsWtinC1=topTable(fit2, coef=&quot;MuvsWtinC&quot;)
+MuvsWtinT1=topTable(fit2, coef=&quot;MuvsWtinT&quot;)
+
+diff1=topTable(fit2, coef=&quot;Diff&quot;)</code></pre>
+</div>
+<div id="a-nested-interaction-formula" class="section level3">
+<h3>A Nested Interaction Formula</h3>
+<pre class="r"><code>#design &lt;- model.matrix(~Mutation+Treat+Mutation:Treat)
+design &lt;- model.matrix(~Mutation+Mutation:Treat)
+design</code></pre>
+<pre><code>##    (Intercept) MutationMut MutationWT:TreatT MutationMut:TreatT
+## 1            1           1                 0                  0
+## 2            1           1                 0                  0
+## 3            1           1                 0                  0
+## 4            1           1                 0                  1
+## 5            1           1                 0                  1
+## 6            1           1                 0                  1
+## 7            1           0                 0                  0
+## 8            1           0                 0                  0
+## 9            1           0                 1                  0
+## 10           1           0                 1                  0
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Mutation
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>fit &lt;- lmFit(y, design)
+fit &lt;- eBayes(fit)
+TvsCinWT2=topTable(fit, coef=&quot;MutationWT:TreatT&quot;)
+TvsCinMu2=topTable(fit, coef=&quot;MutationMut:TreatT&quot;)
+
+all.equal(TvsCinWT1,TvsCinWT2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(TvsCinMu1,TvsCinMu2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code># we could extract the interaction contrast Diff considered in &quot;Single Factor&quot; part by
+fit2 &lt;- contrasts.fit(fit, c(0,0,-1,1))
+fit2 &lt;- eBayes(fit2)
+diff2=topTable(fit2)
+
+all.equal(diff1,diff2) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="classic-interaction-models" class="section level3">
+<h3>Classic Interaction Models</h3>
+<pre class="r"><code>design &lt;- model.matrix(~Mutation*Treat)
+colnames(design)=gsub(&quot;:|\\(|\\)&quot;,&quot;.&quot;,colnames(design))
+design</code></pre>
+<pre><code>##    .Intercept. MutationMut TreatT MutationMut.TreatT
+## 1            1           1      0                  0
+## 2            1           1      0                  0
+## 3            1           1      0                  0
+## 4            1           1      1                  1
+## 5            1           1      1                  1
+## 6            1           1      1                  1
+## 7            1           0      0                  0
+## 8            1           0      0                  0
+## 9            1           0      1                  0
+## 10           1           0      1                  0
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2 3
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Mutation
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$Treat
+## [1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>#We need to use contrasts to extract all the comparisons of interest, as we are interested in Mu.S-Mu.U but it is not in design
+fit &lt;- lmFit(y, design)
+#contrast.matrix &lt;- cbind(TvsCinWT=c(0,0,1,0),TvsCinMu=c(0,0,1,1),Diff=c(0,0,0,1))
+contrast.matrix &lt;- makeContrasts(
+  MuvsWtinC=MutationMut,
+  MuvsWtinT=MutationMut+MutationMut.TreatT,
+  TvsCinWT=TreatT,
+  TvsCinMu=TreatT+MutationMut.TreatT,
+  Diff=MutationMut.TreatT,
+  levels=design)
+
+fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+fit2 &lt;- eBayes(fit2)
+
+MuvsWtinC3=topTable(fit2, coef=&quot;MuvsWtinC&quot;)
+MuvsWtinT3=topTable(fit2, coef=&quot;MuvsWtinT&quot;)
+TvsCinWT3=topTable(fit2, coef=&quot;TvsCinWT&quot;)
+TvsCinMu3=topTable(fit2, coef=&quot;TvsCinMu&quot;)
+diff3=topTable(fit2, coef=&quot;Diff&quot;)
+
+all.equal(TvsCinWT2,TvsCinWT3)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(TvsCinMu2,TvsCinMu3)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(diff1,diff3)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(MuvsWtinC1,MuvsWtinC3)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(MuvsWtinT1,MuvsWtinT3)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+</div>
+</div>
+<div id="make-functions" class="section level1">
+<h1>Make functions</h1>
+<pre class="r"><code>rawDataTable=y
+colnames(rawDataTable)=paste0(&quot;Sample&quot;,1:10)
+
+performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
+
+  factorNames=as.character(unique(factorTable[,2]))
+  designTable=matrix(0,nrow=ncol(rawDataTable),ncol=length(factorNames))
+  row.names(designTable)=colnames(rawDataTable)
+  colnames(designTable)=factorNames
+
+  designTable[as.matrix(factorTable)]=1
+  designTable
+  designTable=cbind(Intercept=1,designTable)
+
+#addInteractionTerm=T
+#if (addInteractionTerm) {
+#  
+#}
+
+  if (is.null(contrastsText)) {
+    contrastsText=c(colnames(designTable)[-1])
+  }
+  
+  fit &lt;- lmFit(rawDataTable, designTable)
+  contrast.matrix &lt;- makeContrasts(contrasts=contrastsText, levels=designTable)
+  fit2 &lt;- contrasts.fit(fit, contrast.matrix)
+  fit2 &lt;- eBayes(fit2)
+  return(fit2)
+}</code></pre>
+<div id="one-factor-three-groups-1" class="section level2">
+<h2>One Factor: Three Groups</h2>
+<pre class="r"><code>factorTable=data.frame(Factor1=c(&quot;Sample4&quot;,&quot;Sample5&quot;,&quot;Sample6&quot;,&quot;Sample7&quot;,&quot;Sample8&quot;,&quot;Sample9&quot;,&quot;Sample10&quot;),Factor2=c(&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatG&quot;,&quot;TreatG&quot;,&quot;TreatG&quot;,&quot;TreatG&quot;),stringsAsFactors = FALSE)
+factorTable</code></pre>
+<pre><code>##    Factor1 Factor2
+## 1  Sample4  TreatT
+## 2  Sample5  TreatT
+## 3  Sample6  TreatT
+## 4  Sample7  TreatG
+## 5  Sample8  TreatG
+## 6  Sample9  TreatG
+## 7 Sample10  TreatG</code></pre>
+<pre class="r"><code>fit3=performLimma(rawDataTable,factorTable) 
+TreatT3=topTable(fit3, coef=&quot;TreatT&quot;)
+TreatG3=topTable(fit3, coef=&quot;TreatG&quot;)
+
+all.equal(TreatT1,TreatT3) #True</code></pre>
+<pre><code>## [1] &quot;Attributes: &lt; Component \&quot;row.names\&quot;: 8 string mismatches &gt;&quot;
+## [2] &quot;Component \&quot;logFC\&quot;: Mean relative difference: 1.502298&quot;     
+## [3] &quot;Component \&quot;AveExpr\&quot;: Mean relative difference: 1.539823&quot;   
+## [4] &quot;Component \&quot;t\&quot;: Mean relative difference: 1.317899&quot;         
+## [5] &quot;Component \&quot;P.Value\&quot;: Mean relative difference: 0.546924&quot;   
+## [6] &quot;Component \&quot;adj.P.Val\&quot;: Mean relative difference: 0.6279015&quot;
+## [7] &quot;Component \&quot;B\&quot;: Mean relative difference: 0.5296643&quot;</code></pre>
+<pre class="r"><code>all.equal(TreatG1,TreatG3) #True</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="two-factors-paired-data-1" class="section level2">
+<h2>Two Factors: Paired Data</h2>
+<pre class="r"><code>factorTable=data.frame(Factor1=c(&quot;Sample4&quot;,&quot;Sample5&quot;,&quot;Sample6&quot;,&quot;Sample9&quot;,&quot;Sample10&quot;,&quot;Sample2&quot;,&quot;Sample3&quot;,&quot;Sample5&quot;,&quot;Sample6&quot;,&quot;Sample7&quot;,&quot;Sample8&quot;,&quot;Sample9&quot;,&quot;Sample10&quot;),Factor2=c(&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;PatientB&quot;,&quot;PatientC&quot;,&quot;PatientB&quot;,&quot;PatientC&quot;,&quot;PatientD&quot;,&quot;PatientE&quot;,&quot;PatientD&quot;,&quot;PatientE&quot;),stringsAsFactors = FALSE)
+factorTable</code></pre>
+<pre><code>##     Factor1  Factor2
+## 1   Sample4   TreatT
+## 2   Sample5   TreatT
+## 3   Sample6   TreatT
+## 4   Sample9   TreatT
+## 5  Sample10   TreatT
+## 6   Sample2 PatientB
+## 7   Sample3 PatientC
+## 8   Sample5 PatientB
+## 9   Sample6 PatientC
+## 10  Sample7 PatientD
+## 11  Sample8 PatientE
+## 12  Sample9 PatientD
+## 13 Sample10 PatientE</code></pre>
+<pre class="r"><code>fit3=performLimma(rawDataTable,factorTable) 
+TreatT3=topTable(fit3, coef=&quot;TreatT&quot;)
+
+all.equal(TreatT2,TreatT3) #True</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="two-factors-treatmentmutation-1" class="section level2">
+<h2>Two Factors: Treatment+Mutation</h2>
+<pre class="r"><code>factorTable=data.frame(Factor1=c(&quot;Sample4&quot;,&quot;Sample5&quot;,&quot;Sample6&quot;,&quot;Sample9&quot;,&quot;Sample10&quot;,&quot;Sample1&quot;,&quot;Sample2&quot;,&quot;Sample3&quot;,&quot;Sample4&quot;,&quot;Sample5&quot;,&quot;Sample6&quot;),Factor2=c(&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;TreatT&quot;,&quot;MutationMut&quot;,&quot;MutationMut&quot;,&quot;MutationMut&quot;,&quot;MutationMut&quot;,&quot;MutationMut&quot;,&quot;MutationMut&quot;),stringsAsFactors = FALSE)
+factorTable</code></pre>
+<pre><code>##     Factor1     Factor2
+## 1   Sample4      TreatT
+## 2   Sample5      TreatT
+## 3   Sample6      TreatT
+## 4   Sample9      TreatT
+## 5  Sample10      TreatT
+## 6   Sample1 MutationMut
+## 7   Sample2 MutationMut
+## 8   Sample3 MutationMut
+## 9   Sample4 MutationMut
+## 10  Sample5 MutationMut
+## 11  Sample6 MutationMut</code></pre>
+<pre class="r"><code>fit3=performLimma(rawDataTable,factorTable) 
+TreatTC3=topTable(fit3, coef=&quot;TreatT&quot;)
+MutationMut3=topTable(fit3, coef=&quot;MutationMut&quot;)
+
+all.equal(TreatTC2,TreatTC3) #True</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>all.equal(MutationMut2,MutationMut3) #True</code></pre>
+<pre><code>## [1] TRUE</code></pre>
 </div>
 </div>
 
