@@ -17,6 +17,12 @@ library(tidyverse)
 #library(dplyr)
 ```
 
+#readr package
+
+## read_tsv, read_csv, read_delim
+
+
+
 # Functions
 
 ## mutate: Make new variable
@@ -128,6 +134,7 @@ separate_rows(df, y, z, convert = TRUE)
 
 ```
 
-
+# purrr package
+## reduce: combines the elements of a vector into a single value
 
 
