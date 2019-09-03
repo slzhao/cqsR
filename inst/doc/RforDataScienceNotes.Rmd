@@ -13,8 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 https://r4ds.had.co.nz/
 
 ```{r}
-#library(tidyverse)
-library(dplyr)
+library(tidyverse)
+#library(dplyr)
 ```
 
 # Functions
@@ -49,6 +49,7 @@ stocks <- tibble(
   Y = rnorm(10, 0, 2),
   Z = rnorm(10, 0, 4)
 )
+head(stocks)
 
 #use everything except "time" as values. "stock" and "price" as new variable names for key and value
 gather(stocks, "stock", "price", -time)
@@ -63,6 +64,18 @@ head(stocksm)
 stocksm %>% spread(stock, price)
 stocksm %>% spread(time, price)
 
+
+#If duplicate row identifiers and want to keep all of them
+#https://github.com/tidyverse/tidyr/issues/426
+#https://www.r-bloggers.com/workaround-for-tidyrspread-with-duplicate-row-identifiers/
+df=tibble(age=c(21,17,32,38,35),gender=c("Male","Female","Female","Male","Male"))
+df <- df %>% 
+  group_by(gender) %>% 
+  mutate(grouped_id = row_number())
+df
+df %>% 
+  spread(gender, age) %>% 
+  select(-grouped_id)
 ```
 
 ## separate: pulls apart one column into multiple columns, by splitting wherever a separator character appears

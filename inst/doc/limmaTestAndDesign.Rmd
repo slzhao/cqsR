@@ -319,8 +319,7 @@ all.equal(MuvsWtinT1,MuvsWtinT3)
 rawDataTable=y
 colnames(rawDataTable)=paste0("Sample",1:10)
 
-performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
-
+makeDesignTable=function(rawDataTable,factorTable) {
   factorNames=as.character(unique(factorTable[,2]))
   designTable=matrix(0,nrow=ncol(rawDataTable),ncol=length(factorNames))
   row.names(designTable)=colnames(rawDataTable)
@@ -329,11 +328,12 @@ performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
   designTable[as.matrix(factorTable)]=1
   designTable
   designTable=cbind(Intercept=1,designTable)
+  return(designTable)
+}
 
-#addInteractionTerm=T
-#if (addInteractionTerm) {
-#  
-#}
+
+performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
+  designTable=makeDesignTable(rawDataTable,factorTable)
 
   if (is.null(contrastsText)) {
     contrastsText=c(colnames(designTable)[-1])
@@ -390,4 +390,77 @@ all.equal(TreatTC2,TreatTC3) #True
 all.equal(MutationMut2,MutationMut3) #True
 
 ```
+
+
+# Perform limma Pipeline
+```{r}
+#Data prepare. For test, Should NOT in pipeline
+library(reshape2)
+
+setwd("D:/OneDriveWork/OneDriveVanderbilt/work/AnthonyDaniels/20190509_proteomicsReDo")
+proteinExpression=readRDS("20190827_withMatchedNormalProteinExpression.rds")
+
+dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
+
+
+
+designTable=makeDesignTable(rawDataTable,factorTable)
+
+
+
+
+
+
+dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
+dataForPlot=data.frame(dataForPlot[-which(is.na(dataForPlot$pID)),])
+row.names(dataForPlot)=dataForPlot$pID
+dataForPlot=dataForPlot[,-1]
+boxplot(dataForPlot,las=2)
+
+qua.norm<-function(pep) {
+	require(affy)
+	require(preprocessCore)
+	pep.qua<-normalize.quantiles(as.matrix(pep))
+	row.names(pep.qua)<-row.names(pep)
+	colnames(pep.qua)<-colnames(pep)
+	return (as.data.frame(pep.qua))
+}
+dataForPlot=qua.norm(dataForPlot)
+
+
+#Read and format data
+
+
+
+#Normlization and boxplot before and after
+
+
+#heatmap and PCA
+library(ComplexHeatmap)
+
+temp=sampleGroups[colnames(proteinExpressionFormatedFiltered),c("GNAQ mutant","GNA11 mutant","BAP1 mutant","EIF1AX mutant","SF3B1 mutant","Negative3","Groups3","PreOrPost","TTC28","DLK2","KTN1")]
+temp=as.data.frame(temp)
+for (i in 1:ncol(temp)) {
+    temp[[i]]=as.character(temp[[i]])
+}
+ha = HeatmapAnnotation(df=temp)
+
+ht = Heatmap(proteinExpressionFormatedFiltered,cluster_rows=FALSE,top_annotation =ha,row_names_gp = gpar(fontsize = 6))
+print(ht)
+
+
+
+#For each comprasion
+##perform limma
+
+
+##Output differential genes table
+
+##Output formated files for WebGesnet, GSEA, KEGGprofile
+
+
+
+```
+
+
 
