@@ -399,8 +399,13 @@ library(reshape2)
 
 setwd("D:/OneDriveWork/OneDriveVanderbilt/work/AnthonyDaniels/20190509_proteomicsReDo")
 proteinExpression=readRDS("20190827_withMatchedNormalProteinExpression.rds")
+proteinExpression  %>% spread(Sample, nLog2)
 
-dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
+#oder by abs value of rev(nLog2) so that distinct will keep the first (largest) row
+#temp=abs(proteinExpression$nLog2)
+#proteinExpression[rev(order(temp))[1:20],] %>% distinct(pID,Sample, .keep_all = TRUE) %>% spread(Sample, nLog2)
+
+#dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
 
 
 
