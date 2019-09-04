@@ -96,8 +96,12 @@ design <- model.matrix(~Treat)
 design
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
-TreatT1=topTable(fit, coef="TreatT")
-TreatG1=topTable(fit, coef="TreatG")
+TreatThreeT1=topTable(fit, coef="TreatT")
+TreatThreeG1=topTable(fit, coef="TreatG")
+contrast.matrix <- makeContrasts(TreatGT=TreatG-TreatT, levels=design)
+fit2 <- contrasts.fit(fit, contrast.matrix)
+fit2 <- eBayes(fit2)
+TreatThreeGT1=topTable(fit2, coef="TreatGT")
 
 #Method 2
 design <- model.matrix(~0+Treat)
@@ -106,12 +110,13 @@ fit <- lmFit(y, design)
 contrast.matrix <- makeContrasts(TreatTC=TreatT-TreatC,TreatGC=TreatG-TreatC,TreatGT=TreatG-TreatT, levels=design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-TreatT2=topTable(fit2, coef="TreatTC")
-TreatG2=topTable(fit2, coef="TreatGC")
-TreatGT2=topTable(fit2, coef="TreatGT")
+TreatThreeT2=topTable(fit2, coef="TreatTC")
+TreatThreeG2=topTable(fit2, coef="TreatGC")
+TreatThreeGT2=topTable(fit2, coef="TreatGT")
 
-all.equal(TreatT1,TreatT2) #TRUE
-all.equal(TreatG1,TreatG2) #TRUE
+all.equal(TreatThreeT1,TreatThreeT2) #TRUE
+all.equal(TreatThreeG1,TreatThreeG2) #TRUE
+all.equal(TreatThreeGT1,TreatThreeGT2) #TRUE
 
 
 ```
@@ -207,9 +212,6 @@ Mutation2Mut2=topTable(fit2, coef="Mutation2Mut")
 
 all.equal(Mutation1Mut1,Mutation1Mut2) #TRUE
 all.equal(Mutation2Mut1,Mutation2Mut2) #TRUE
-
-
-
 
 
 ```
@@ -355,11 +357,11 @@ factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample7","Sample
 factorTable
 
 fit3=performLimma(rawDataTable,factorTable) 
-TreatT3=topTable(fit3, coef="TreatT")
-TreatG3=topTable(fit3, coef="TreatG")
+TreatThreeT3=topTable(fit3, coef="TreatT")
+TreatThreeG3=topTable(fit3, coef="TreatG")
 
-all.equal(TreatT1,TreatT3) #True
-all.equal(TreatG1,TreatG3) #True
+all.equal(TreatThreeT1,TreatThreeT3) #True
+all.equal(TreatThreeG1,TreatThreeG3) #True
 
 ```
 
@@ -393,20 +395,44 @@ all.equal(MutationMut2,MutationMut3) #True
 
 
 # Perform limma Pipeline
-```{r}
+```{r,eval=FALSE}
+########################################################
 #Data prepare. For test, Should NOT in pipeline
-library(reshape2)
+########################################################
+#library(reshape2)
+library(tidyverse)
 
 setwd("D:/OneDriveWork/OneDriveVanderbilt/work/AnthonyDaniels/20190509_proteomicsReDo")
 proteinExpression=readRDS("20190827_withMatchedNormalProteinExpression.rds")
-proteinExpression  %>% spread(Sample, nLog2)
 
-#oder by abs value of rev(nLog2) so that distinct will keep the first (largest) row
-#temp=abs(proteinExpression$nLog2)
-#proteinExpression[rev(order(temp))[1:20],] %>% distinct(pID,Sample, .keep_all = TRUE) %>% spread(Sample, nLog2)
+#rawData=proteinExpression  %>% spread(Sample, nLog2)
+#order by abs value of rev(nLog2) so that distinct will keep the first (largest) row
+temp=abs(proteinExpression$nLog2)
+rawData=proteinExpression[rev(order(temp)),] %>% distinct(pID,Sample, .keep_all = TRUE) %>% spread(Sample, nLog2)
+rawData=rawData %>% distinct(pID, .keep_all = TRUE) #remove duplicate pID, most are error
+
+row.names(rawData)=rawData[,1]
+rawData=rawData[,-1]
+
 
 #dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
 
+factorTable=data.frame(Factor1=c("T18","T27","T41","T27","T27_choroid","T41","T41_choroid"),Factor2=c("Tumor","Tumor","Tumor","T27","T27","T41","T41"),stringsAsFactors = FALSE)
+factorTable
+
+
+########################################################
+#Read and format data
+########################################################
+colClass<-sapply(rawData, class)
+countNotNumIndex<-which((colClass!="numeric" & colClass!="integer") | grepl("Gene_Id", colnames(rawData)))
+if (length(countNotNumIndex)==0) {
+    rawDataTable=rawData
+    rawDataAnnotation=NULL
+} else {
+    rawDataTable=rawData[,c(max(countNotNumIndex)+1):ncol(rawData),drop=FALSE]
+    rawDataAnnotation=rawData[,c(1:max(countNotNumIndex)),drop=FALSE]
+}
 
 
 designTable=makeDesignTable(rawDataTable,factorTable)
@@ -431,10 +457,6 @@ qua.norm<-function(pep) {
 	return (as.data.frame(pep.qua))
 }
 dataForPlot=qua.norm(dataForPlot)
-
-
-#Read and format data
-
 
 
 #Normlization and boxplot before and after

@@ -885,8 +885,7 @@ all.equal(TvsCinWT2,TvsCinWT3)</code></pre>
 <pre class="r"><code>rawDataTable=y
 colnames(rawDataTable)=paste0(&quot;Sample&quot;,1:10)
 
-performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
-
+makeDesignTable=function(rawDataTable,factorTable) {
   factorNames=as.character(unique(factorTable[,2]))
   designTable=matrix(0,nrow=ncol(rawDataTable),ncol=length(factorNames))
   row.names(designTable)=colnames(rawDataTable)
@@ -895,11 +894,12 @@ performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
   designTable[as.matrix(factorTable)]=1
   designTable
   designTable=cbind(Intercept=1,designTable)
+  return(designTable)
+}
 
-#addInteractionTerm=T
-#if (addInteractionTerm) {
-#  
-#}
+
+performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
+  designTable=makeDesignTable(rawDataTable,factorTable)
 
   if (is.null(contrastsText)) {
     contrastsText=c(colnames(designTable)[-1])
@@ -929,12 +929,12 @@ TreatG3=topTable(fit3, coef=&quot;TreatG&quot;)
 
 all.equal(TreatT1,TreatT3) #True</code></pre>
 <pre><code>## [1] &quot;Attributes: &lt; Component \&quot;row.names\&quot;: 8 string mismatches &gt;&quot;
-## [2] &quot;Component \&quot;logFC\&quot;: Mean relative difference: 1.502298&quot;     
-## [3] &quot;Component \&quot;AveExpr\&quot;: Mean relative difference: 1.539823&quot;   
-## [4] &quot;Component \&quot;t\&quot;: Mean relative difference: 1.317899&quot;         
-## [5] &quot;Component \&quot;P.Value\&quot;: Mean relative difference: 0.546924&quot;   
-## [6] &quot;Component \&quot;adj.P.Val\&quot;: Mean relative difference: 0.6279015&quot;
-## [7] &quot;Component \&quot;B\&quot;: Mean relative difference: 0.5296643&quot;</code></pre>
+## [2] &quot;Component \&quot;logFC\&quot;: Mean relative difference: 0.7961212&quot;    
+## [3] &quot;Component \&quot;AveExpr\&quot;: Mean relative difference: 1.473446&quot;   
+## [4] &quot;Component \&quot;t\&quot;: Mean relative difference: 0.6839478&quot;        
+## [5] &quot;Component \&quot;P.Value\&quot;: Mean relative difference: 0.5079366&quot;  
+## [6] &quot;Component \&quot;adj.P.Val\&quot;: Mean relative difference: 0.5433669&quot;
+## [7] &quot;Component \&quot;B\&quot;: Mean relative difference: 0.3769397&quot;</code></pre>
 <pre class="r"><code>all.equal(TreatG1,TreatG3) #True</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 </div>
@@ -987,6 +987,94 @@ all.equal(TreatTC2,TreatTC3) #True</code></pre>
 <pre class="r"><code>all.equal(MutationMut2,MutationMut3) #True</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 </div>
+</div>
+<div id="perform-limma-pipeline" class="section level1">
+<h1>Perform limma Pipeline</h1>
+<pre class="r"><code>########################################################
+#Data prepare. For test, Should NOT in pipeline
+########################################################
+#library(reshape2)
+library(tidyverse)
+
+setwd(&quot;D:/OneDriveWork/OneDriveVanderbilt/work/AnthonyDaniels/20190509_proteomicsReDo&quot;)
+proteinExpression=readRDS(&quot;20190827_withMatchedNormalProteinExpression.rds&quot;)
+rawData=proteinExpression  %&gt;% spread(Sample, nLog2)
+
+#oder by abs value of rev(nLog2) so that distinct will keep the first (largest) row
+#temp=abs(proteinExpression$nLog2)
+#proteinExpression[rev(order(temp))[1:20],] %&gt;% distinct(pID,Sample, .keep_all = TRUE) %&gt;% spread(Sample, nLog2)
+
+#dataForPlot=dcast(proteinExpression,pID~Sample,value.var=&quot;nLog2&quot;,fun.aggregate=mean)
+
+factorTable=data.frame(Factor1=c(&quot;T18&quot;,&quot;T27&quot;,&quot;T41&quot;,&quot;T27&quot;,&quot;T27_choroid&quot;,&quot;T41&quot;,&quot;T41_choroid&quot;),Factor2=c(&quot;Tumor&quot;,&quot;Tumor&quot;,&quot;Tumor&quot;,&quot;T27&quot;,&quot;T27&quot;,&quot;T41&quot;,&quot;T41&quot;),stringsAsFactors = FALSE)
+factorTable
+
+
+########################################################
+#Read and format data
+########################################################
+
+    colClass&lt;-sapply(rawData, class)
+    countNotNumIndex&lt;-which((colClass!=&quot;numeric&quot; &amp; colClass!=&quot;integer&quot;) | grepl(&quot;Gene_Id&quot;, colnames(data)))
+    if (length(countNotNumIndex)==0) {
+        index&lt;-1;
+        indecies&lt;-c()
+    } else {
+        index&lt;-max(countNotNumIndex)+1
+        indecies&lt;-c(1:(index-1))
+    }
+
+
+rawDataTable=1
+designTable=makeDesignTable(rawData,factorTable)
+
+
+
+
+
+
+dataForPlot=dcast(proteinExpression,pID~Sample,value.var=&quot;nLog2&quot;,fun.aggregate=mean)
+dataForPlot=data.frame(dataForPlot[-which(is.na(dataForPlot$pID)),])
+row.names(dataForPlot)=dataForPlot$pID
+dataForPlot=dataForPlot[,-1]
+boxplot(dataForPlot,las=2)
+
+qua.norm&lt;-function(pep) {
+    require(affy)
+    require(preprocessCore)
+    pep.qua&lt;-normalize.quantiles(as.matrix(pep))
+    row.names(pep.qua)&lt;-row.names(pep)
+    colnames(pep.qua)&lt;-colnames(pep)
+    return (as.data.frame(pep.qua))
+}
+dataForPlot=qua.norm(dataForPlot)
+
+
+#Normlization and boxplot before and after
+
+
+#heatmap and PCA
+library(ComplexHeatmap)
+
+temp=sampleGroups[colnames(proteinExpressionFormatedFiltered),c(&quot;GNAQ mutant&quot;,&quot;GNA11 mutant&quot;,&quot;BAP1 mutant&quot;,&quot;EIF1AX mutant&quot;,&quot;SF3B1 mutant&quot;,&quot;Negative3&quot;,&quot;Groups3&quot;,&quot;PreOrPost&quot;,&quot;TTC28&quot;,&quot;DLK2&quot;,&quot;KTN1&quot;)]
+temp=as.data.frame(temp)
+for (i in 1:ncol(temp)) {
+    temp[[i]]=as.character(temp[[i]])
+}
+ha = HeatmapAnnotation(df=temp)
+
+ht = Heatmap(proteinExpressionFormatedFiltered,cluster_rows=FALSE,top_annotation =ha,row_names_gp = gpar(fontsize = 6))
+print(ht)
+
+
+
+#For each comprasion
+##perform limma
+
+
+##Output differential genes table
+
+##Output formated files for WebGesnet, GSEA, KEGGprofile</code></pre>
 </div>
 
 
