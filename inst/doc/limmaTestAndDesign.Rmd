@@ -19,168 +19,156 @@ library(limma)
 Method 1
 ```{r}
 #####################################
-#Two groups
+# Two groups
 #####################################
 
-design <- cbind(WT=1,MUvsWT=c(0,0,1,1,1))
+design <- cbind(WT = 1, MUvsWT = c(0, 0, 1, 1, 1))
 design
-#Or by
-Group=factor(c(0,0,1,1,1))
+# Or by
+Group <- factor(c(0, 0, 1, 1, 1))
 design <- model.matrix(~Group)
-colnames(design) <- c("WT","MUvsWT")
+colnames(design) <- c("WT", "MUvsWT")
 design
 
-#fit <- lmFit(eset, design)
-#fit <- eBayes(fit)
-#topTable(fit, coef="MUvsWT", adjust="BH")
-
-
+# fit <- lmFit(eset, design)
+# fit <- eBayes(fit)
+# topTable(fit, coef="MUvsWT", adjust="BH")
 ```
 
 Method 2
 ```{r}
 #####################################
-#Two groups
+# Two groups
 #####################################
 
-design <- cbind(WT=c(1,1,0,0,0),MU=c(0,0,1,1,1))
+design <- cbind(WT = c(1, 1, 0, 0, 0), MU = c(0, 0, 1, 1, 1))
 design
-#Or By
-design <- model.matrix(~0+Group)
-colnames(design) <- c("WT","MU")
+# Or By
+design <- model.matrix(~ 0 + Group)
+colnames(design) <- c("WT", "MU")
 design
 
-cont.matrix <- makeContrasts(MUvsWT=MU-WT, levels=design)
+cont.matrix <- makeContrasts(MUvsWT = MU - WT, levels = design)
 cont.matrix
-#fit <- lmFit(eset, design)
-#fit2 <- contrasts.fit(fit, cont.matrix)
-#fit2 <- eBayes(fit2)
-#topTable(fit2, adjust="BH")
+# fit <- lmFit(eset, design)
+# fit2 <- contrasts.fit(fit, cont.matrix)
+# fit2 <- eBayes(fit2)
+# topTable(fit2, adjust="BH")
 
 #####################################
-#Three groups
+# Three groups
 #####################################
 
-targets=c("RNA1","RNA1","RNA2","RNA2","RNA3","RNA3")
-f <- factor(targets, levels=c("RNA1","RNA2","RNA3"))
-design <- model.matrix(~0+f)
-colnames(design) <- c("RNA1","RNA2","RNA3")
+targets <- c("RNA1", "RNA1", "RNA2", "RNA2", "RNA3", "RNA3")
+f <- factor(targets, levels = c("RNA1", "RNA2", "RNA3"))
+design <- model.matrix(~ 0 + f)
+colnames(design) <- c("RNA1", "RNA2", "RNA3")
 design
 
-contrast.matrix <- makeContrasts(RNA2-RNA1, RNA3-RNA2, RNA3-RNA1,levels=design)
+contrast.matrix <- makeContrasts(RNA2 - RNA1, RNA3 - RNA2, RNA3 - RNA1, levels = design)
 contrast.matrix
 
-#fit <- lmFit(eset, design)
-#fit2 <- contrasts.fit(fit, contrast.matrix)
-#fit2 <- eBayes(fit2)
-#topTable(fit2, coef=1, adjust="BH")
-
+# fit <- lmFit(eset, design)
+# fit2 <- contrasts.fit(fit, contrast.matrix)
+# fit2 <- eBayes(fit2)
+# topTable(fit2, coef=1, adjust="BH")
 ```
 
 
 # Examples with Data
 
 ```{r}
-sd <- 0.3*sqrt(4/rchisq(100,df=4))
-y <- matrix(rnorm(100*10,sd=sd),100,10)
-rownames(y) <- paste("Gene",1:100)
-y[1:2,4:6] <- y[1:2,4:6] + 2
+sd <- 0.3 * sqrt(4 / rchisq(100, df = 4))
+y <- matrix(rnorm(100 * 10, sd = sd), 100, 10)
+rownames(y) <- paste("Gene", 1:100)
+y[1:2, 4:6] <- y[1:2, 4:6] + 2
 ```
 
 ## One Factor: Three Groups
 
 ```{r}
-#Method 1
-Treat <- factor(c("C","C","C","T","T","T","G","G","G","G"), levels=c("C","T","G"))
+# Method 1
+Treat <- factor(c("C", "C", "C", "T", "T", "T", "G", "G", "G", "G"), levels = c("C", "T", "G"))
 design <- model.matrix(~Treat)
 design
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
-TreatThreeT1=topTable(fit, coef="TreatT")
-TreatThreeG1=topTable(fit, coef="TreatG")
-contrast.matrix <- makeContrasts(TreatGT=TreatG-TreatT, levels=design)
+TreatThreeT1 <- topTable(fit, coef = "TreatT")
+TreatThreeG1 <- topTable(fit, coef = "TreatG")
+contrast.matrix <- makeContrasts(TreatGT = TreatG - TreatT, levels = design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-TreatThreeGT1=topTable(fit2, coef="TreatGT")
+TreatThreeGT1 <- topTable(fit2, coef = "TreatGT")
 
-#Method 2
-design <- model.matrix(~0+Treat)
+# Method 2
+design <- model.matrix(~ 0 + Treat)
 design
 fit <- lmFit(y, design)
-contrast.matrix <- makeContrasts(TreatTC=TreatT-TreatC,TreatGC=TreatG-TreatC,TreatGT=TreatG-TreatT, levels=design)
+contrast.matrix <- makeContrasts(TreatTC = TreatT - TreatC, TreatGC = TreatG - TreatC, TreatGT = TreatG - TreatT, levels = design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-TreatThreeT2=topTable(fit2, coef="TreatTC")
-TreatThreeG2=topTable(fit2, coef="TreatGC")
-TreatThreeGT2=topTable(fit2, coef="TreatGT")
+TreatThreeT2 <- topTable(fit2, coef = "TreatTC")
+TreatThreeG2 <- topTable(fit2, coef = "TreatGC")
+TreatThreeGT2 <- topTable(fit2, coef = "TreatGT")
 
-all.equal(TreatThreeT1,TreatThreeT2) #TRUE
-all.equal(TreatThreeG1,TreatThreeG2) #TRUE
-all.equal(TreatThreeGT1,TreatThreeGT2) #TRUE
-
-
+all.equal(TreatThreeT1, TreatThreeT2) # TRUE
+all.equal(TreatThreeG1, TreatThreeG2) # TRUE
+all.equal(TreatThreeGT1, TreatThreeGT2) # TRUE
 ```
 
 
 ## Two Factors: Paired Data
 
 ```{r}
-#Method 1
-Treat <- factor(c("C","C","C","T","T","T","C","C","T","T"), levels=c("C","T"))
-Patient <- factor(c("A","B","C","A","B","C","D","E","D","E"), levels=c("A","B","C","D","E"))
-design <- model.matrix(~Treat+Patient)
+# Method 1
+Treat <- factor(c("C", "C", "C", "T", "T", "T", "C", "C", "T", "T"), levels = c("C", "T"))
+Patient <- factor(c("A", "B", "C", "A", "B", "C", "D", "E", "D", "E"), levels = c("A", "B", "C", "D", "E"))
+design <- model.matrix(~ Treat + Patient)
 design
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
-TreatT1=topTable(fit, coef="TreatT")
+TreatT1 <- topTable(fit, coef = "TreatT")
 
-#Method 2
-design <- model.matrix(~0+Treat+Patient)
+# Method 2
+design <- model.matrix(~ 0 + Treat + Patient)
 design
 fit <- lmFit(y, design)
-contrast.matrix <- makeContrasts(TreatTC=TreatT-TreatC, levels=design)
+contrast.matrix <- makeContrasts(TreatTC = TreatT - TreatC, levels = design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-TreatT2=topTable(fit2, coef="TreatTC")
+TreatT2 <- topTable(fit2, coef = "TreatTC")
 
-all.equal(TreatT1,TreatT2) #TRUE
-
-
+all.equal(TreatT1, TreatT2) # TRUE
 ```
 
 ## Two Factors: Treatment+Mutation
 
 ```{r}
 ########################################
-#Two Factors
+# Two Factors
 ########################################
-#Method 1
-Treat <- factor(c("C","C","C","T","T","T","C","C","T","T"), levels=c("C","T"))
-Mutation <- factor(c("Mut","Mut","Mut","Mut","Mut","Mut","WT","WT","WT","WT"), levels=c("WT","Mut"))
-design <- model.matrix(~Treat+Mutation)
+# Method 1
+Treat <- factor(c("C", "C", "C", "T", "T", "T", "C", "C", "T", "T"), levels = c("C", "T"))
+Mutation <- factor(c("Mut", "Mut", "Mut", "Mut", "Mut", "Mut", "WT", "WT", "WT", "WT"), levels = c("WT", "Mut"))
+design <- model.matrix(~ Treat + Mutation)
 design
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
-MutationMut1=topTable(fit, coef="MutationMut")
-TreatTC1=topTable(fit, coef="TreatT")
+MutationMut1 <- topTable(fit, coef = "MutationMut")
+TreatTC1 <- topTable(fit, coef = "TreatT")
 
-#Method 2
-design <- model.matrix(~0+Treat+Mutation)
+# Method 2
+design <- model.matrix(~ 0 + Treat + Mutation)
 design
 fit <- lmFit(y, design)
-contrast.matrix <- makeContrasts(MutationMutWT=MutationMut,TreatTC=TreatT-TreatC, levels=design)
+contrast.matrix <- makeContrasts(MutationMutWT = MutationMut, TreatTC = TreatT - TreatC, levels = design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-MutationMut2=topTable(fit2, coef="MutationMutWT")
-TreatTC2=topTable(fit2, coef="TreatTC")
+MutationMut2 <- topTable(fit2, coef = "MutationMutWT")
+TreatTC2 <- topTable(fit2, coef = "TreatTC")
 
-all.equal(TreatTC1,TreatTC2) #TRUE
-all.equal(MutationMut1,MutationMut2) #TRUE
-
-
-
-
-
+all.equal(TreatTC1, TreatTC2) # TRUE
+all.equal(MutationMut1, MutationMut2) # TRUE
 ```
 
 
@@ -188,32 +176,30 @@ all.equal(MutationMut1,MutationMut2) #TRUE
 
 ```{r}
 ########################################
-#Two Factors
+# Two Factors
 ########################################
-#Method 1
-Mutation1 <- factor(c("WT","WT","WT","Mut","Mut","Mut","WT","WT","WT","WT"), levels=c("WT","Mut"))
-Mutation2 <- factor(c("Mut","Mut","Mut","Mut","Mut","Mut","WT","WT","WT","WT"), levels=c("WT","Mut"))
-design <- model.matrix(~Mutation1+Mutation2)
+# Method 1
+Mutation1 <- factor(c("WT", "WT", "WT", "Mut", "Mut", "Mut", "WT", "WT", "WT", "WT"), levels = c("WT", "Mut"))
+Mutation2 <- factor(c("Mut", "Mut", "Mut", "Mut", "Mut", "Mut", "WT", "WT", "WT", "WT"), levels = c("WT", "Mut"))
+design <- model.matrix(~ Mutation1 + Mutation2)
 design
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
-Mutation1Mut1=topTable(fit, coef="Mutation1Mut")
-Mutation2Mut1=topTable(fit, coef="Mutation2Mut")
+Mutation1Mut1 <- topTable(fit, coef = "Mutation1Mut")
+Mutation2Mut1 <- topTable(fit, coef = "Mutation2Mut")
 
-#Method 2
-design <- model.matrix(~0+Mutation1+Mutation2)
+# Method 2
+design <- model.matrix(~ 0 + Mutation1 + Mutation2)
 design
 fit <- lmFit(y, design)
-contrast.matrix <- makeContrasts(Mutation1Mut=Mutation1Mut-Mutation1WT,Mutation2Mut=Mutation2Mut, levels=design)
+contrast.matrix <- makeContrasts(Mutation1Mut = Mutation1Mut - Mutation1WT, Mutation2Mut = Mutation2Mut, levels = design)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-Mutation1Mut2=topTable(fit2, coef="Mutation1Mut")
-Mutation2Mut2=topTable(fit2, coef="Mutation2Mut")
+Mutation1Mut2 <- topTable(fit2, coef = "Mutation1Mut")
+Mutation2Mut2 <- topTable(fit2, coef = "Mutation2Mut")
 
-all.equal(Mutation1Mut1,Mutation1Mut2) #TRUE
-all.equal(Mutation2Mut1,Mutation2Mut2) #TRUE
-
-
+all.equal(Mutation1Mut1, Mutation1Mut2) # TRUE
+all.equal(Mutation2Mut1, Mutation2Mut2) # TRUE
 ```
 
 ## With Interactions: 
@@ -224,266 +210,194 @@ Similar as usersguide 9.5 Interaction Models: 2 × 2 Factorial Designs. But with
 
 ### Analysing as for a Single Factor
 ```{r}
-TS <- paste(Mutation, Treat, sep=".")
-TS <- factor(TS, levels=c("Mut.C", "Mut.T" ,"WT.C" , "WT.T" ))
+TS <- paste(Mutation, Treat, sep = ".")
+TS <- factor(TS, levels = c("Mut.C", "Mut.T", "WT.C", "WT.T"))
 
-design <- model.matrix(~0+TS)
+design <- model.matrix(~ 0 + TS)
 colnames(design) <- levels(TS)
 design
 
 fit <- lmFit(y, design)
 contrast.matrix <- makeContrasts(
-  TvsCinWT=WT.T-WT.C,
-  TvsCinMu=Mut.T-Mut.C,
-  MuvsWtinC=Mut.C-WT.C,
-  MuvsWtinT=Mut.T-WT.T,
-  Diff=(Mut.T-Mut.C)-(WT.T-WT.C),
-  levels=design)
+  TvsCinWT = WT.T - WT.C,
+  TvsCinMu = Mut.T - Mut.C,
+  MuvsWtinC = Mut.C - WT.C,
+  MuvsWtinT = Mut.T - WT.T,
+  Diff = (Mut.T - Mut.C) - (WT.T - WT.C),
+  levels = design
+)
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
-TvsCinMu1=topTable(fit2, coef="TvsCinMu")
-TvsCinWT1=topTable(fit2, coef="TvsCinWT")
-MuvsWtinC1=topTable(fit2, coef="MuvsWtinC")
-MuvsWtinT1=topTable(fit2, coef="MuvsWtinT")
+TvsCinMu1 <- topTable(fit2, coef = "TvsCinMu")
+TvsCinWT1 <- topTable(fit2, coef = "TvsCinWT")
+MuvsWtinC1 <- topTable(fit2, coef = "MuvsWtinC")
+MuvsWtinT1 <- topTable(fit2, coef = "MuvsWtinT")
 
-diff1=topTable(fit2, coef="Diff")
-
-
+diff1 <- topTable(fit2, coef = "Diff")
 ```
 
 
 ### A Nested Interaction Formula
 
 ```{r}
-#design <- model.matrix(~Mutation+Treat+Mutation:Treat)
-design <- model.matrix(~Mutation+Mutation:Treat)
+# design <- model.matrix(~Mutation+Treat+Mutation:Treat)
+design <- model.matrix(~ Mutation + Mutation:Treat)
 design
 
 fit <- lmFit(y, design)
 fit <- eBayes(fit)
-TvsCinWT2=topTable(fit, coef="MutationWT:TreatT")
-TvsCinMu2=topTable(fit, coef="MutationMut:TreatT")
+TvsCinWT2 <- topTable(fit, coef = "MutationWT:TreatT")
+TvsCinMu2 <- topTable(fit, coef = "MutationMut:TreatT")
 
-all.equal(TvsCinWT1,TvsCinWT2) #TRUE
-all.equal(TvsCinMu1,TvsCinMu2) #TRUE
+all.equal(TvsCinWT1, TvsCinWT2) # TRUE
+all.equal(TvsCinMu1, TvsCinMu2) # TRUE
 
 # we could extract the interaction contrast Diff considered in "Single Factor" part by
-fit2 <- contrasts.fit(fit, c(0,0,-1,1))
+fit2 <- contrasts.fit(fit, c(0, 0, -1, 1))
 fit2 <- eBayes(fit2)
-diff2=topTable(fit2)
+diff2 <- topTable(fit2)
 
-all.equal(diff1,diff2) #TRUE
-
+all.equal(diff1, diff2) # TRUE
 ```
 
 ### Classic Interaction Models
 
 ```{r}
-design <- model.matrix(~Mutation*Treat)
-colnames(design)=gsub(":|\\(|\\)",".",colnames(design))
+design <- model.matrix(~ Mutation * Treat)
+colnames(design) <- gsub(":|\\(|\\)", ".", colnames(design))
 design
 
-#We need to use contrasts to extract all the comparisons of interest, as we are interested in Mu.S-Mu.U but it is not in design
+# We need to use contrasts to extract all the comparisons of interest, as we are interested in Mu.S-Mu.U but it is not in design
 fit <- lmFit(y, design)
-#contrast.matrix <- cbind(TvsCinWT=c(0,0,1,0),TvsCinMu=c(0,0,1,1),Diff=c(0,0,0,1))
+# contrast.matrix <- cbind(TvsCinWT=c(0,0,1,0),TvsCinMu=c(0,0,1,1),Diff=c(0,0,0,1))
 contrast.matrix <- makeContrasts(
-  MuvsWtinC=MutationMut,
-  MuvsWtinT=MutationMut+MutationMut.TreatT,
-  TvsCinWT=TreatT,
-  TvsCinMu=TreatT+MutationMut.TreatT,
-  Diff=MutationMut.TreatT,
-  levels=design)
+  MuvsWtinC = MutationMut,
+  MuvsWtinT = MutationMut + MutationMut.TreatT,
+  TvsCinWT = TreatT,
+  TvsCinMu = TreatT + MutationMut.TreatT,
+  Diff = MutationMut.TreatT,
+  levels = design
+)
 
 fit2 <- contrasts.fit(fit, contrast.matrix)
 fit2 <- eBayes(fit2)
 
-MuvsWtinC3=topTable(fit2, coef="MuvsWtinC")
-MuvsWtinT3=topTable(fit2, coef="MuvsWtinT")
-TvsCinWT3=topTable(fit2, coef="TvsCinWT")
-TvsCinMu3=topTable(fit2, coef="TvsCinMu")
-diff3=topTable(fit2, coef="Diff")
+MuvsWtinC3 <- topTable(fit2, coef = "MuvsWtinC")
+MuvsWtinT3 <- topTable(fit2, coef = "MuvsWtinT")
+TvsCinWT3 <- topTable(fit2, coef = "TvsCinWT")
+TvsCinMu3 <- topTable(fit2, coef = "TvsCinMu")
+diff3 <- topTable(fit2, coef = "Diff")
 
-all.equal(TvsCinWT2,TvsCinWT3)
-all.equal(TvsCinMu2,TvsCinMu3)
-all.equal(diff1,diff3)
+all.equal(TvsCinWT2, TvsCinWT3)
+all.equal(TvsCinMu2, TvsCinMu3)
+all.equal(diff1, diff3)
 
-all.equal(MuvsWtinC1,MuvsWtinC3)
-all.equal(MuvsWtinT1,MuvsWtinT3)
-
-
-
+all.equal(MuvsWtinC1, MuvsWtinC3)
+all.equal(MuvsWtinT1, MuvsWtinT3)
 ```
 
 
 # Make functions
 
 ```{r}
-rawDataTable=y
-colnames(rawDataTable)=paste0("Sample",1:10)
+rawDataTable <- y
+colnames(rawDataTable) <- paste0("Sample", 1:10)
 
-makeDesignTable=function(rawDataTable,factorTable) {
-  factorNames=as.character(unique(factorTable[,2]))
-  designTable=matrix(0,nrow=ncol(rawDataTable),ncol=length(factorNames))
-  row.names(designTable)=colnames(rawDataTable)
-  colnames(designTable)=factorNames
+makeDesignTable <- function(rawDataTable, factorTable,factorInDesign=NULL) {
+  if (is.null(factorInDesign)) {
+    factorInDesign=as.character(unique(factorTable[, 2]))
+  }
+  designTable <- matrix(0, nrow = ncol(rawDataTable), ncol = length(factorInDesign))
+  row.names(designTable) <- colnames(rawDataTable)
+  colnames(designTable) <- factorInDesign
 
-  designTable[as.matrix(factorTable)]=1
+  designTable[as.matrix(factorTable)] <- 1
   designTable
-  designTable=cbind(Intercept=1,designTable)
+  designTable <- cbind(Intercept = 1, designTable)
   return(designTable)
 }
 
 
-performLimma=function(rawDataTable,factorTable,contrastsText=NULL) {
-  designTable=makeDesignTable(rawDataTable,factorTable)
-
+performLimma <- function(rawDataTable, designTable, contrastsText = NULL) {
   if (is.null(contrastsText)) {
-    contrastsText=c(colnames(designTable)[-1])
+    contrastsText <- c(colnames(designTable)[-1])
   }
-  
+
   fit <- lmFit(rawDataTable, designTable)
-  contrast.matrix <- makeContrasts(contrasts=contrastsText, levels=designTable)
+  contrast.matrix <- makeContrasts(contrasts = contrastsText, levels = designTable)
   fit2 <- contrasts.fit(fit, contrast.matrix)
   fit2 <- eBayes(fit2)
   return(fit2)
 }
-
-
 ```
 
 ## One Factor: Three Groups
 ```{r}
-factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample7","Sample8","Sample9","Sample10"),Factor2=c("TreatT","TreatT","TreatT","TreatG","TreatG","TreatG","TreatG"),stringsAsFactors = FALSE)
+factorTable <- data.frame(Factor1 = c("Sample4", "Sample5", "Sample6", "Sample7", "Sample8", "Sample9", "Sample10"), Factor2 = c("TreatT", "TreatT", "TreatT", "TreatG", "TreatG", "TreatG", "TreatG"), stringsAsFactors = FALSE)
 factorTable
 
-fit3=performLimma(rawDataTable,factorTable) 
-TreatThreeT3=topTable(fit3, coef="TreatT")
-TreatThreeG3=topTable(fit3, coef="TreatG")
+designTable <- makeDesignTable(rawDataTable, factorTable)
+fit3 <- performLimma(rawDataTable, designTable)
+TreatThreeT3 <- topTable(fit3, coef = "TreatT")
+TreatThreeG3 <- topTable(fit3, coef = "TreatG")
 
-all.equal(TreatThreeT1,TreatThreeT3) #True
-all.equal(TreatThreeG1,TreatThreeG3) #True
-
+all.equal(TreatThreeT1, TreatThreeT3) # True
+all.equal(TreatThreeG1, TreatThreeG3) # True
 ```
 
 ## Two Factors: Paired Data
 ```{r}
-factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample9","Sample10","Sample2","Sample3","Sample5","Sample6","Sample7","Sample8","Sample9","Sample10"),Factor2=c("TreatT","TreatT","TreatT","TreatT","TreatT","PatientB","PatientC","PatientB","PatientC","PatientD","PatientE","PatientD","PatientE"),stringsAsFactors = FALSE)
+factorTable <- data.frame(Factor1 = c("Sample4", "Sample5", "Sample6", "Sample9", "Sample10", "Sample2", "Sample3", "Sample5", "Sample6", "Sample7", "Sample8", "Sample9", "Sample10"), Factor2 = c("TreatT", "TreatT", "TreatT", "TreatT", "TreatT", "PatientB", "PatientC", "PatientB", "PatientC", "PatientD", "PatientE", "PatientD", "PatientE"), stringsAsFactors = FALSE)
 factorTable
 
-fit3=performLimma(rawDataTable,factorTable) 
-TreatT3=topTable(fit3, coef="TreatT")
+designTable <- makeDesignTable(rawDataTable, factorTable)
+fit3 <- performLimma(rawDataTable, designTable)
+TreatT3 <- topTable(fit3, coef = "TreatT")
 
-all.equal(TreatT2,TreatT3) #True
-
-
+all.equal(TreatT2, TreatT3) # True
 ```
 
 
 ## Two Factors: Treatment+Mutation
 ```{r}
-factorTable=data.frame(Factor1=c("Sample4","Sample5","Sample6","Sample9","Sample10","Sample1","Sample2","Sample3","Sample4","Sample5","Sample6"),Factor2=c("TreatT","TreatT","TreatT","TreatT","TreatT","MutationMut","MutationMut","MutationMut","MutationMut","MutationMut","MutationMut"),stringsAsFactors = FALSE)
+factorTable <- data.frame(Factor1 = c("Sample4", "Sample5", "Sample6", "Sample9", "Sample10", "Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6"), Factor2 = c("TreatT", "TreatT", "TreatT", "TreatT", "TreatT", "MutationMut", "MutationMut", "MutationMut", "MutationMut", "MutationMut", "MutationMut"), stringsAsFactors = FALSE)
 factorTable
 
-fit3=performLimma(rawDataTable,factorTable) 
-TreatTC3=topTable(fit3, coef="TreatT")
-MutationMut3=topTable(fit3, coef="MutationMut")
+designTable <- makeDesignTable(rawDataTable, factorTable)
+fit3 <- performLimma(rawDataTable, designTable)
+TreatTC3 <- topTable(fit3, coef = "TreatT")
+MutationMut3 <- topTable(fit3, coef = "MutationMut")
 
-all.equal(TreatTC2,TreatTC3) #True
-all.equal(MutationMut2,MutationMut3) #True
-
+all.equal(TreatTC2, TreatTC3) # True
+all.equal(MutationMut2, MutationMut3) # True
 ```
 
 
 # Perform limma Pipeline
 ```{r,eval=FALSE}
 ########################################################
-#Data prepare. For test, Should NOT in pipeline
+# Data prepare. For test, Should NOT in pipeline
 ########################################################
-#library(reshape2)
+# library(reshape2)
 library(tidyverse)
 
 setwd("D:/OneDriveWork/OneDriveVanderbilt/work/AnthonyDaniels/20190509_proteomicsReDo")
-proteinExpression=readRDS("20190827_withMatchedNormalProteinExpression.rds")
+proteinExpression <- readRDS("20190827_withMatchedNormalProteinExpression.rds")
 
-#rawData=proteinExpression  %>% spread(Sample, nLog2)
-#order by abs value of rev(nLog2) so that distinct will keep the first (largest) row
-temp=abs(proteinExpression$nLog2)
-rawData=proteinExpression[rev(order(temp)),] %>% distinct(pID,Sample, .keep_all = TRUE) %>% spread(Sample, nLog2)
-rawData=rawData %>% distinct(pID, .keep_all = TRUE) #remove duplicate pID, most are error
+# rawData=proteinExpression  %>% spread(Sample, nLog2)
+# order by abs value of rev(nLog2) so that distinct will keep the first (largest) row
+temp <- abs(proteinExpression$nLog2)
+rawData <- proteinExpression[rev(order(temp)), ] %>%
+  distinct(pID, Sample, .keep_all = TRUE) %>%
+  spread(Sample, nLog2)
+rawData <- rawData %>% distinct(pID, .keep_all = TRUE) # remove duplicate pID, most are error
 
-row.names(rawData)=rawData[,1]
-rawData=rawData[,-1]
+row.names(rawData) <- rawData[, 1]
+rawData <- rawData[, -1]
 
-
-#dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
-
-factorTable=data.frame(Factor1=c("T18","T27","T41","T27","T27_choroid","T41","T41_choroid"),Factor2=c("Tumor","Tumor","Tumor","T27","T27","T41","T41"),stringsAsFactors = FALSE)
-factorTable
+write.csv(rawData, "D:\\OneDriveWork\\OneDriveVanderbilt\\work\\AnthonyDaniels\\20190903_proteomicsLimma\\20190903_threeTumorNormalPair.csv")
 
 
-########################################################
-#Read and format data
-########################################################
-colClass<-sapply(rawData, class)
-countNotNumIndex<-which((colClass!="numeric" & colClass!="integer") | grepl("Gene_Id", colnames(rawData)))
-if (length(countNotNumIndex)==0) {
-    rawDataTable=rawData
-    rawDataAnnotation=NULL
-} else {
-    rawDataTable=rawData[,c(max(countNotNumIndex)+1):ncol(rawData),drop=FALSE]
-    rawDataAnnotation=rawData[,c(1:max(countNotNumIndex)),drop=FALSE]
-}
-
-
-designTable=makeDesignTable(rawDataTable,factorTable)
-
-
-
-
-
-
-dataForPlot=dcast(proteinExpression,pID~Sample,value.var="nLog2",fun.aggregate=mean)
-dataForPlot=data.frame(dataForPlot[-which(is.na(dataForPlot$pID)),])
-row.names(dataForPlot)=dataForPlot$pID
-dataForPlot=dataForPlot[,-1]
-boxplot(dataForPlot,las=2)
-
-qua.norm<-function(pep) {
-	require(affy)
-	require(preprocessCore)
-	pep.qua<-normalize.quantiles(as.matrix(pep))
-	row.names(pep.qua)<-row.names(pep)
-	colnames(pep.qua)<-colnames(pep)
-	return (as.data.frame(pep.qua))
-}
-dataForPlot=qua.norm(dataForPlot)
-
-
-#Normlization and boxplot before and after
-
-
-#heatmap and PCA
-library(ComplexHeatmap)
-
-temp=sampleGroups[colnames(proteinExpressionFormatedFiltered),c("GNAQ mutant","GNA11 mutant","BAP1 mutant","EIF1AX mutant","SF3B1 mutant","Negative3","Groups3","PreOrPost","TTC28","DLK2","KTN1")]
-temp=as.data.frame(temp)
-for (i in 1:ncol(temp)) {
-    temp[[i]]=as.character(temp[[i]])
-}
-ha = HeatmapAnnotation(df=temp)
-
-ht = Heatmap(proteinExpressionFormatedFiltered,cluster_rows=FALSE,top_annotation =ha,row_names_gp = gpar(fontsize = 6))
-print(ht)
-
-
-
-#For each comprasion
-##perform limma
-
-
-##Output differential genes table
-
-##Output formated files for WebGesnet, GSEA, KEGGprofile
 
 
 
