@@ -160,4 +160,19 @@ separate_rows(df, y, z, convert = TRUE)
 # purrr package
 ## reduce: combines the elements of a vector into a single value
 
+# Other notes
 
+## tidyeval 
+```{r}
+#sym() creates a symbol from a string and syms() creates a list of symbols from a character vector.
+
+df <- data.frame(x = c("a", "a b", "a b c", NA))
+
+var <- "x"
+df %>% separate(!!var, c("key","value","note"), " ")
+
+df %>% summarise(n=length(grep(" ",x))) #2
+df %>% summarise(n=length(grep(" ",!!var))) #0, as it grep in value of x
+df %>% summarise(n=length(grep(" ",!!sym(var)))) #2, correct
+
+```
