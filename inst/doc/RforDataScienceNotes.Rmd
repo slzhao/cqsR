@@ -22,6 +22,12 @@ library(tidyverse)
 ## read_tsv, read_csv, read_delim
 
 
+#dplyr package
+
+## top_n, top_frac
+## between
+
+
 
 # Functions
 
@@ -34,6 +40,8 @@ library(tidyverse)
 table1 %>% 
   mutate(rate = cases / population * 10000)
 ```
+
+## mutate+case_when
 
 
 ## group_by: takes an existing tbl and converts it into a grouped tbl 
