@@ -38,7 +38,8 @@ Nesting joins create a list column of for columns from y:
 * nest_join: return all rows and all columns from x. Adds a list column of tibbles. Each tibble contains all the rows from y that match that row of x. 
 
 
-## top_n, top_frac
+## top_n, top_frac: first rows by value
+## slice: first rows by position
 ## between
 
 
