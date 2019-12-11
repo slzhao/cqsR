@@ -1,6 +1,10 @@
 ---
 title: "limma Test and Design"
-output: html_document
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
+    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -115,6 +119,43 @@ all.equal(TreatThreeT1, TreatThreeT2) # TRUE
 all.equal(TreatThreeG1, TreatThreeG2) # TRUE
 all.equal(TreatThreeGT1, TreatThreeGT2) # TRUE
 ```
+
+
+## One Factor: Three Groups, each group compare with rest
+
+Using design factor and contrast (1) A vs Other; (2) A vs (B+C)/2 are different. Method (2) is recommanded in most case as (1) used variation of all samples in Other group while (2) used the intra-group correlation for each individual group for the SEM.  
+See https://support.bioconductor.org/p/26251/ for more details
+
+```{r}
+# Method 1
+Treat <- factor(c("C", "C", "C", "T", "T", "T", "G", "G", "G", "G"), levels = c("C", "T", "G"))
+design <- model.matrix(~Treat)
+design
+fit <- lmFit(y, design)
+fit <- eBayes(fit)
+TreatThreeT1 <- topTable(fit, coef = "TreatT")
+TreatThreeG1 <- topTable(fit, coef = "TreatG")
+contrast.matrix <- makeContrasts(TreatGT = TreatG - TreatT, levels = design)
+fit2 <- contrasts.fit(fit, contrast.matrix)
+fit2 <- eBayes(fit2)
+TreatThreeGT1 <- topTable(fit2, coef = "TreatGT")
+
+# Method 2
+design <- model.matrix(~ 0 + Treat)
+design
+fit <- lmFit(y, design)
+contrast.matrix <- makeContrasts(TreatTC = TreatT - TreatC, TreatGC = TreatG - TreatC, TreatGT = TreatG - TreatT, levels = design)
+fit2 <- contrasts.fit(fit, contrast.matrix)
+fit2 <- eBayes(fit2)
+TreatThreeT2 <- topTable(fit2, coef = "TreatTC")
+TreatThreeG2 <- topTable(fit2, coef = "TreatGC")
+TreatThreeGT2 <- topTable(fit2, coef = "TreatGT")
+
+all.equal(TreatThreeT1, TreatThreeT2) # TRUE
+all.equal(TreatThreeG1, TreatThreeG2) # TRUE
+all.equal(TreatThreeGT1, TreatThreeGT2) # TRUE
+```
+
 
 
 ## Two Factors: Paired Data
