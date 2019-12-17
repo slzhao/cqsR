@@ -1,26 +1,44 @@
 
-# Make/Load Data
+## Make/Load Data
+#rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
+#row.names(rawData)<-paste0("Sample",1:200)
+#colnames(rawData)<-paste0("Feature",1:10)
+#rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureCategory1=sample(c("F","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
 
-rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
-row.names(rawData)<-paste0("Sample",1:200)
-colnames(rawData)<-paste0("Feature",1:10)
-rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureCategory1=sample(c("F","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
 
-
-tableOut=summaryPairedTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2"))
-printSummaryPairedTable(tableOut)
+#tableOut=summaryPairedTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2"))
+#tableOut=summaryPairedTable(rawData,varCols=c("Feature6"),varColsPaired=c("Feature7"))
+#tableOut=summaryPairedTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2","Feature6"))
+#tableOut=summaryPairedTable(rawData,varCols=c("FeatureYN2","Feature6"),varColsPaired=c("FeatureYN1","Feature7"))
+#printSummaryPairedTable(tableOut)
 
 require(htmlTable)
-summaryPairedTable<-function(rawDataPairedOrdered,groupCol,varCols) {
-  rawDataPairedOrderedGroup1=rawDataPairedOrdered[which(as.numeric(as.factor(rawDataPairedOrdered[,groupCol]))==1),]
-  rawDataPairedOrderedGroup2=rawDataPairedOrdered[which(as.numeric(as.factor(rawDataPairedOrdered[,groupCol]))==2),]
-  groupColLabel=levels(as.factor(rawDataPairedOrdered[,groupCol]))
+library(Hmisc)
+summaryPairedTable<-function(rawDataPairedOrdered,groupCol=NULL,varCols,varColsPaired=NULL) {
+  if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
+    stop(pate0("at least one of groupCol or varColsPaired should be defined"))
+  }
+  if (is.null(varColsPaired)) {
+    rawDataPairedOrderedGroup1=rawDataPairedOrdered[which(as.numeric(as.factor(rawDataPairedOrdered[,groupCol]))==1),]
+    rawDataPairedOrderedGroup2=rawDataPairedOrdered[which(as.numeric(as.factor(rawDataPairedOrdered[,groupCol]))==2),]
+    groupColLabel=levels(as.factor(rawDataPairedOrdered[,groupCol]))
+  } else {
+    rawDataPairedOrderedGroup1=rawDataPairedOrdered[,varCols,drop=FALSE]
+    rawDataPairedOrderedGroup2=rawDataPairedOrdered[,varColsPaired,drop=FALSE]
+    groupColLabel=c("Pre","Post")
+  }
 
   tableAll=NULL
-  for (varCol in varCols) {
+  for (i in 1:length(varCols)) {
+    varCol=varCols[i]
+    if (!is.null(varColsPaired)) {
+      varColPaired=varColsPaired[i]
+    } else {
+      varColPaired=varCols[i]
+    }
     #categorical, mcnemar.test
     if (is.factor(rawDataPairedOrdered[,varCol]) | is.character(rawDataPairedOrdered[,varCol])) {
-      dataForTable=data.frame(Pre=rawDataPairedOrderedGroup1[,varCol],Post=rawDataPairedOrderedGroup2[,varCol])
+      dataForTable=data.frame(Pre=rawDataPairedOrderedGroup1[,varCol],Post=rawDataPairedOrderedGroup2[,varColPaired])
 
       #Make sure dataOneVariableCount1 is the same as dataOneVariableCount2
       #dataOneVariableCount1=table(rawDataPairedOrderedGroup1[,varCol])
@@ -56,19 +74,44 @@ summaryPairedTable<-function(rawDataPairedOrdered,groupCol,varCols) {
       }
 
       tableOneOut<-cbind(c(paste0('<p align="left"><b>',varCol,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
+                         c("",rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2))),
                          c(sum(dataOneVariableCount1),dataOneVariableCount1),
                          c(sum(dataOneVariableCount2),dataOneVariableCount2),
                          c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCount1)))
       )
       tableAll<-rbind(tableAll,tableOneOut)
     } else {#continus, wilcox rank sum
+      testResult=wilcox.test(rawDataPairedOrderedGroup1[,varCol],rawDataPairedOrderedGroup2[,varColPaired],paired = TRUE)
+      pValue=testResult$p.value
+      statistic=testResult$statistic
+      dataOneVariableTestResult=paste(paste0(names(statistic),"="),statistic,showP(pValue),collapse="; ")
 
+      temp1=which(!is.na(rawDataPairedOrderedGroup1[,varCol]))
+      temp2=which(!is.na(rawDataPairedOrderedGroup2[,varColPaired]))
+      dataOneVariableCount=c(length(temp1),length(temp2),length(intersect(temp1,temp2)))
+      group1Summary=summaryFun(rawDataPairedOrderedGroup1[,varCol])
+      group2Summary=summaryFun(rawDataPairedOrderedGroup2[,varColPaired])
+
+      if (varCol != varColPaired) {
+        varColLabel=paste0(varCol," vs ",varColPaired)
+        dataOneVariableCount=paste0(c(paste0(c(varCol,varColPaired),"="),"Both="),dataOneVariableCount,collapse="; ")
+      } else {
+        varColLabel=varCol
+        dataOneVariableCount=paste0(c(paste0(groupColLabel,"="),"Both="),dataOneVariableCount,collapse="; ")
+      }
+      tableOneOut<-c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),
+                     dataOneVariableCount,
+                     group1Summary,
+                     group2Summary,
+                     dataOneVariableTestResult
+      )
+      tableAll<-rbind(tableAll,tableOneOut)
 
     }
 
   }
   row.names(tableAll)<-NULL
-  colnames(tableAll)=c("",groupColLabel,"Test Statistic")
+  colnames(tableAll)=c("","N",groupColLabel,"Test Statistic")
   return(tableAll)
 }
 
@@ -109,6 +152,14 @@ showP<-function(p,digits=2,text="P=",pCut=10^-digits) {
     p[naInd]<-NA
   }
   return(paste0(text,p))
+}
+
+summaryFun<-function(x) {
+  plSignLabel=markupSpecs[["html"]]$plminus
+  temp1<-round(quantile(x,c(0.25,0.5,0.75),na.rm=TRUE),2)
+  temp2<-round(c(mean(x,na.rm=TRUE),sd(x,na.rm=TRUE)),2)
+  result<-paste0(paste(temp1,collapse=" ")," (",paste(temp2,collapse=plSignLabel),")")
+  return(result)
 }
 
 
