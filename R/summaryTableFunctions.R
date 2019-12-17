@@ -14,18 +14,22 @@
 
 require(htmlTable)
 library(Hmisc)
-summaryPairedTable<-function(rawDataPairedOrdered,groupCol=NULL,varCols,varColsPaired=NULL) {
+summaryPairedTable<-function(rawDataPairedOrdered,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,nonPairedTest=FALSE) {
   if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
     stop(pate0("at least one of groupCol or varColsPaired should be defined"))
   }
   if (is.null(varColsPaired)) {
     rawDataPairedOrderedGroup1=rawDataPairedOrdered[which(as.numeric(as.factor(rawDataPairedOrdered[,groupCol]))==1),]
     rawDataPairedOrderedGroup2=rawDataPairedOrdered[which(as.numeric(as.factor(rawDataPairedOrdered[,groupCol]))==2),]
-    groupColLabel=levels(as.factor(rawDataPairedOrdered[,groupCol]))
+    if (is.null(groupColLabel)) {
+      groupColLabel=levels(as.factor(rawDataPairedOrdered[,groupCol]))
+    }
   } else {
     rawDataPairedOrderedGroup1=rawDataPairedOrdered[,varCols,drop=FALSE]
     rawDataPairedOrderedGroup2=rawDataPairedOrdered[,varColsPaired,drop=FALSE]
-    groupColLabel=c("Pre","Post")
+    if (is.null(groupColLabel)) {
+      groupColLabel=c("Pre","Post")
+    }
   }
 
   tableAll=NULL
@@ -84,7 +88,7 @@ summaryPairedTable<-function(rawDataPairedOrdered,groupCol=NULL,varCols,varColsP
       testResult=wilcox.test(rawDataPairedOrderedGroup1[,varCol],rawDataPairedOrderedGroup2[,varColPaired],paired = TRUE)
       pValue=testResult$p.value
       statistic=testResult$statistic
-      dataOneVariableTestResult=paste(paste0(names(statistic),"="),statistic,showP(pValue),collapse="; ")
+      dataOneVariableTestResult=paste(paste0(names(statistic),"=",statistic),showP(pValue),collapse="; ")
 
       temp1=which(!is.na(rawDataPairedOrderedGroup1[,varCol]))
       temp2=which(!is.na(rawDataPairedOrderedGroup2[,varColPaired]))
@@ -92,6 +96,10 @@ summaryPairedTable<-function(rawDataPairedOrdered,groupCol=NULL,varCols,varColsP
       group1Summary=summaryFun(rawDataPairedOrderedGroup1[,varCol])
       group2Summary=summaryFun(rawDataPairedOrderedGroup2[,varColPaired])
 
+      if (nonPairedTest) {
+        testResult=wilcox.test(rawDataPairedOrderedGroup1[,varCol],rawDataPairedOrderedGroup2[,varColPaired],paired = FALSE)
+        dataOneVariableTestResult=paste(dataOneVariableTestResult,"; Non-Paired Test ",showP(testResult$p.value))
+      }
       if (varCol != varColPaired) {
         varColLabel=paste0(varCol," vs ",varColPaired)
         dataOneVariableCount=paste0(c(paste0(c(varCol,varColPaired),"="),"Both="),dataOneVariableCount,collapse="; ")
@@ -116,17 +124,33 @@ summaryPairedTable<-function(rawDataPairedOrdered,groupCol=NULL,varCols,varColsP
 }
 
 printSummaryPairedTable<-function(tableOut) {
+  plSignLabel=markupSpecs[["html"]]$plminus
+  summaryFootContent=paste0("a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x",plSignLabel,"s represents X",plSignLabel,"SD.")
+
+  testFootContentMcNemar=ifelse(any(grepl("McNemar",tableOut[,"Test Statistic"])),"McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table;","")
+  testFootContentPairedWilcox=ifelse(any(grepl("V=",tableOut[,"Test Statistic"])),"Wilcoxon Signed Rank Test for continuous variable; ","")
+  testFootContentNonPairedWilcox=ifelse(any(grepl("Non-Paired",tableOut[,"Test Statistic"])),"Non-Paired Wilcoxon Rank Sum Test for continuous variable; ","")
+  if (testFootContentMcNemar!="" | testFootContentPairedWilcox!="" | testFootContentNonPairedWilcox!="") {
+    testFootContentAll=paste0("
+Tests used: ",testFootContentMcNemar,testFootContentPairedWilcox,testFootContentNonPairedWilcox)
+  } else {
+    testFootContentAll=""
+  }
+  tfootContent=paste0(summaryFootContent,testFootContentAll)
+
   htmlTable(tableOut,
             css.cell = 'padding: 0px 10px 0px;',
             #			header =  c("","N",groupVariable,"Test Statistic"),
             header =  colnames(tableOut),
-            tfoot="Tests used: McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table."
+            tfoot=tfootContent
+            #tfoot=paste0("a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x",plSignLabel,"s represents X",plSignLabel,"SD.
+#Tests used: Wilcoxon Signed Rank Test for continuous variable; McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table.")
   )
 }
 
 
 
-showP<-function(p,digits=2,text="P=",pCut=10^-digits) {
+showP<-function(p,digits=3,text="P=",pCut=10^-digits) {
   if (length(text)==1) {
     text=rep(text,length(p))
   }
