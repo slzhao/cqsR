@@ -1,5 +1,5 @@
 --- 
-title: "Report Title"
+title: "Report Example"
 author: "Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>"
 date: "<small>`r Sys.Date()`</small>"
 output:
@@ -52,13 +52,13 @@ library(htmlTable)
 
 
 #source('D:/source/cqsR/R/summaryTableFunctions.R')
-devtools::source_url("https://raw.githubusercontent.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
+devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
 
 
 ```
 
 
-<!-- # Make/Load Data -->
+# Make/Load Data
 
 ```{r}
 rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
