@@ -51,7 +51,9 @@ library(rms)
 library(htmlTable)
 
 
-source('D:/source/cqsR/R/summaryTableFunctions.R')
+#source('D:/source/cqsR/R/summaryTableFunctions.R')
+devtools::source_url("https://raw.githubusercontent.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
+
 
 ```
 
@@ -83,7 +85,7 @@ printSummaryPairedTable(tableOut)
 
 # Table 1: Continuous Group Variable
 
-```{r,results='asis',eval=FALSE}
+```{r,results='asis'}
 temp<-summaryTable(rawData,variables=c("Feature1","Feature2","FeatureYN1","FeatureCategory2"),groupVariable="Feature3")
 printSummaryTable(temp)
 ```

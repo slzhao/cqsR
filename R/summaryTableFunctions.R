@@ -187,3 +187,89 @@ summaryFun<-function(x) {
 }
 
 
+
+#Making summary table for continus variable in column (summaryM in Hmisc is for categorical variable in column)
+summaryTable<-function(dataForTable,variables,groupVariable,digital=2,minUnique=5) {
+  pDigital=max(c(digital,3))
+
+
+  tableAll<-NULL
+  for (i in 1:length(variables)) {
+    dataOneVariable<-dataForTable[,variables[i]]
+
+    dataOneVariableUniqueNum<-length(unique(na.omit(dataOneVariable)))
+    dataType<-tail(class(dataOneVariable),1)
+    dataForTableOne<-dataForTable
+
+    tableOneOut<-NULL
+    if (dataOneVariableUniqueNum<minUnique | dataType=="character" | dataType=="factor") {
+      NaInd<-which(is.na(dataOneVariable))
+      if (length(NaInd)>0) {
+        dataOneVariable<-dataOneVariable[-NaInd]
+        dataForTableOne<-dataForTableOne[-NaInd,]
+      }
+      dataOneVariableCount<-table(dataOneVariable)
+      dataOneVariableSummary<-tapply(dataForTableOne[,groupVariable],dataOneVariable,function(x) summaryFun(x))
+      #    temp<-wilcox.test(dataForTableOne[,groupVariable]~dataOneVariable)
+      if (length(unique(dataOneVariable))>1) {
+        temp<-kruskal.test(dataForTableOne[,groupVariable]~as.factor(dataOneVariable))
+        dataOneVariableTestResult<-paste0(names(temp$statistic),"=",round(temp$statistic,digital),", ",showP(temp$p.value,pDigital))
+        dataOneVariableTestResult<-makeTestNameForTable(dataOneVariableTestResult)
+      } else {
+        dataOneVariableTestResult=""
+      }
+
+
+      #			paste0(variables[i]," (",sum(dataOneVariableCount),")")
+      #			paste(names(dataOneVariableCount)," (",dataOneVariableCount,")",sep="")
+      tableOneOut<-cbind(c(paste0('<p align="left"><b>',variables[i],'</b></p>'),paste0(" ",names(dataOneVariableCount)," ")),
+                         c(sum(dataOneVariableCount),dataOneVariableCount),
+                         c("",dataOneVariableSummary),
+                         c(dataOneVariableTestResult,rep("",dataOneVariableUniqueNum))
+      )
+
+    } else if (dataType=="numeric" | dataType=="integer") {
+      NaInd<-which(is.na(dataOneVariable))
+      if (length(NaInd)>0) {
+        dataOneVariable<-dataOneVariable[-NaInd]
+        dataForTableOne<-dataForTableOne[-NaInd,]
+      }
+      dataOneVariableCount<-length(dataOneVariable)
+      temp<-cor.test(dataForTableOne[,groupVariable],dataOneVariable,method="sp")
+      if ("conf.int" %in% names(temp)) {
+        dataOneVariableSummary<-paste0(round(temp$estimate,digital),"(",paste0(round(temp$conf.int,digital),collapse="-"),")")
+      } else {
+        dataOneVariableSummary<-round(c(temp$estimate),digital)
+      }
+      dataOneVariableTestResult<-paste0(names(temp$statistic),"=",round(temp$statistic,digital),", ",showP(temp$p.value,pDigital))
+      tableOneOut<-c(paste0('<p align="left"><b>',variables[i],'</b></p>'),
+                     dataOneVariableCount,
+                     dataOneVariableSummary,
+                     dataOneVariableTestResult
+      )
+
+    } else {
+      warning(paste0("Variable ",variables[i]," was not included in the table as its class (",dataType,") was not supported."))
+    }
+    tableAll<-rbind(tableAll,tableOneOut)
+  }
+
+  row.names(tableAll)<-NULL
+  return(tableAll)
+}
+
+makeTestNameForTable<-function(x) {
+  result<-gsub("Kruskal-Wallis chi-squared","X<sup>2</sup>",x)
+  return(result)
+}
+
+printSummaryTable<-function(tableOut,groupVariable="Variable") {
+  plSignLabel=markupSpecs[["html"]]$plminus
+  htmlTable(tableOut,
+            css.cell = 'padding: 0px 10px 0px;',
+            header =  c("","N",groupVariable,"Test Statistic"),
+            tfoot=paste0("One continuous and one categorical variables: a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x",plSignLabel,"s represents X",plSignLabel,"SD.
+Two continuous variables: a. a represents the rho statistic of Spearman's correlation analysis.
+Tests used: Kruskal-Wallis test for one continuous and one categorical variables; Spearman correlation for two continuous variables.")
+  )
+}
