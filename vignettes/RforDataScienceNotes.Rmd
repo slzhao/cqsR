@@ -30,7 +30,7 @@ All columns from x or y will be kept. If multiple matches between x and y, all c
 
 Filtering joins keep columns from x:
 
-* semi_join: return all rows from x where there are matching values in y
+* semi_join: return all rows from x where there are matching values in y. It will never duplicate rows of x even if one row matching multiple y (as cloumns in y will not be kept, no need to duplicate rwo in x).
 * anti_join: return all rows from x where there are not matching values in y
 
 Nesting joins create a list column of for columns from y:
