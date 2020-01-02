@@ -52,8 +52,8 @@ library(htmlTable)
 
 
 #source('D:/source/cqsR/R/summaryTableFunctions.R')
-devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
-
+#devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
+library(cqsR)
 
 ```
 
@@ -61,10 +61,16 @@ devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFu
 # Make/Load Data
 
 ```{r}
+set.seed(123)
 rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
 row.names(rawData)<-paste0("Sample",1:200)
 colnames(rawData)<-paste0("Feature",1:10)
-rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureCategory1=sample(c("F","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
+rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureCategory1=sample(c("D","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
+
+#make some NAs
+rawData[c(30:40),"Feature6"]=NA
+rawData[c(35:70),"Feature7"]=NA
+rawData[c(1:6),"FeatureYN2"]=NA
 
 ```
 
@@ -72,22 +78,47 @@ rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),Feat
 
 ```{r,results='asis'}
 
+tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"),pairedTest = TRUE)
+printSummaryTable(tableOut)
 
-tableOut=summaryPairedTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2","Feature6"))
-printSummaryPairedTable(tableOut)
+tableOut=summaryTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"),pairedTest = TRUE)
+printSummaryTable(tableOut)
 
-tableOut=summaryPairedTable(rawData,varCols=c("FeatureYN2","Feature6"),varColsPaired=c("FeatureYN1","Feature7"),nonPairedTest = TRUE)
-printSummaryPairedTable(tableOut)
+```
+
+# Table 1: Not Paired Test
+
+```{r,results='asis'}
+tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"))
+printSummaryTable(tableOut)
+
+tableOut=summaryTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"))
+printSummaryTable(tableOut)
 
 
 ```
+
+# Table 1: Same result as Not Paired Test in Hmisc package
+
+```{r,results='asis'}
+
+outVar="FeatureYN1"
+varForTable1=c("FeatureYN2","Feature6","FeatureCategory2")
+formulaForTable<-as.formula(paste0(paste(varForTable1, collapse=" + "),"~",outVar))
+s <- summaryM(formulaForTable, data=rawData,
+							overall=TRUE, test=TRUE)
+
+html(s, exclude1=FALSE,  what=c('%'),digits=3, prmsd=TRUE)
+
+```
+
 
 
 # Table 1: Continuous Group Variable
 
 ```{r,results='asis'}
-temp<-summaryTable(rawData,variables=c("Feature1","Feature2","FeatureYN1","FeatureCategory2"),groupVariable="Feature3")
-printSummaryTable(temp)
+temp<-summaryTableContinus(rawData,variables=c("Feature1","Feature2","FeatureYN1","FeatureCategory2"),groupVariable="Feature3")
+printSummaryTableContinus(temp)
 ```
 
 

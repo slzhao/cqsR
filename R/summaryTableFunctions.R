@@ -3,7 +3,7 @@
 # rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
 # row.names(rawData)<-paste0("Sample",1:200)
 # colnames(rawData)<-paste0("Feature",1:10)
-# rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureCategory1=sample(c("F","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
+# rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureCategory1=sample(c("D","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
 #
 # tableOut=summaryTable(rawData,groupCol="FeatureYN1",varCols=c("FeatureYN2"))
 # tableOut=summaryTable(rawData,varCols=c("Feature6"),varColsPaired=c("Feature7"))
@@ -17,9 +17,11 @@
 # tableOut=summaryTableContinus(rawData,variables=c("FeatureYN2","Feature6"),groupVariable="Feature7")
 # printSummaryTableContinus(tableOut)
 
-require(htmlTable)
-library(Hmisc)
+#require(htmlTable)
+#library(Hmisc)
 
+#' @export
+#'
 summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,pairedTest=FALSE) {
   if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
     stop(pate0("at least one of groupCol or varColsPaired should be defined"))
@@ -34,7 +36,11 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
     rawDataPairedOrderedGroup1=rawData[,varCols,drop=FALSE]
     rawDataPairedOrderedGroup2=rawData[,varColsPaired,drop=FALSE]
     if (is.null(groupColLabel)) {
-      groupColLabel=c("Pre","Post")
+      if (pairedTest) {
+        groupColLabel=c("Pre","Post")
+      } else {
+        groupColLabel=c("Group 1","Group 2")
+      }
     }
   }
 
@@ -46,10 +52,18 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
     } else {
       varColPaired=varCols[i]
     }
-    #categorical, mcnemar.test for paired and chisq.test for non paired
-    if (is.factor(rawData[,varCol]) | is.character(rawData[,varCol])) {
-      if (!pairedTest) { #Not Paired test
-        dataForTable=data.frame(Var=c(rawDataPairedOrderedGroup1[,varCol],rawDataPairedOrderedGroup2[,varColPaired]),
+    if (varCol==varColPaired) {
+      varColLabel=varCol
+    } else {
+      varColLabel=paste0(varCol," (",groupColLabel[1],") vs ",varColPaired," (",groupColLabel[2],")")
+    }
+    if (is.factor(rawData[,varCol]) | is.character(rawData[,varCol])) { #categorical
+      #make factor or numeric into character to match variables
+      dataOneGroup1=as.character(rawDataPairedOrderedGroup1[,varCol])
+      dataOneGroup2=as.character(rawDataPairedOrderedGroup2[,varColPaired])
+
+      if (!pairedTest) { #Not Paired chisq.test
+        dataForTable=data.frame(Var=c(dataOneGroup1,dataOneGroup2),
                                 Group=c(rep(groupColLabel,c(nrow(rawDataPairedOrderedGroup1),nrow(rawDataPairedOrderedGroup2)))))
         matrixForTest=table(dataForTable)
         if (ncol(matrixForTest)==1 | nrow(matrixForTest)==1) {
@@ -60,13 +74,13 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           statistic=chisq.test(matrixForTest)$statistic
           dataOneVariableCountAll=rowSums(matrixForTest)
         }
-        tableOneOut<-cbind(c(paste0('<p align="left"><b>',varCol,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
+        tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
                            c("",dataOneVariableCountAll),
-                           rbind(colnames(matrixForTest),matrixForTest),
+                           rbind(c(rep("",ncol(matrixForTest))),matrixForTest),
                            c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCountAll)))
         )
-      } else { #paired test
-        dataForTable=data.frame(Pre=rawDataPairedOrderedGroup1[,varCol],Post=rawDataPairedOrderedGroup2[,varColPaired])
+      } else { #paired test mcnemar.test
+        dataForTable=data.frame(Pre=dataOneGroup1,Post=dataOneGroup2)
 
         #Make sure dataOneVariableCount1 is the same as dataOneVariableCount2
         #dataOneVariableCount1=table(rawDataPairedOrderedGroup1[,varCol])
@@ -81,18 +95,18 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           colMissingLevel=setdiff(allLevels,colnames(matrixForTest))
           rowMissingLevel=setdiff(allLevels,row.names(matrixForTest))
           if (length(colMissingLevel)>0) {
-            for (i in colMissingLevel) {
-              matrixForTest<-cbind(matrixForTest,rep(0,length(allLevels)))
-              colnames(matrixForTest)[ncol(matrixForTest)]=i
+            for (colMissingLevelOne in colMissingLevel) {
+              matrixForTest<-cbind(matrixForTest,rep(0,length(allLevels)-length(rowMissingLevel)))
+              colnames(matrixForTest)[ncol(matrixForTest)]=colMissingLevelOne
             }
             matrixForTest=matrixForTest[,allLevels]
           }
           if (length(rowMissingLevel)>0) {
-            for (i in rowMissingLevel) {
+            for (rowMissingLevelOne in rowMissingLevel) {
               matrixForTest<-rbind(matrixForTest,rep(0,length(allLevels)))
-              row.names(matrixForTest)[nrow(matrixForTest)]=i
+              row.names(matrixForTest)[nrow(matrixForTest)]=rowMissingLevelOne
             }
-            matrixForTest=matrixForTest[allLevels,]
+            matrixForTest=matrixForTest[allLevels,allLevels]
           }
 
           pValue=mcnemar.test(matrixForTest)$p.value
@@ -100,10 +114,10 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           dataOneVariableCount1=rowSums(matrixForTest)
           dataOneVariableCount2=colSums(matrixForTest)
         }
-        tableOneOut<-cbind(c(paste0('<p align="left"><b>',varCol,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
+        tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
                            c("",rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2))),
-                           c(sum(dataOneVariableCount1),dataOneVariableCount1),
-                           c(sum(dataOneVariableCount2),dataOneVariableCount2),
+                           c("",dataOneVariableCount1),
+                           c("",dataOneVariableCount2),
                            c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCount1)))
         )
       }
@@ -116,23 +130,27 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
       }
       pValue=testResult$p.value
       statistic=testResult$statistic
-      dataOneVariableTestResult=paste(paste0(names(statistic),"=",statistic),showP(pValue),collapse="; ")
+      dataOneVariableTestResult=paste(paste0(names(statistic),"=",statistic),"; ",showP(pValue),collapse="; ")
 
       temp1=which(!is.na(rawDataPairedOrderedGroup1[,varCol]))
       temp2=which(!is.na(rawDataPairedOrderedGroup2[,varColPaired]))
       dataOneVariableCount=c(length(temp1),length(temp2))
-      group1Summary=summaryFun(rawDataPairedOrderedGroup1[,varCol])
-      group2Summary=summaryFun(rawDataPairedOrderedGroup2[,varColPaired])
+      sampleInBothInd=intersect(temp1,temp2)
+      if (pairedTest) { #paired test, only summary samples in both group
+        group1Summary=summaryFun(rawDataPairedOrderedGroup1[sampleInBothInd,varCol])
+        group2Summary=summaryFun(rawDataPairedOrderedGroup2[sampleInBothInd,varColPaired])
+      } else {
+        group1Summary=summaryFun(rawDataPairedOrderedGroup1[,varCol])
+        group2Summary=summaryFun(rawDataPairedOrderedGroup2[,varColPaired])
+      }
 
       if (varCol != varColPaired) {
-        varColLabel=paste0(varCol," vs ",varColPaired)
         dataOneVariableCount=paste0(c(paste0(c(varCol,varColPaired),"=")),dataOneVariableCount,collapse="; ")
       } else {
-        varColLabel=varCol
         dataOneVariableCount=paste0(c(paste0(groupColLabel,"=")),dataOneVariableCount,collapse="; ")
       }
       if (pairedTest) { #paired test, count N with value in both of two paired groups
-        dataOneVariableCount=paste0(dataOneVariableCount,"; Both=",length(intersect(temp1,temp2)))
+        dataOneVariableCount=paste0(dataOneVariableCount,"; Both=",length(sampleInBothInd))
       }
 
       tableOneOut<-c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),
@@ -150,7 +168,8 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
   return(tableAll)
 }
 
-
+#' @export
+#'
 printSummaryTable<-function(tableOut) {
   plSignLabel=markupSpecs[["html"]]$plminus
   summaryFootContent=paste0("a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x",plSignLabel,"s represents X",plSignLabel,"SD.")
@@ -159,9 +178,9 @@ printSummaryTable<-function(tableOut) {
   testFootContentChisq=ifelse(any(grepl("X-squared",tableOut[,"Test Statistic"])),"Chi-squared test for categorical variable;","")
   testFootContentPairedWilcox=ifelse(any(grepl("V=",tableOut[,"Test Statistic"])),"Wilcoxon Signed Rank Test for continuous variable; ","")
   testFootContentNonPairedWilcox=ifelse(any(grepl("W=",tableOut[,"Test Statistic"])),"Non-Paired Wilcoxon Rank Sum Test for continuous variable; ","")
-  if (testFootContentMcNemar!="" | testFootContentPairedWilcox!="" | testFootContentNonPairedWilcox!="") {
+  if (testFootContentMcNemar!="" | testFootContentChisq!="" | testFootContentPairedWilcox!="" | testFootContentNonPairedWilcox!="") {
     testFootContentAll=paste0("
-Tests used: ",testFootContentMcNemar,testFootContentPairedWilcox,testFootContentNonPairedWilcox)
+Tests used: ",testFootContentMcNemar,testFootContentChisq,testFootContentPairedWilcox,testFootContentNonPairedWilcox)
   } else {
     testFootContentAll=""
   }
@@ -207,17 +226,20 @@ showP<-function(p,digits=3,text="P=",pCut=10^-digits) {
   return(paste0(text,p))
 }
 
-summaryFun<-function(x) {
+#' @export
+#'
+summaryFun<-function(x,digits=3) {
   plSignLabel=markupSpecs[["html"]]$plminus
-  temp1<-round(quantile(x,c(0.25,0.5,0.75),na.rm=TRUE),2)
-  temp2<-round(c(mean(x,na.rm=TRUE),sd(x,na.rm=TRUE)),2)
+  temp1<-round(quantile(x,c(0.25,0.5,0.75),na.rm=TRUE),digits=digits)
+  temp2<-round(c(mean(x,na.rm=TRUE),sd(x,na.rm=TRUE)),digits=digits)
   result<-paste0(paste(temp1,collapse=" ")," (",paste(temp2,collapse=plSignLabel),")")
   return(result)
 }
 
 
 
-#Making summary table for continus variable in column (summaryM in Hmisc is for categorical variable in column)
+#' @export
+#'
 summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,minUnique=5) {
   pDigital=max(c(digital,3))
 
@@ -287,11 +309,15 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
   return(tableAll)
 }
 
+#' @export
+#'
 makeTestNameForTable<-function(x) {
   result<-gsub("Kruskal-Wallis chi-squared","X<sup>2</sup>",x)
   return(result)
 }
 
+#' @export
+#'
 printSummaryTableContinus<-function(tableOut,groupVariable="Variable") {
   plSignLabel=markupSpecs[["html"]]$plminus
   htmlTable(tableOut,
