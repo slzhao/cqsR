@@ -75,7 +75,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           dataOneVariableCountAll=rowSums(matrixForTest)
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
-                           c("",dataOneVariableCountAll),
+                           c("",countToPercent(dataOneVariableCountAll)),
                            rbind(c(rep("",ncol(matrixForTest))),matrixForTest),
                            c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCountAll)))
         )
@@ -314,6 +314,19 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
 makeTestNameForTable<-function(x) {
   result<-gsub("Kruskal-Wallis chi-squared","X<sup>2</sup>",x)
   return(result)
+}
+
+#' @export
+#'
+countToPercent<-function(x) {
+  #xTotal=sum(x,na.rm=TRUE)
+  #xPercent=as.integer(x/xTotal*100)
+
+  x=as.matrix(x)
+  xTotal=colSums(x,na.rm=TRUE)
+  xPercent=round(t(t(x)/xTotal)*100,0)
+
+  return(paste0(xPercent,"% (",x,")"))
 }
 
 #' @export
