@@ -76,7 +76,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
                            c("",countToPercent(dataOneVariableCountAll)),
-                           rbind(c(rep("",ncol(matrixForTest))),matrixForTest),
+                           rbind(c(rep("",ncol(matrixForTest))),countToPercent(matrixForTest)),
                            c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCountAll)))
         )
       } else { #paired test mcnemar.test
@@ -115,9 +115,9 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           dataOneVariableCount2=colSums(matrixForTest)
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
-                           c("",rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2))),
-                           c("",dataOneVariableCount1),
-                           c("",dataOneVariableCount2),
+                           c("",countToPercent(rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2)))),
+                           c("",countToPercent(dataOneVariableCount1)),
+                           c("",countToPercent(dataOneVariableCount2)),
                            c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCount1)))
         )
       }
@@ -325,8 +325,9 @@ countToPercent<-function(x) {
   x=as.matrix(x)
   xTotal=colSums(x,na.rm=TRUE)
   xPercent=round(t(t(x)/xTotal)*100,0)
-
-  return(paste0(xPercent,"% (",x,")"))
+  xOUt=paste0(xPercent,"% (",x,")")
+  dim(xOUt) <-dim(x)
+  return(xOUt)
 }
 
 #' @export

@@ -86,6 +86,21 @@ printSummaryTable(tableOut)
 
 ```
 
+# Same result in regular paired tests to make sure the table is correct
+```{r}
+#First table
+matrixForTest=table(rawData$FeatureYN2,rawData$FeatureYN1)
+mcnemar.test(matrixForTest)
+
+#Second table
+dataOneGroup1=as.character(rawData[which(rawData$FeatureYN1==0),"FeatureYN2"])
+dataOneGroup2=as.character(rawData[which(rawData$FeatureYN1==1),"FeatureYN2"])
+matrixForTest=table(dataOneGroup1,dataOneGroup2)
+mcnemar.test(matrixForTest)
+
+```
+
+
 # Table 1: Not Paired Test
 
 ```{r,results='asis'}
