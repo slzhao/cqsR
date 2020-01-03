@@ -83,7 +83,7 @@
                         <h4 class="author">Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>
 </h4>
             
-            <h4 class="date"><small>2020-01-02</small></h4>
+            <h4 class="date"><small>2020-01-03</small></h4>
       
       
       <div class="hidden name"><code>reportExample.Rmd</code></div>
@@ -120,16 +120,19 @@
 <a class="sourceLine" id="cb2-2" title="2">rawData&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dt">nrow=</span><span class="dv">200</span>,<span class="dt">ncol=</span><span class="dv">10</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">200</span><span class="op">*</span><span class="dv">10</span>))</a>
 <a class="sourceLine" id="cb2-3" title="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/row.names">row.names</a></span>(rawData)&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Sample"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>)</a>
 <a class="sourceLine" id="cb2-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(rawData)&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Feature"</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb2-5" title="5">rawData&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(rawData,<span class="dt">FeatureYN1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>,<span class="dv">100</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span>,<span class="dv">100</span>)),<span class="dv">200</span>),<span class="dt">FeatureYN2=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>,<span class="dv">100</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span>,<span class="dv">100</span>)),<span class="dv">200</span>)),<span class="dt">FeatureCategory1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"D"</span>,<span class="st">"E"</span>),<span class="dv">200</span>,<span class="dt">replace =</span> <span class="ot">TRUE</span>),<span class="dt">FeatureCategory2=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>),<span class="dv">200</span>,<span class="dt">replace =</span> <span class="ot">TRUE</span>),<span class="dt">stringsAsFactors =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb2-5" title="5">rawData&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(rawData,<span class="dt">FeatureYN1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>,<span class="dv">100</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span>,<span class="dv">100</span>)),<span class="dv">200</span>),<span class="dt">FeatureYN2=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">0</span>,<span class="dv">100</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="dv">1</span>,<span class="dv">100</span>)),<span class="dv">200</span>)),<span class="dt">FeatureGroup1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"Pre/Group1"</span>,<span class="dv">100</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(<span class="st">"Post/Group2"</span>,<span class="dv">100</span>)),<span class="dv">200</span>)),<span class="dt">FeatureCategory1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"D"</span>,<span class="st">"E"</span>),<span class="dv">200</span>,<span class="dt">replace =</span> <span class="ot">TRUE</span>),<span class="dt">FeatureCategory2=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"D"</span>),<span class="dv">200</span>,<span class="dt">replace =</span> <span class="ot">TRUE</span>),<span class="dt">stringsAsFactors =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb2-6" title="6"></a>
 <a class="sourceLine" id="cb2-7" title="7"><span class="co">#make some NAs</span></a>
 <a class="sourceLine" id="cb2-8" title="8">rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">30</span><span class="op">:</span><span class="dv">40</span>),<span class="st">"Feature6"</span>]=<span class="ot">NA</span></a>
 <a class="sourceLine" id="cb2-9" title="9">rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">35</span><span class="op">:</span><span class="dv">70</span>),<span class="st">"Feature7"</span>]=<span class="ot">NA</span></a>
 <a class="sourceLine" id="cb2-10" title="10">rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>),<span class="st">"FeatureYN2"</span>]=<span class="ot">NA</span></a></code></pre></div>
 </div>
-<div id="table-1-paired-test" class="section level1">
+<div id="table-paired-test" class="section level1">
 <h1 class="hasAnchor">
-<a href="#table-1-paired-test" class="anchor"></a>Table 1: Paired Test</h1>
+<a href="#table-paired-test" class="anchor"></a>Table: Paired Test</h1>
+<div id="data-format-two-columns-feature6-pre-and-feature7-post" class="section level2">
+<h2 class="hasAnchor">
+<a href="#data-format-two-columns-feature6-pre-and-feature7-post" class="anchor"></a>Data format: Two columns, Feature6 (Pre) and Feature7 (Post)</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory1"</span>),<span class="dt">varColsPaired=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN1"</span>,<span class="st">"Feature7"</span>,<span class="st">"FeatureCategory2"</span>),<span class="dt">pairedTest =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
 <table class="table gmisc_table">
@@ -238,13 +241,13 @@ McNemar’s chi-squared=NaN; P=NA
 A
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-10% (38)
+12% (46)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 0% (0)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-19% (38)
+23% (46)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -254,13 +257,13 @@ A
 B
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-15% (59)
+18% (72)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 0% (0)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-30% (59)
+36% (72)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -270,13 +273,13 @@ B
 C
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-12% (50)
+10% (40)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 0% (0)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-25% (50)
+20% (40)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -286,13 +289,13 @@ C
 D
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-40% (161)
+33% (133)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-54% (108)
+46% (91)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-26% (53)
+21% (42)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -302,10 +305,10 @@ D
 E
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-23% (92)
+27% (109)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-46% (92)
+55% (109)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
 0% (0)
@@ -320,8 +323,13 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 </td>
 </tr></tfoot>
 </table>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">groupCol=</span><span class="st">"FeatureYN1"</span>,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory2"</span>),<span class="dt">pairedTest =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
+</div>
+<div id="data-format-one-data-column-feature6-and-one-group-column-featuregroup1-define-pre-and-post" class="section level2">
+<h2 class="hasAnchor">
+<a href="#data-format-one-data-column-feature6-and-one-group-column-featuregroup1-define-pre-and-post" class="anchor"></a>Data format: One data column (Feature6) and one group column (FeatureGroup1, define Pre and Post)</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">groupCol=</span><span class="st">"FeatureGroup1"</span>,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory2"</span>),<span class="dt">pairedTest =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>## Will perform paired test, Please confirm Samples were correctly matched/paired by groupCol.</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
 <table class="table gmisc_table">
 <thead><tr>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
@@ -330,10 +338,10 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 N
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-0
+Post/Group2
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-1
+Pre/Group1
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Test Statistic
@@ -361,13 +369,13 @@ McNemar’s chi-squared=0; P=1
 0
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-51% (99)
+51% (97)
+</td>
+<td style="padding: 0px 10px 0px; text-align: center;">
+50% (48)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 51% (49)
-</td>
-<td style="padding: 0px 10px 0px; text-align: center;">
-52% (50)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -380,10 +388,10 @@ McNemar’s chi-squared=0; P=1
 49% (95)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-49% (48)
+50% (48)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-48% (47)
+49% (47)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -395,16 +403,16 @@ McNemar’s chi-squared=0; P=1
 </p>
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-0=94; 1=95; Both=89
+Post/Group2=93; Pre/Group1=96; Both=93
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.778 -0.132 0.51 (-0.138±0.921)
+-0.651 0.125 0.916 (0.093±1.112)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.625 0.161 0.716 (0.185±1.114)
+-0.653 -0.071 0.535 (0.009±0.948)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-V=1553 ; P=0.066
+V=2459 ; P=0.296
 </td>
 </tr>
 <tr>
@@ -420,7 +428,7 @@ V=1553 ; P=0.066
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-McNemar’s chi-squared=11.28; P=0.08
+McNemar’s chi-squared=4.51; P=0.608
 </td>
 </tr>
 <tr>
@@ -428,13 +436,13 @@ McNemar’s chi-squared=11.28; P=0.08
 A
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-19% (38)
+23% (46)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-13% (13)
+26% (26)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-25% (25)
+20% (20)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -444,13 +452,13 @@ A
 B
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-30% (59)
+36% (72)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-24% (24)
+36% (36)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-35% (35)
+36% (36)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -460,10 +468,10 @@ B
 C
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-25% (50)
+20% (40)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-28% (28)
+18% (18)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 22% (22)
@@ -476,13 +484,13 @@ C
 D
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-26% (53)
+21% (42)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-35% (35)
+20% (20)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-18% (18)
+22% (22)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
 </td>
@@ -495,33 +503,37 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 </tr></tfoot>
 </table>
 </div>
+</div>
 <div id="same-result-in-regular-paired-tests-to-make-sure-the-table-is-correct" class="section level1">
 <h1 class="hasAnchor">
 <a href="#same-result-in-regular-paired-tests-to-make-sure-the-table-is-correct" class="anchor"></a>Same result in regular paired tests to make sure the table is correct</h1>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">#First table</span></a>
-<a class="sourceLine" id="cb5-2" title="2">matrixForTest=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(rawData<span class="op">$</span>FeatureYN2,rawData<span class="op">$</span>FeatureYN1)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/mcnemar.test">mcnemar.test</a></span>(matrixForTest)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">#First table</span></a>
+<a class="sourceLine" id="cb7-2" title="2">matrixForTest=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(rawData<span class="op">$</span>FeatureYN2,rawData<span class="op">$</span>FeatureYN1)</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/mcnemar.test">mcnemar.test</a></span>(matrixForTest)</a></code></pre></div>
 <pre><code>## 
 ##  McNemar's Chi-squared test with continuity correction
 ## 
 ## data:  matrixForTest
 ## McNemar's chi-squared = 0.010204, df = 1, p-value = 0.9195</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">#Second table</span></a>
-<a class="sourceLine" id="cb7-2" title="2">dataOneGroup1=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(rawData<span class="op">$</span>FeatureYN1<span class="op">==</span><span class="dv">0</span>),<span class="st">"FeatureYN2"</span>])</a>
-<a class="sourceLine" id="cb7-3" title="3">dataOneGroup2=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(rawData<span class="op">$</span>FeatureYN1<span class="op">==</span><span class="dv">1</span>),<span class="st">"FeatureYN2"</span>])</a>
-<a class="sourceLine" id="cb7-4" title="4">matrixForTest=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(dataOneGroup1,dataOneGroup2)</a>
-<a class="sourceLine" id="cb7-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/mcnemar.test">mcnemar.test</a></span>(matrixForTest)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co">#Second table</span></a>
+<a class="sourceLine" id="cb9-2" title="2">dataOneGroup1=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(rawData<span class="op">$</span>FeatureYN1<span class="op">==</span><span class="dv">0</span>),<span class="st">"FeatureYN2"</span>])</a>
+<a class="sourceLine" id="cb9-3" title="3">dataOneGroup2=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/character">as.character</a></span>(rawData[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/which">which</a></span>(rawData<span class="op">$</span>FeatureYN1<span class="op">==</span><span class="dv">1</span>),<span class="st">"FeatureYN2"</span>])</a>
+<a class="sourceLine" id="cb9-4" title="4">matrixForTest=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/table">table</a></span>(dataOneGroup1,dataOneGroup2)</a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/mcnemar.test">mcnemar.test</a></span>(matrixForTest)</a></code></pre></div>
 <pre><code>## 
 ##  McNemar's Chi-squared test with continuity correction
 ## 
 ## data:  matrixForTest
 ## McNemar's chi-squared = 0, df = 1, p-value = 1</code></pre>
 </div>
-<div id="table-1-not-paired-test" class="section level1">
+<div id="table-not-paired-test" class="section level1">
 <h1 class="hasAnchor">
-<a href="#table-1-not-paired-test" class="anchor"></a>Table 1: Not Paired Test</h1>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory1"</span>),<span class="dt">varColsPaired=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN1"</span>,<span class="st">"Feature7"</span>,<span class="st">"FeatureCategory2"</span>))</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
+<a href="#table-not-paired-test" class="anchor"></a>Table: Not Paired Test</h1>
+<div id="data-format-two-columns-feature6-group-1-and-feature7-group-2" class="section level2">
+<h2 class="hasAnchor">
+<a href="#data-format-two-columns-feature6-group-1-and-feature7-group-2" class="anchor"></a>Data format: Two columns, Feature6 (Group 1) and Feature7 (Group 2)</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory1"</span>),<span class="dt">varColsPaired=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN1"</span>,<span class="st">"Feature7"</span>,<span class="st">"FeatureCategory2"</span>))</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
 <table class="table gmisc_table">
 <thead><tr>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
@@ -620,7 +632,7 @@ W=16494 ; P=0.298
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-X-squared=257.79; P&lt;0.001
+X-squared=285.05; P&lt;0.001
 </td>
 </tr>
 <tr>
@@ -628,13 +640,13 @@ X-squared=257.79; P&lt;0.001
 A
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-10% (38)
+12% (46)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 0% (0)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-19% (38)
+23% (46)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -644,13 +656,13 @@ A
 B
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-15% (59)
+18% (72)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 0% (0)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-30% (59)
+36% (72)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -660,13 +672,13 @@ B
 C
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-12% (50)
+10% (40)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 0% (0)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-25% (50)
+20% (40)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -676,13 +688,13 @@ C
 D
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-40% (161)
+33% (133)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-54% (108)
+46% (91)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-26% (53)
+21% (42)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -692,10 +704,10 @@ D
 E
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-23% (92)
+27% (109)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-46% (92)
+55% (109)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
 0% (0)
@@ -710,8 +722,12 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 </td>
 </tr></tfoot>
 </table>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">groupCol=</span><span class="st">"FeatureYN1"</span>,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory2"</span>))</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
+</div>
+<div id="data-format-one-data-column-feature6-and-one-group-column-featuregroup1-define-group-1-and-group-2" class="section level2">
+<h2 class="hasAnchor">
+<a href="#data-format-one-data-column-feature6-and-one-group-column-featuregroup1-define-group-1-and-group-2" class="anchor"></a>Data format: One data column (Feature6) and one group column (FeatureGroup1, define Group 1 and Group 2)</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">tableOut=<span class="kw">summaryTable</span>(rawData,<span class="dt">groupCol=</span><span class="st">"FeatureGroup1"</span>,<span class="dt">varCols=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory2"</span>))</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">printSummaryTable</span>(tableOut)</a></code></pre></div>
 <table class="table gmisc_table">
 <thead><tr>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
@@ -720,10 +736,10 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 N
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-0
+Post/Group2
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-1
+Pre/Group1
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Test Statistic
@@ -743,7 +759,7 @@ Test Statistic
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-X-squared=0; P=1
+X-squared=0.02; P=0.888
 </td>
 </tr>
 <tr>
@@ -754,10 +770,10 @@ X-squared=0; P=1
 51% (99)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-51% (49)
+50% (48)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-52% (50)
+52% (51)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -770,7 +786,7 @@ X-squared=0; P=1
 49% (95)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-49% (48)
+50% (48)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 48% (47)
@@ -785,16 +801,16 @@ X-squared=0; P=1
 </p>
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-0=94; 1=95
+Post/Group2=93; Pre/Group1=96
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.77 -0.124 0.485 (-0.138±0.905)
+-0.651 0.125 0.916 (0.093±1.112)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.554 0.187 0.928 (0.234±1.109)
+-0.684 -0.071 0.541 (0.007±0.941)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-W=3645 ; P=0.029
+W=4771 ; P=0.415
 </td>
 </tr>
 <tr>
@@ -810,7 +826,7 @@ W=3645 ; P=0.029
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-X-squared=12.01; P=0.007
+X-squared=1.28; P=0.734
 </td>
 </tr>
 <tr>
@@ -818,13 +834,13 @@ X-squared=12.01; P=0.007
 A
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-19% (38)
+23% (46)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-13% (13)
+26% (26)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-25% (25)
+20% (20)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -834,13 +850,13 @@ A
 B
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-30% (59)
+36% (72)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-24% (24)
+36% (36)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-35% (35)
+36% (36)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -850,10 +866,10 @@ B
 C
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-25% (50)
+20% (40)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-28% (28)
+18% (18)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 22% (22)
@@ -866,13 +882,13 @@ C
 D
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-26% (53)
+21% (42)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-35% (35)
+20% (20)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-18% (18)
+22% (22)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
 </td>
@@ -885,16 +901,17 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 </tr></tfoot>
 </table>
 </div>
-<div id="table-1-same-result-as-not-paired-test-in-hmisc-package" class="section level1">
+</div>
+<div id="table-same-result-as-not-paired-test-in-hmisc-package" class="section level1">
 <h1 class="hasAnchor">
-<a href="#table-1-same-result-as-not-paired-test-in-hmisc-package" class="anchor"></a>Table 1: Same result as Not Paired Test in Hmisc package</h1>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">outVar=<span class="st">"FeatureYN1"</span></a>
-<a class="sourceLine" id="cb11-2" title="2">varForTable1=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory2"</span>)</a>
-<a class="sourceLine" id="cb11-3" title="3">formulaForTable&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/formula">as.formula</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(varForTable1, <span class="dt">collapse=</span><span class="st">" + "</span>),<span class="st">"~"</span>,outVar))</a>
-<a class="sourceLine" id="cb11-4" title="4">s &lt;-<span class="st"> </span><span class="kw">summaryM</span>(formulaForTable, <span class="dt">data=</span>rawData,</a>
-<a class="sourceLine" id="cb11-5" title="5">                            <span class="dt">overall=</span><span class="ot">TRUE</span>, <span class="dt">test=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb11-6" title="6"></a>
-<a class="sourceLine" id="cb11-7" title="7"><span class="kw">html</span>(s, <span class="dt">exclude1=</span><span class="ot">FALSE</span>,  <span class="dt">what=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'%'</span>),<span class="dt">digits=</span><span class="dv">3</span>, <span class="dt">prmsd=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<a href="#table-same-result-as-not-paired-test-in-hmisc-package" class="anchor"></a>Table: Same result as Not Paired Test in Hmisc package</h1>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">outVar=<span class="st">"FeatureGroup1"</span></a>
+<a class="sourceLine" id="cb13-2" title="2">varForTable1=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"FeatureYN2"</span>,<span class="st">"Feature6"</span>,<span class="st">"FeatureCategory2"</span>)</a>
+<a class="sourceLine" id="cb13-3" title="3">formulaForTable&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/formula">as.formula</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(varForTable1, <span class="dt">collapse=</span><span class="st">" + "</span>),<span class="st">"~"</span>,outVar))</a>
+<a class="sourceLine" id="cb13-4" title="4">s &lt;-<span class="st"> </span><span class="kw">summaryM</span>(formulaForTable, <span class="dt">data=</span>rawData,</a>
+<a class="sourceLine" id="cb13-5" title="5">                            <span class="dt">overall=</span><span class="ot">TRUE</span>, <span class="dt">test=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-6" title="6"></a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="kw">html</span>(s, <span class="dt">exclude1=</span><span class="ot">FALSE</span>,  <span class="dt">what=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'%'</span>),<span class="dt">digits=</span><span class="dv">3</span>, <span class="dt">prmsd=</span><span class="ot">TRUE</span>)</a></code></pre></div>
 <table class="table gmisc_table">
 <thead>
 <tr><td colspan="6" style="text-align: left;">
@@ -903,9 +920,9 @@ Descriptive Statistics<i>  (N=200)</i>.  </td></tr>
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; width:14ex; text-align: center;"></th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">N<br>
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">0<br><i>N=100</i>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">Post/Group2<br><i>N=100</i>
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">1<br><i>N=100</i>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">Pre/Group1<br><i>N=100</i>
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">Combined<br><i>N=200</i>
 </th>
@@ -917,19 +934,19 @@ Descriptive Statistics<i>  (N=200)</i>.  </td></tr>
 <tr>
 <td style="width:14ex; text-align: left;">FeatureYN2 : 0</td>
 <td style="padding: 0 7px 0 7px; text-align: right;">194</td>
-<td style="padding: 0 7px 0 7px; text-align: center;">51% <span style="font-size: 80%;"> (49)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">50% <span style="font-size: 80%;"> (48)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">52% <span style="font-size: 80%;"> (50)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">52% <span style="font-size: 80%;"> (51)</span>
 </td>
 <td style="padding: 0 7px 0 7px; text-align: center;">51% <span style="font-size: 80%;"> (99)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">χ<sup><span style="font-size: 70%;">2</span></sup><sub style="position: relative; left: -.47em; bottom: -.4em;"><span style="font-size: 70%;">1</span></sub>=0.02, P=0.886<sup>1</sup>
+<td style="padding: 0 7px 0 7px; text-align: center;">χ<sup><span style="font-size: 70%;">2</span></sup><sub style="position: relative; left: -.47em; bottom: -.4em;"><span style="font-size: 70%;">1</span></sub>=0.08, P=0.776<sup>1</sup>
 </td>
 </tr>
 <tr>
 <td style="width:14ex; text-align: left;">  1</td>
 <td style="padding: 0 7px 0 7px; text-align: right;"></td>
-<td style="padding: 0 7px 0 7px; text-align: center;">49% <span style="font-size: 80%;"> (48)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">50% <span style="font-size: 80%;"> (48)</span>
 </td>
 <td style="padding: 0 7px 0 7px; text-align: center;">48% <span style="font-size: 80%;"> (47)</span>
 </td>
@@ -940,55 +957,55 @@ Descriptive Statistics<i>  (N=200)</i>.  </td></tr>
 <tr>
 <td style="width:14ex; text-align: left;">Feature6</td>
 <td style="padding: 0 7px 0 7px; text-align: right;">189</td>
-<td style="padding: 0 7px 0 7px; text-align: center;">-0.7699 -0.1237  0.4854  (-0.1377 ± 0.9053)</td>
-<td style="padding: 0 7px 0 7px; text-align: center;">-0.5535  0.1871  0.9278  ( 0.2340 ± 1.1089)</td>
-<td style="padding: 0 7px 0 7px; text-align: center;">-0.6528 -0.0180  0.5911  ( 0.0492 ± 1.0271)</td>
+<td style="padding: 0 7px 0 7px; text-align: center;">-0.65051  0.12503  0.91599  ( 0.09264 ± 1.11226)</td>
+<td style="padding: 0 7px 0 7px; text-align: center;">-0.68399 -0.07066  0.54079  ( 0.00706 ± 0.94135)</td>
+<td style="padding: 0 7px 0 7px; text-align: center;">-0.65277 -0.01798  0.59106  ( 0.04917 ± 1.02714)</td>
 <td style="padding: 0 7px 0 7px; text-align: center;">
-<i>F</i><sub><span style="font-size: 80%;">1 187</span></sub>=4.85, P=0.029<sup>2</sup>
+<i>F</i><sub><span style="font-size: 80%;">1 187</span></sub>=0.67, P=0.416<sup>2</sup>
 </td>
 </tr>
 <tr>
 <td style="width:14ex; text-align: left;">FeatureCategory2 : A</td>
 <td style="padding: 0 7px 0 7px; text-align: right;">200</td>
-<td style="padding: 0 7px 0 7px; text-align: center;">13% <span style="font-size: 80%;"> (13)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">26% <span style="font-size: 80%;"> (26)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">25% <span style="font-size: 80%;"> (25)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">20% <span style="font-size: 80%;"> (20)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">19% <span style="font-size: 80%;"> (38)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">23% <span style="font-size: 80%;"> (46)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">χ<sup><span style="font-size: 70%;">2</span></sup><sub style="position: relative; left: -.47em; bottom: -.4em;"><span style="font-size: 70%;">3</span></sub>=12, P=0.007<sup>1</sup>
+<td style="padding: 0 7px 0 7px; text-align: center;">χ<sup><span style="font-size: 70%;">2</span></sup><sub style="position: relative; left: -.47em; bottom: -.4em;"><span style="font-size: 70%;">3</span></sub>=1.28, P=0.734<sup>1</sup>
 </td>
 </tr>
 <tr>
 <td style="width:14ex; text-align: left;">  B</td>
 <td style="padding: 0 7px 0 7px; text-align: right;"></td>
-<td style="padding: 0 7px 0 7px; text-align: center;">24% <span style="font-size: 80%;"> (24)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">36% <span style="font-size: 80%;"> (36)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">35% <span style="font-size: 80%;"> (35)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">36% <span style="font-size: 80%;"> (36)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">30% <span style="font-size: 80%;"> (59)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">36% <span style="font-size: 80%;"> (72)</span>
 </td>
 <td style="padding: 0 7px 0 7px; text-align: center;"></td>
 </tr>
 <tr>
 <td style="width:14ex; text-align: left;">  C</td>
 <td style="padding: 0 7px 0 7px; text-align: right;"></td>
-<td style="padding: 0 7px 0 7px; text-align: center;">28% <span style="font-size: 80%;"> (28)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">18% <span style="font-size: 80%;"> (18)</span>
 </td>
 <td style="padding: 0 7px 0 7px; text-align: center;">22% <span style="font-size: 80%;"> (22)</span>
 </td>
-<td style="padding: 0 7px 0 7px; text-align: center;">25% <span style="font-size: 80%;"> (50)</span>
+<td style="padding: 0 7px 0 7px; text-align: center;">20% <span style="font-size: 80%;"> (40)</span>
 </td>
 <td style="padding: 0 7px 0 7px; text-align: center;"></td>
 </tr>
 <tr>
 <td style="width:14ex; border-bottom: 2px solid grey; text-align: left;">  D</td>
 <td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: right;"></td>
-<td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;">35% <span style="font-size: 80%;"> (35)</span>
+<td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;">20% <span style="font-size: 80%;"> (20)</span>
 </td>
-<td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;">18% <span style="font-size: 80%;"> (18)</span>
+<td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;">22% <span style="font-size: 80%;"> (22)</span>
 </td>
-<td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;">26% <span style="font-size: 80%;"> (53)</span>
+<td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;">21% <span style="font-size: 80%;"> (42)</span>
 </td>
 <td style="padding: 0 7px 0 7px; border-bottom: 2px solid grey; text-align: center;"></td>
 </tr>
@@ -997,11 +1014,11 @@ Descriptive Statistics<i>  (N=200)</i>.  </td></tr>
 <span style="font-size: 80%;"><i>a</i></span> <i>b</i> <span style="font-size: 80%;"><i>c</i></span> represent the lower quartile <i>a</i>, the median <i>b</i>, and the upper quartile <i>c</i> for continuous variables. <i>x ± s</i> represents <span style="text-decoration: overline">X</span> ± 1 SD.   <i>N</i> is the number of non-missing values. Numbers after proportions are frequencies. <br> Tests used: <sup>1</sup>Pearson test; <sup>2</sup>Wilcoxon test .</td></tr></tfoot>
 </table>
 </div>
-<div id="table-1-continuous-group-variable" class="section level1">
+<div id="table-continuous-group-variable" class="section level1">
 <h1 class="hasAnchor">
-<a href="#table-1-continuous-group-variable" class="anchor"></a>Table 1: Continuous Group Variable</h1>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">temp&lt;-<span class="kw">summaryTableContinus</span>(rawData,<span class="dt">variables=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Feature1"</span>,<span class="st">"Feature2"</span>,<span class="st">"FeatureYN1"</span>,<span class="st">"FeatureCategory2"</span>),<span class="dt">groupVariable=</span><span class="st">"Feature3"</span>)</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="kw">printSummaryTableContinus</span>(temp)</a></code></pre></div>
+<a href="#table-continuous-group-variable" class="anchor"></a>Table: Continuous Group Variable</h1>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">temp&lt;-<span class="kw">summaryTableContinus</span>(rawData,<span class="dt">variables=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Feature1"</span>,<span class="st">"Feature2"</span>,<span class="st">"FeatureYN1"</span>,<span class="st">"FeatureCategory2"</span>),<span class="dt">groupVariable=</span><span class="st">"Feature3"</span>)</a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="kw">printSummaryTableContinus</span>(temp)</a></code></pre></div>
 <table class="table gmisc_table">
 <thead><tr>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
@@ -1102,7 +1119,7 @@ X<sup>2</sup>=0.98, P=0.321
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-X<sup>2</sup>=2.63, P=0.452
+X<sup>2</sup>=6.92, P=0.075
 </td>
 </tr>
 <tr>
@@ -1110,10 +1127,10 @@ X<sup>2</sup>=2.63, P=0.452
 A
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-38
+46
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.543 0.179 0.696 (0.073±1.045)
+-0.821 -0.244 0.315 (-0.26±0.977)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -1123,10 +1140,10 @@ A
 B
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-59
+72
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.37 0.165 0.877 (0.17±0.954)
+-0.49 0.173 0.675 (0.047±0.94)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -1136,10 +1153,10 @@ B
 C
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-50
+40
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
--0.929 -0.094 0.572 (-0.082±1.012)
+-0.491 0.339 0.875 (0.161±1.029)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 </td>
@@ -1149,10 +1166,10 @@ C
 D
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
-53
+42
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
--0.574 -0.074 0.639 (-0.045±0.875)
+-0.281 0.13 0.711 (0.202±0.89)
 </td>
 <td style="padding: 0px 10px 0px; border-bottom: 2px solid grey; text-align: center;">
 </td>
@@ -1168,8 +1185,8 @@ One continuous and one categorical variables: a b c (x±s). a b c represent the 
 <div id="table-example-showing-data-frame-in-a-html-table" class="section level1">
 <h1 class="hasAnchor">
 <a href="#table-example-showing-data-frame-in-a-html-table" class="anchor"></a>Table Example: Showing data.frame in a html table</h1>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(htmlTable)</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="kw">htmlTable</span>(iris[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(htmlTable)</a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="kw">htmlTable</span>(iris[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</a></code></pre></div>
 <table class="table gmisc_table">
 <thead><tr>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey;">
@@ -1229,8 +1246,8 @@ Petal.Length
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">kable</span>(iris[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], </a>
-<a class="sourceLine" id="cb14-2" title="2">      <span class="dt">caption=</span><span class="st">"A test table"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">kable</span>(iris[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], </a>
+<a class="sourceLine" id="cb16-2" title="2">      <span class="dt">caption=</span><span class="st">"A test table"</span>)</a></code></pre></div>
 <table class="table">
 <caption>A test table</caption>
 <thead><tr class="header">
@@ -1265,11 +1282,21 @@ Petal.Length
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#makeload-data">Make/Load Data</a></li>
-      <li><a href="#table-1-paired-test">Table 1: Paired Test</a></li>
+      <li>
+<a href="#table-paired-test">Table: Paired Test</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#data-format-two-columns-feature6-pre-and-feature7-post">Data format: Two columns, Feature6 (Pre) and Feature7 (Post)</a></li>
+      <li><a href="#data-format-one-data-column-feature6-and-one-group-column-featuregroup1-define-pre-and-post">Data format: One data column (Feature6) and one group column (FeatureGroup1, define Pre and Post)</a></li>
+      </ul>
+</li>
       <li><a href="#same-result-in-regular-paired-tests-to-make-sure-the-table-is-correct">Same result in regular paired tests to make sure the table is correct</a></li>
-      <li><a href="#table-1-not-paired-test">Table 1: Not Paired Test</a></li>
-      <li><a href="#table-1-same-result-as-not-paired-test-in-hmisc-package">Table 1: Same result as Not Paired Test in Hmisc package</a></li>
-      <li><a href="#table-1-continuous-group-variable">Table 1: Continuous Group Variable</a></li>
+      <li>
+<a href="#table-not-paired-test">Table: Not Paired Test</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#data-format-two-columns-feature6-group-1-and-feature7-group-2">Data format: Two columns, Feature6 (Group 1) and Feature7 (Group 2)</a></li>
+      <li><a href="#data-format-one-data-column-feature6-and-one-group-column-featuregroup1-define-group-1-and-group-2">Data format: One data column (Feature6) and one group column (FeatureGroup1, define Group 1 and Group 2)</a></li>
+      </ul>
+</li>
+      <li><a href="#table-same-result-as-not-paired-test-in-hmisc-package">Table: Same result as Not Paired Test in Hmisc package</a></li>
+      <li><a href="#table-continuous-group-variable">Table: Continuous Group Variable</a></li>
       <li><a href="#table-example-showing-data-frame-in-a-html-table">Table Example: Showing data.frame in a html table</a></li>
       </ul>
 </div>

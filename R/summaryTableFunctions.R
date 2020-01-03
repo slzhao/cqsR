@@ -1,4 +1,4 @@
-
+# Use codes in reportExample.Rmd to generate data
 # ## Make/Load Data
 # rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
 # row.names(rawData)<-paste0("Sample",1:200)
@@ -29,6 +29,9 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
   if (is.null(varColsPaired)) {
     rawDataPairedOrderedGroup1=rawData[which(as.numeric(as.factor(rawData[,groupCol]))==1),]
     rawDataPairedOrderedGroup2=rawData[which(as.numeric(as.factor(rawData[,groupCol]))==2),]
+    if (pairedTest) {
+      message(paste0("Will perform paired test, Please confirm Samples were correctly matched/paired by groupCol."))
+    }
     if (is.null(groupColLabel)) {
       groupColLabel=levels(as.factor(rawData[,groupCol]))
     }
