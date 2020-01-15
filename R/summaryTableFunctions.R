@@ -200,7 +200,8 @@ Tests used: ",testFootContentMcNemar,testFootContentChisq,testFootContentPairedW
 }
 
 
-
+#' @export
+#'
 showP<-function(p,digits=3,text="P=",pCut=10^-digits) {
   if (length(text)==1) {
     text=rep(text,length(p))

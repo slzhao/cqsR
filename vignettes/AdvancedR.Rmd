@@ -1,0 +1,21 @@
+---
+title: "Advanced R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R functions and options
+
+## Debug
+
+### recover() to back to upper level of environment when using browser
+
+https://stackoverflow.com/questions/9796843/move-up-a-frame-debug-r-environment
+
+```{r}
+
+```
+
