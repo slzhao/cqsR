@@ -90,7 +90,7 @@ options(datadist='ddist')
 
 modelResult <- lrm(formulaForModel, data=rawData)
 print(modelResult)
-showOddsRatio2(modelResult)
+#showOddsRatio2(modelResult)
 plot(Predict(modelResult))
 
 
@@ -175,7 +175,7 @@ modelTable(rawData,outVars="Feature1",interestedVars=c("FeatureYN1","Feature2","
 
 ### KM Curves
 
-```{r,cache=TRUE}
+```{r}
 source("D:\\source\\r_cqs\\myPkg\\R\\survivalCurveTable.R")
 
 set.seed(123)
@@ -186,16 +186,18 @@ kmplot(fit1,col.surv=1:2,lwd.surv=3,grid=FALSE,las=1,pValue=TRUE,cex.axis=1.2,lo
 print(fit1)
 
 ```
+
 ### Model
-```{r,cache=TRUE}
-source("D:\\source\\r_cqs\\myPkg\\R\\survivalCurveTable.R")
+```{r}
+ddist <- datadist(rawData)
+options(datadist='ddist')
 
 varForSurvivalModel1=c("FeatureCategory1","Feature2")
 (fmla<-as.formula(paste0("Surv(FeatureAbs1, FeatureYN1)~",paste0(varForSurvivalModel1,collapse="+"))))
 fmi=cph(fmla,data=rawData)
 
 print(fmi)
-showOddsRatio2(fmi)
+#showOddsRatio2(fmi)
 plot(Predict(fmi))
 
 ```
@@ -298,7 +300,9 @@ summary(results)
 ### A linear mixed-effects model with nested random effects. As a validation.
 The F value is the same as Two-Way ANOVA above
 
-```{r,cache=TRUE}
+```{r}
+library(nlme)
+
 results.lme <- lme(rat.weight~time.point*rat.strain, random=~1|rat.ID, data=my.dataframe)
 anova(results.lme)
 ```

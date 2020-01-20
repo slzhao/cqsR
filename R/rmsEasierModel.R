@@ -2,7 +2,7 @@
 
 #' @export
 #'
-nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSampleSize = 6) {
+nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSampleSize = 6,returnKable=FALSE) {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
   modelFun <- get(modelType)
 
@@ -56,7 +56,13 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
     row.names(resultOut) <- NULL
     colnames(resultOut) <- c("Outcome", "X", "Formula", "P (Variable)", paste0("P (",row.names(modelResultAnova)[2:3],")"))
   }
-  return(resultOut)
+  if (returnKable) {
+#    temp <- apply(resultOut, 2, function(x) all(x == "")) # remove spaces
+#    kable(resultOut[, which(!temp)],caption ="Non-linear Test")
+    kable(resultOut,caption ="Non-linear Test for continuous variables")
+  } else {
+    return(resultOut)
+  }
 }
 
 
@@ -66,13 +72,10 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
 #' @export
 #'
 modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL, nonLinearVars = NULL, extractStats = NULL,
-                       modelType = "lrm", printModel = FALSE, returnKable = TRUE) {
+                       modelType = "lrm", printModel = FALSE, printModelFigure = printModel,returnKable = FALSE,uniqueSampleSize=5) {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
   modelFun <- get(modelType)
   modelResultAll <- NULL
-
-
-
 
   for (outVar in outVars) {
     for (varOne in interestedVars) {
@@ -90,18 +93,21 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
       formulaForModel <- as.formula(formulaForModel)
 
       dataForModel <- dataForModelAll[, c(outVar, varForModelOne)]
-      for (temp in varForModelOne) { # change all numbers with only two values in dataForModel into factor
-        if (length(unique(dataForModel[, temp])) <= 2) {
+      for (temp in varForModelOne) { # change all numbers with only uniqueSampleSize values in dataForModel into factor
+        if (length(unique(na.omit(dataForModel[, temp]))) <= uniqueSampleSize) {
           dataForModel[, temp] <- factor(dataForModel[, temp])
         }
       }
 
-      ddist <<- datadist(dataForModel, n.unique = 5)
+      ddist <<- datadist(dataForModel, n.unique = uniqueSampleSize)
       options(datadist = "ddist")
-      modelResult <<- modelFun(formulaForModel, data = dataForModel)
+      modelResult <- modelFun(formulaForModel, data = dataForModel)
       if (printModel) {
+        print(paste0("Model formula: ",as.character(as.expression(formulaForModel))))
         print(modelResult)
-#        plot(Predict(modelResult))
+      }
+      if (printModelFigure) {
+        print(plot(Predict(modelResult)))
       }
 
 
@@ -183,7 +189,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
   row.names(modelResultAll) <- NULL
   if (returnKable) {
     temp <- apply(modelResultAll, 2, function(x) all(x == "")) # remove spaces
-    kable(modelResultAll[, which(!temp)])
+    kable(modelResultAll[, which(!temp)],caption ="Regression Model Result Summary")
   } else {
     return(modelResultAll)
   }
