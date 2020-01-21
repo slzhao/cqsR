@@ -60,7 +60,7 @@ colnames(rawData)<-paste0("Sample",1:10)
 rawDataDesign=data.frame(
                           #Sample=colnames(rawData),
                          #Group1=c(rep("Treat1",3),rep("Treat2",3),rep("Control",4)),
-                         #Group1=c(rep("Treat",5),rep("Control",5)),
+                         Group1=c(rep("Treat",5),rep("Control",5)),
                          Group2=rep(c("Strain1","Strain2"),5))
 
 ```
@@ -79,14 +79,23 @@ dds <- nbinomLRT(dds, reduced = ~ Group2) #interested in Group1, so compare with
 mypar<-data.frame(coef(dds),disp=dispersions(dds))
 colnames(mypar)[1:3]<-c("b0","b1","b2")
 
-
+#Only one factor
+dds <- DESeqDataSetFromMatrix(countData = rawData,
+                              colData = rawDataDesign,
+                              design = ~ Group1)
+dds <- estimateSizeFactors(dds)
+dds <- estimateDispersions(dds)
+dds <- nbinomLRT(dds, reduced = ~ 1) 
+myparOneFactor<-data.frame(coef(dds),disp=dispersions(dds))
+colnames(mypar)[1:3]<-c("b0","b1")
 
 ```
 
 # Estimation
 ```{r}
+source('D:/source/cqsR/R/RnaSeqSampleSize2.R')
 
-aa<-apply(mypar[1:30,], 1, get.v)
+aa<-apply(mypar[1:6,], 1, get.v)
 
 
 
@@ -97,96 +106,12 @@ aa<-apply(mypar[1:30,], 1, get.v)
 library("future.apply")
 plan(multiprocess) ## Run in parallel on local computer
 
-aa <- future_apply(mypar[1:30,],1, get.v)
+aaParallel <- future_apply(mypar[1:6,],1, get.v)
 
 
 
 ```
 
 
-
-
-# Table: Paired Test
-## Data format: Two columns, Feature6 (Pre) and Feature7 (Post)
-```{r,results='asis'}
-
-tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"),pairedTest = TRUE)
-printSummaryTable(tableOut)
-
-```
-
-## Data format: One data column (Feature6) and one group column (FeatureGroup1, define Pre and Post)
-```{r,results='asis'}
-
-tableOut=summaryTable(rawData,groupCol="FeatureGroup1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"),pairedTest = TRUE)
-printSummaryTable(tableOut)
-
-```
-
-
-# Same result in regular paired tests to make sure the table is correct
-```{r}
-#First table
-matrixForTest=table(rawData$FeatureYN2,rawData$FeatureYN1)
-mcnemar.test(matrixForTest)
-
-#Second table
-dataOneGroup1=as.character(rawData[which(rawData$FeatureYN1==0),"FeatureYN2"])
-dataOneGroup2=as.character(rawData[which(rawData$FeatureYN1==1),"FeatureYN2"])
-matrixForTest=table(dataOneGroup1,dataOneGroup2)
-mcnemar.test(matrixForTest)
-
-```
-
-
-# Table: Not Paired Test
-## Data format: Two columns, Feature6 (Group 1) and Feature7 (Group 2)
-```{r,results='asis'}
-tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"))
-printSummaryTable(tableOut)
-
-```
-
-## Data format: One data column (Feature6) and one group column (FeatureGroup1, define Group 1 and Group 2)
-```{r,results='asis'}
-
-tableOut=summaryTable(rawData,groupCol="FeatureGroup1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"))
-printSummaryTable(tableOut)
-
-```
-
-# Table: Same result as Not Paired Test in Hmisc package
-
-```{r,results='asis'}
-
-outVar="FeatureGroup1"
-varForTable1=c("FeatureYN2","Feature6","FeatureCategory2")
-formulaForTable<-as.formula(paste0(paste(varForTable1, collapse=" + "),"~",outVar))
-s <- summaryM(formulaForTable, data=rawData,
-							overall=TRUE, test=TRUE)
-
-html(s, exclude1=FALSE,  what=c('%'),digits=3, prmsd=TRUE)
-
-```
-
-
-
-# Table: Continuous Group Variable
-
-```{r,results='asis'}
-temp<-summaryTableContinus(rawData,variables=c("Feature1","Feature2","FeatureYN1","FeatureCategory2"),groupVariable="Feature3")
-printSummaryTableContinus(temp)
-```
-
-
-# Table Example: Showing data.frame in a html table
-```{r,results='asis'}
-library(htmlTable)
-htmlTable(iris[1:3,1:3])
-
-
-kable(iris[1:3,1:3], 
-      caption="A test table")
-```
 
 
