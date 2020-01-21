@@ -1,0 +1,192 @@
+--- 
+title: "Development of RnaSeqSampleSize version 2"
+author: "Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>"
+date: "<small>`r Sys.Date()`</small>"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
+    number_sections: true
+    # toc_float: 
+    #   collapsed: true
+    code_folding: hide
+    # theme: cerulean
+    # keep_md: true
+description: "some description ..."
+---
+```{r setup,echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 3000)
+
+```
+
+
+<!-- # Notes -->
+<!-- ## Hiding/Moving TOC: -->
+<!-- http://biostat.mc.vanderbilt.edu/wiki/Main/KnitrHtmlTemplate -->
+
+<!-- `r source("https://raw.githubusercontent.com/harrelfe/Hmisc/master/R/hidingTOC.r")` -->
+<!-- `r hidingTOC(buttonLabel="Outline")` -->
+
+<!-- ## More themes: -->
+<!-- http://www.datadreaming.org/post/r-markdown-theme-gallery/ -->
+
+
+<!-- # Functions and packages -->
+
+```{r,message=FALSE,warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(RColorBrewer)
+library(reshape2)
+library(RnaSeqSampleSize)
+library(DESeq2)
+
+#source('D:/source/cqsR/R/summaryTableFunctions.R')
+#devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
+library(cqsR)
+
+```
+
+
+# Make/Load Data
+
+```{r}
+set.seed(123)
+rawData<-matrix(nrow=200,ncol=10,sample(1:1000,2000,replace = TRUE))
+row.names(rawData)<-paste0("Gene",1:200)
+colnames(rawData)<-paste0("Sample",1:10)
+
+rawDataDesign=data.frame(
+                          #Sample=colnames(rawData),
+                         #Group1=c(rep("Treat1",3),rep("Treat2",3),rep("Control",4)),
+                         #Group1=c(rep("Treat",5),rep("Control",5)),
+                         Group2=rep(c("Strain1","Strain2"),5))
+
+```
+
+
+# Estimate distribution of genes by DESeq2
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = rawData,
+                              colData = rawDataDesign,
+                              design = ~ Group1+Group2)
+dds <- estimateSizeFactors(dds)
+
+dds <- estimateDispersions(dds) #this not work sometimes
+
+dds <- nbinomLRT(dds, reduced = ~ Group2) #interested in Group1, so compare with model with only Group2
+mypar<-data.frame(coef(dds),disp=dispersions(dds))
+colnames(mypar)[1:3]<-c("b0","b1","b2")
+
+
+
+```
+
+# Estimation
+```{r}
+
+aa<-apply(mypar[1:30,], 1, get.v)
+
+
+
+```
+
+# Test of parallel Estimation
+```{r}
+library("future.apply")
+plan(multiprocess) ## Run in parallel on local computer
+
+aa <- future_apply(mypar[1:30,],1, get.v)
+
+
+
+```
+
+
+
+
+# Table: Paired Test
+## Data format: Two columns, Feature6 (Pre) and Feature7 (Post)
+```{r,results='asis'}
+
+tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"),pairedTest = TRUE)
+printSummaryTable(tableOut)
+
+```
+
+## Data format: One data column (Feature6) and one group column (FeatureGroup1, define Pre and Post)
+```{r,results='asis'}
+
+tableOut=summaryTable(rawData,groupCol="FeatureGroup1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"),pairedTest = TRUE)
+printSummaryTable(tableOut)
+
+```
+
+
+# Same result in regular paired tests to make sure the table is correct
+```{r}
+#First table
+matrixForTest=table(rawData$FeatureYN2,rawData$FeatureYN1)
+mcnemar.test(matrixForTest)
+
+#Second table
+dataOneGroup1=as.character(rawData[which(rawData$FeatureYN1==0),"FeatureYN2"])
+dataOneGroup2=as.character(rawData[which(rawData$FeatureYN1==1),"FeatureYN2"])
+matrixForTest=table(dataOneGroup1,dataOneGroup2)
+mcnemar.test(matrixForTest)
+
+```
+
+
+# Table: Not Paired Test
+## Data format: Two columns, Feature6 (Group 1) and Feature7 (Group 2)
+```{r,results='asis'}
+tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"))
+printSummaryTable(tableOut)
+
+```
+
+## Data format: One data column (Feature6) and one group column (FeatureGroup1, define Group 1 and Group 2)
+```{r,results='asis'}
+
+tableOut=summaryTable(rawData,groupCol="FeatureGroup1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"))
+printSummaryTable(tableOut)
+
+```
+
+# Table: Same result as Not Paired Test in Hmisc package
+
+```{r,results='asis'}
+
+outVar="FeatureGroup1"
+varForTable1=c("FeatureYN2","Feature6","FeatureCategory2")
+formulaForTable<-as.formula(paste0(paste(varForTable1, collapse=" + "),"~",outVar))
+s <- summaryM(formulaForTable, data=rawData,
+							overall=TRUE, test=TRUE)
+
+html(s, exclude1=FALSE,  what=c('%'),digits=3, prmsd=TRUE)
+
+```
+
+
+
+# Table: Continuous Group Variable
+
+```{r,results='asis'}
+temp<-summaryTableContinus(rawData,variables=c("Feature1","Feature2","FeatureYN1","FeatureCategory2"),groupVariable="Feature3")
+printSummaryTableContinus(temp)
+```
+
+
+# Table Example: Showing data.frame in a html table
+```{r,results='asis'}
+library(htmlTable)
+htmlTable(iris[1:3,1:3])
+
+
+kable(iris[1:3,1:3], 
+      caption="A test table")
+```
+
+
