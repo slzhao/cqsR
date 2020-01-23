@@ -17,6 +17,12 @@ library(tidyverse)
 #library(dplyr)
 ```
 
+# vroom package: Fast reading of delimited files 
+
+https://github.com/r-lib/vroom
+https://vroom.r-lib.org/articles/vroom.html
+
+
 
 # dplyr package
 
