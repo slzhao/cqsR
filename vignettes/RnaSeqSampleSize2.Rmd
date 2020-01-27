@@ -112,6 +112,18 @@ aaParallel <- future_apply(mypar[1:6,],1, get.v)
 
 ```
 
+# Reproduce Real Examples in Paper
+
+```{r}
+
+exemplary.data=betaToData(Betas=c(log(2.5),log(2)),phi=0.6513,sampleSize=70,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267)
+
+```
+
+
+
 
 
 

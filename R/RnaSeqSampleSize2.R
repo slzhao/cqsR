@@ -2,6 +2,7 @@
 
 
 require(ssanv)
+library(MASS)
 #Beta0: read count; Beta1: fold change
 
 makeEqualDesignMatrix=function(factorNum=3,sampleSize=2^factorNum,interactionFactors=NULL) {
