@@ -175,7 +175,13 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
             "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Odds Ratio (Diff: 75%-25%)", "OR (Diff, Lower 95%)", "OR (Diff, Upper 95%)"
           )
         }
-        varOneOut <- data.frame(Formula = paste0(modelType, " (", as.character(as.expression(formulaForModel)), ")"), varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
+        #recored event level as sometimes event is factor and need to know which level is event (1)
+        if (modelType == "lrm") {
+          outVarEvent=paste(paste0(rev(names(modelResult$freq)),"(",rev((modelResult$freq)),")"),collapse=" : ")
+          varOneOut <- data.frame(Event=outVarEvent,varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
+        }
+
+        varOneOut <- data.frame(Formula = paste0(modelType, " (", as.character(as.expression(formulaForModel)), ")"),varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
 
         if (!is.null(extractStats)) {
           varOneOut <- c(varOneOut, round(modelResult$stats[extractStats], 3))
