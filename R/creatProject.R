@@ -2,11 +2,13 @@
 #creatProject("Projects/20190504_XiangmingTrend")
 #creatProject("ChevisShannon/20190509_AntenatalHydronephrosisANH")
 #creatProject("test/test1")
+#creatProject("Pierre","targetSequencingUploadFile")
 
-creatProject <- function(projectName,
+creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
                          sourcePDir="d:/source/r_cqs",
                          dataPDir="D:/OneDriveWork/OneDriveVanderbilt/work",
                          templateFile="D:/source/r_cqs/myPkg/example/reportExample.Rmd") {
+  projectName=paste0(pi,"/",projectDate,"_",project)
   sourceDir=paste0(sourcePDir,"/",projectName)
   dataDir=paste0(dataPDir,"/",projectName)
   rmarkdownFile=file.path(paste0(sourceDir,"/R/",basename(projectName), ".Rmd"))
@@ -39,8 +41,17 @@ creatProject <- function(projectName,
 
   cat(paste(templateFileContent, collapse="\n"), file=rmarkdownFile)
 #  message(paste("Project ",basename(projectName), "has been created at ",sourceDir))
-
+  writeWorkList(pi,project,note,projectDate,workListFile=paste0(sourcePDir,"/workList.txt"))
   usethis::proj_activate(sourceDir)
 }
 
+writeWorkList=function(pi,project,note=note,projectDate=gsub("-","",Sys.Date()),workListFile="d:/source/r_cqs/workList.txt") {
+  workListContent=readr::read_tsv(workListFile)
+  workListContent=rbind(workListContent,c(pi,project,projectDate,note,""))
+  write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
+}
 
+showWorkList=function(workListFile="d:/source/r_cqs/workList.txt") {
+  workListContent=readr::read_tsv(workListFile)
+  knitr::kable(workListContent)
+}
