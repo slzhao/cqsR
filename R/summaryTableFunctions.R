@@ -22,7 +22,7 @@
 
 #' @export
 #'
-summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,pairedTest=FALSE) {
+summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,pairedTest=FALSE,minUnique=5) {
   if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
     stop(pate0("at least one of groupCol or varColsPaired should be defined"))
   }
@@ -60,7 +60,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
     } else {
       varColLabel=paste0(varCol," (",groupColLabel[1],") vs ",varColPaired," (",groupColLabel[2],")")
     }
-    if (is.factor(rawData[,varCol]) | is.character(rawData[,varCol])) { #categorical
+    if (length(unique(rawData[,varCol]))<minUnique | is.factor(rawData[,varCol]) | is.character(rawData[,varCol])) { #categorical, or less than minUnique of unique numbers, make it a categorical data
       #make factor or numeric into character to match variables
       dataOneGroup1=as.character(rawDataPairedOrderedGroup1[,varCol])
       dataOneGroup2=as.character(rawDataPairedOrderedGroup2[,varColPaired])
