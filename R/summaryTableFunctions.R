@@ -22,7 +22,7 @@
 
 #' @export
 #'
-summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,pairedTest=FALSE,minUnique=5) {
+summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,pairedTest=FALSE,minUnique=5,NotPairedCatTestFun=chisq.test) {
   if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
     stop(pate0("at least one of groupCol or varColsPaired should be defined"))
   }
@@ -35,6 +35,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
     if (is.null(groupColLabel)) {
       groupColLabel=levels(as.factor(rawData[,groupCol]))
     }
+    groupColCount=c()
   } else {
     rawDataPairedOrderedGroup1=rawData[,varCols,drop=FALSE]
     rawDataPairedOrderedGroup2=rawData[,varColsPaired,drop=FALSE]
@@ -46,6 +47,9 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
       }
     }
   }
+  groupColCount1=length(which(apply(rawDataPairedOrderedGroup1,1,function(x) !all(is.na(x)))))
+  groupColCount2=length(which(apply(rawDataPairedOrderedGroup2,1,function(x) !all(is.na(x)))))
+  groupColCount=c(groupColCount1,groupColCount2)
 
   tableAll=NULL
   for (i in 1:length(varCols)) {
@@ -73,14 +77,20 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           pValue=NA
           statistic=NA
         } else {
-          pValue=chisq.test(matrixForTest)$p.value
-          statistic=chisq.test(matrixForTest)$statistic
+          testResult=NotPairedCatTestFun(matrixForTest)
+          pValue=testResult$p.value
+          if ("statistic" %in% names(testResult)) {
+            statistic=testResult$statistic
+          } else {
+            statistic=""
+          }
+
           dataOneVariableCountAll=rowSums(matrixForTest)
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
                            c("",countToPercent(dataOneVariableCountAll)),
                            rbind(c(rep("",ncol(matrixForTest))),countToPercent(matrixForTest)),
-                           c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCountAll)))
+                           c(paste0(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; ")),showP(pValue)),rep("",length(dataOneVariableCountAll)))
         )
       } else { #paired test mcnemar.test
         dataForTable=data.frame(Pre=dataOneGroup1,Post=dataOneGroup2)
@@ -148,9 +158,11 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
       }
 
       if (varCol != varColPaired) {
-        dataOneVariableCount=paste0(c(paste0(c(varCol,varColPaired),"=")),dataOneVariableCount,collapse="; ")
+        #dataOneVariableCount=paste0(c(paste0(c(varCol,varColPaired),"=")),dataOneVariableCount,collapse="; ")
+        dataOneVariableCount=paste0(c(varCol,varColPaired),paste0(" (",dataOneVariableCount,")"),collapse="; ")
       } else {
-        dataOneVariableCount=paste0(c(paste0(groupColLabel,"=")),dataOneVariableCount,collapse="; ")
+        #dataOneVariableCount=paste0(c(paste0(groupColLabel,"=")),dataOneVariableCount,collapse="; ")
+        dataOneVariableCount=paste0(groupColLabel,paste0(" (",dataOneVariableCount,")"),collapse="; ")
       }
       if (pairedTest) { #paired test, count N with value in both of two paired groups
         dataOneVariableCount=paste0(dataOneVariableCount,"; Both=",length(sampleInBothInd))
@@ -167,7 +179,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
 
   }
   row.names(tableAll)<-NULL
-  colnames(tableAll)=c("","N",groupColLabel,"Test Statistic")
+  colnames(tableAll)=c("","N",paste0(groupColLabel," (",groupColCount,")"),"Test Statistic")
   return(tableAll)
 }
 
@@ -175,10 +187,19 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
 #'
 printSummaryTable<-function(tableOut) {
   plSignLabel=markupSpecs[["html"]]$plminus
-  summaryFootContent=paste0("a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x",plSignLabel,"s represents X",plSignLabel,"SD.")
+  summaryFootContent=""
+  if (any(grepl("X-squared",tableOut[,"Test Statistic"])) | !all(grepl("^<p align=",tableOut[,1]))) { #have categorical variable
+    summaryFootContent=paste0(summaryFootContent,"For categorical variable, numbers after proportions are counts; ")
+  }
+  if (any(grepl("V=|W=",tableOut[,"Test Statistic"]))) { #have continuous variable
+    summaryFootContent=paste0(summaryFootContent, "For continuous variable, a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c in different categories. x",plSignLabel,"s represents Mean",plSignLabel,"SD.")
+  }
 
-  testFootContentMcNemar=ifelse(any(grepl("McNemar",tableOut[,"Test Statistic"])),"McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table;","")
-  testFootContentChisq=ifelse(any(grepl("X-squared",tableOut[,"Test Statistic"])),"Chi-squared test for categorical variable;","")
+  testFootContentMcNemar=ifelse(any(grepl("McNemar",tableOut[,"Test Statistic"])),"McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table; ","")
+  testFootContentChisq=ifelse(any(grepl("X-squared",tableOut[,"Test Statistic"])),"Chi-squared test for categorical variable; ","")
+  if (testFootContentChisq=="" & !all(grepl("^<p align=",tableOut[,1]))) { #No Chi-squared test used and having categorical data in table
+    testFootContentChisq="Fisher's exact test for categorical variable; "
+  }
   testFootContentPairedWilcox=ifelse(any(grepl("V=",tableOut[,"Test Statistic"])),"Wilcoxon Signed Rank Test for continuous variable; ","")
   testFootContentNonPairedWilcox=ifelse(any(grepl("W=",tableOut[,"Test Statistic"])),"Non-Paired Wilcoxon Rank Sum Test for continuous variable; ","")
   if (testFootContentMcNemar!="" | testFootContentChisq!="" | testFootContentPairedWilcox!="" | testFootContentNonPairedWilcox!="") {
