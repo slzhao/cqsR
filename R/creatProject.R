@@ -4,6 +4,8 @@
 #creatProject("test/test1")
 #creatProject("Pierre","targetSequencingUploadFile")
 
+#' @export
+#'
 creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
                          sourcePDir="d:/source/r_cqs",
                          dataPDir="D:/OneDriveWork/OneDriveVanderbilt/work",
@@ -45,12 +47,16 @@ creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
   usethis::proj_activate(sourceDir)
 }
 
+#' @export
+#'
 writeWorkList=function(pi,project,note=note,projectDate=gsub("-","",Sys.Date()),workListFile="d:/source/r_cqs/workList.txt") {
   workListContent=readr::read_tsv(workListFile)
   workListContent=rbind(workListContent,c(pi,project,projectDate,note,""))
   write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
 }
 
+#' @export
+#'
 showWorkList=function(workListFile="d:/source/r_cqs/workList.txt") {
   workListContent=readr::read_tsv(workListFile)
   knitr::kable(workListContent)
