@@ -55,11 +55,13 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
   if (!is.null(resultOut) && nrow(resultOut)>0) {
     row.names(resultOut) <- NULL
     colnames(resultOut) <- c("Outcome", "X", "Formula", "P (Variable)", paste0("P (",row.names(modelResultAnova)[2:3],")"))
-  }
-  if (returnKable) {
-#    temp <- apply(resultOut, 2, function(x) all(x == "")) # remove spaces
-#    kable(resultOut[, which(!temp)],caption ="Non-linear Test")
-    kable(resultOut,caption ="Non-linear Test for continuous variables")
+    if (returnKable) {
+      #    temp <- apply(resultOut, 2, function(x) all(x == "")) # remove spaces
+      #    kable(resultOut[, which(!temp)],caption ="Non-linear Test")
+      kable(resultOut,caption ="Non-linear Test for continuous variables")
+    } else {
+      return(resultOut)
+    }
   } else {
     return(resultOut)
   }
