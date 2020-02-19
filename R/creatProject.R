@@ -61,3 +61,12 @@ showWorkList=function(workListFile="d:/source/r_cqs/workList.txt") {
   workListContent=readr::read_tsv(workListFile)
   knitr::kable(workListContent)
 }
+
+#' @export
+#'
+editWorkList=function(workListFile="d:/source/r_cqs/workList.txt") {
+#  require(editData)
+  workListContent=readr::read_tsv(workListFile)
+  workListContent <- editData::editData(workListContent)
+  write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
+}
