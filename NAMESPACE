@@ -2,6 +2,7 @@
 
 export(countToPercent)
 export(creatProject)
+export(editWorkList)
 export(makeTestNameForTable)
 export(matchGrToVcfObj)
 export(modelTable)

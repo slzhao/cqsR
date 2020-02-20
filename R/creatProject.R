@@ -57,16 +57,28 @@ writeWorkList=function(pi,project,note=note,projectDate=gsub("-","",Sys.Date()),
 
 #' @export
 #'
-showWorkList=function(workListFile="d:/source/r_cqs/workList.txt") {
+showWorkList=function(workListFile=paste0(Sys.getenv("SOURCEDIR","d:/source/"),"/r_cqs/workList.txt"),
+                      showFinished=FALSE) {
   workListContent=readr::read_tsv(workListFile)
+  if (!showFinished) {
+    finishedWorkInd=which(workListContent$Finished=="Finished")
+    if (length(finishedWorkInd)>0) {
+      workListContent=workListContent[-finishedWorkInd,]
+    }
+  }
   knitr::kable(workListContent)
 }
 
 #' @export
 #'
-editWorkList=function(workListFile="d:/source/r_cqs/workList.txt") {
+editWorkList=function(workListFile=paste0(Sys.getenv("SOURCEDIR","d:/source/"),"/r_cqs/workList.txt")) {
 #  require(editData)
-  workListContent=readr::read_tsv(workListFile)
-  workListContent <- editData::editData(workListContent)
-  write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
+  workListContent<<-readr::read_tsv(workListFile)
+  workListContent <- editData::editData(data=workListContent)
+  if (!is.null(workListContent)) {
+    write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
+  } else {
+#    warning("Not able to change/save workListFile")
+  }
 }
+
