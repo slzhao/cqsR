@@ -58,15 +58,16 @@ for (i in 1:length(temp1)) {
 #(formulaForModel<-as.formula(paste0(outVar,"~",paste(varForTable1, collapse=" + "))))
 ```
 
+
 ##Logistic regression: Model, Table, and Figure
 
 ### Model and Table
 
-```{r,comment=""}
+```{r,comment="",results='asis'}
 outVar="FeatureYN1"
 varForTable=c("Feature1", "Feature2","Feature3","FeatureCategory1")
 
-nonLinearTest(rawData,outVar,varForTable,modelType ="lrm")
+nonLinearTest(rawData,outVar,varForTable,modelType ="lrm",returnKable=TRUE)
 
 modelTable(rawData,outVars="FeatureYN1",interestedVars=list(c("Feature1"),c("Feature2","FeatureCategory1")),adjVars="Feature3")
 modelTable(rawData,outVars="FeatureYN1",interestedVars=c("Feature1","Feature2","FeatureCategory1"),adjVars="Feature3")
