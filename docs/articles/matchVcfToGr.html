@@ -53,6 +53,12 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/AdvancedR.html">Advanced R</a>
+    </li>
+    <li>
+      <a href="../articles/EasierStatisticModels.html">Statistic Methods Example</a>
+    </li>
+    <li>
       <a href="../articles/limmaTestAndDesign.html">limma Test and Design</a>
     </li>
     <li>
@@ -63,6 +69,12 @@
     </li>
     <li>
       <a href="../articles/RforDataScienceNotes.html">R for Data Science Notes</a>
+    </li>
+    <li>
+      <a href="../articles/RnaSeqSampleSize2.html">Development of RnaSeqSampleSize version 2</a>
+    </li>
+    <li>
+      <a href="../articles/RPackageExamples.html">R Packages Examples</a>
     </li>
   </ul>
 </li>
@@ -101,6 +113,7 @@
 <pre><code>## Loading required package: data.table</code></pre>
 <pre><code>## Warning: package 'data.table' was built under R version 3.6.1</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
+<pre><code>## Warning: package 'ggplot2' was built under R version 3.6.2</code></pre>
 <pre><code>## Loading required package: htmlTable</code></pre>
 <pre><code>## Warning: package 'htmlTable' was built under R version 3.6.1</code></pre>
 <pre><code>## Loading required package: Hmisc</code></pre>
@@ -204,14 +217,14 @@
 <pre><code>## The following object is masked from 'package:base':
 ## 
 ##     tabulate</code></pre>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1">fl &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.file">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"chr22.vcf.gz"</span>, <span class="dt">package=</span><span class="st">"VariantAnnotation"</span>)</a>
-<a class="sourceLine" id="cb55-2" title="2">vcf &lt;-<span class="st"> </span><span class="kw">readVcf</span>(fl, <span class="st">"hg19"</span>)</a>
-<a class="sourceLine" id="cb55-3" title="3">vcf &lt;-<span class="st"> </span>VariantAnnotation<span class="op">::</span><span class="kw">expand</span>(<span class="dt">x =</span> vcf, <span class="dt">row.names =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb55-4" title="4"></a>
-<a class="sourceLine" id="cb55-5" title="5">variantsTable=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">chr=</span><span class="st">"22"</span>, <span class="dt">start=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">50300078</span>,<span class="dv">50300085</span>), <span class="dt">end=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">50300078</span>,<span class="dv">50300102</span>), <span class="dt">score=</span><span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb55-6" title="6">variantsTableGr=<span class="kw">makeGRangesFromDataFrame</span>(variantsTable)</a>
-<a class="sourceLine" id="cb55-7" title="7"><span class="co">#matchGrToVcfObj(variantsTableGr,vcf)</span></a>
-<a class="sourceLine" id="cb55-8" title="8"><span class="kw">readVcfAndMatchGr</span>(fl,variantsTableGr)</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1">fl &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.file">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"chr22.vcf.gz"</span>, <span class="dt">package=</span><span class="st">"VariantAnnotation"</span>)</a>
+<a class="sourceLine" id="cb56-2" title="2">vcf &lt;-<span class="st"> </span><span class="kw">readVcf</span>(fl, <span class="st">"hg19"</span>)</a>
+<a class="sourceLine" id="cb56-3" title="3">vcf &lt;-<span class="st"> </span>VariantAnnotation<span class="op">::</span><span class="kw">expand</span>(<span class="dt">x =</span> vcf, <span class="dt">row.names =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb56-4" title="4"></a>
+<a class="sourceLine" id="cb56-5" title="5">variantsTable=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">chr=</span><span class="st">"22"</span>, <span class="dt">start=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">50300078</span>,<span class="dv">50300085</span>), <span class="dt">end=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">50300078</span>,<span class="dv">50300102</span>), <span class="dt">score=</span><span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb56-6" title="6">variantsTableGr=<span class="kw">makeGRangesFromDataFrame</span>(variantsTable)</a>
+<a class="sourceLine" id="cb56-7" title="7"><span class="co">#matchGrToVcfObj(variantsTableGr,vcf)</span></a>
+<a class="sourceLine" id="cb56-8" title="8"><span class="kw">readVcfAndMatchGr</span>(fl,variantsTableGr)</a></code></pre></div>
 <pre><code>## [1] "Reading vcf: 10376"</code></pre>
 <pre><code>##    chr    start      end REF ALT FILTER   AF
 ## 1:  22 50300078 50300078   A   G   PASS 0.34

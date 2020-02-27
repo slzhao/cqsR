@@ -53,6 +53,12 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/AdvancedR.html">Advanced R</a>
+    </li>
+    <li>
+      <a href="../articles/EasierStatisticModels.html">Statistic Methods Example</a>
+    </li>
+    <li>
       <a href="../articles/limmaTestAndDesign.html">limma Test and Design</a>
     </li>
     <li>
@@ -63,6 +69,12 @@
     </li>
     <li>
       <a href="../articles/RforDataScienceNotes.html">R for Data Science Notes</a>
+    </li>
+    <li>
+      <a href="../articles/RnaSeqSampleSize2.html">Development of RnaSeqSampleSize version 2</a>
+    </li>
+    <li>
+      <a href="../articles/RPackageExamples.html">R Packages Examples</a>
     </li>
   </ul>
 </li>
@@ -94,11 +106,12 @@
 <p><a href="https://r4ds.had.co.nz/" class="uri">https://r4ds.had.co.nz/</a></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tidyverse)</a></code></pre></div>
 <pre><code>## Warning: package 'tidyverse' was built under R version 3.6.1</code></pre>
-<pre><code>## -- Attaching packages ---------------------------------------------------------------------------------------------------------------------------- tidyverse 1.2.1 --</code></pre>
-<pre><code>## v ggplot2 3.2.0     v purrr   0.3.2
+<pre><code>## -- Attaching packages ------------------------------------------------------------------------------------------ tidyverse 1.2.1 --</code></pre>
+<pre><code>## v ggplot2 3.2.1     v purrr   0.3.2
 ## v tibble  2.1.3     v dplyr   0.8.3
 ## v tidyr   0.8.3     v stringr 1.4.0
 ## v readr   1.3.1     v forcats 0.4.0</code></pre>
+<pre><code>## Warning: package 'ggplot2' was built under R version 3.6.2</code></pre>
 <pre><code>## Warning: package 'tibble' was built under R version 3.6.1</code></pre>
 <pre><code>## Warning: package 'tidyr' was built under R version 3.6.1</code></pre>
 <pre><code>## Warning: package 'readr' was built under R version 3.6.1</code></pre>
@@ -106,10 +119,15 @@
 <pre><code>## Warning: package 'dplyr' was built under R version 3.6.1</code></pre>
 <pre><code>## Warning: package 'stringr' was built under R version 3.6.1</code></pre>
 <pre><code>## Warning: package 'forcats' was built under R version 3.6.1</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+<pre><code>## -- Conflicts --------------------------------------------------------------------------------------------- tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="co">#library(dplyr)</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co">#library(dplyr)</span></a></code></pre></div>
+<div id="vroom-package-fast-reading-of-delimited-files" class="section level1">
+<h1 class="hasAnchor">
+<a href="#vroom-package-fast-reading-of-delimited-files" class="anchor"></a>vroom package: Fast reading of delimited files</h1>
+<p><a href="https://github.com/r-lib/vroom" class="uri">https://github.com/r-lib/vroom</a> <a href="https://vroom.r-lib.org/articles/vroom.html" class="uri">https://vroom.r-lib.org/articles/vroom.html</a></p>
+</div>
 <div id="dplyr-package" class="section level1">
 <h1 class="hasAnchor">
 <a href="#dplyr-package" class="anchor"></a>dplyr package</h1>
@@ -125,7 +143,7 @@
 </ul>
 <p>Filtering joins keep columns from x:</p>
 <ul>
-<li>semi_join: return all rows from x where there are matching values in y. It will never duplicate rows of x even if one row matching multiple y (as cloumns in y will not be kept, no need to duplicate rwo in x).</li>
+<li>semi_join: return all rows from x where there are matching values in y. It will never duplicate rows of x even if one row matching multiple y (as cloumns in y will not be kept, no need to duplicate row in x).</li>
 <li>anti_join: return all rows from x where there are not matching values in y</li>
 </ul>
 <p>Nesting joins create a list column of for columns from y:</p>
@@ -133,9 +151,46 @@
 <li>nest_join: return all rows and all columns from x. Adds a list column of tibbles. Each tibble contains all the rows from y that match that row of x.</li>
 </ul>
 </div>
-<div id="top_n-top_frac-first-rows-by-value" class="section level2">
+<div id="filter-row-based-on-providing-values-and-use-order-of-values-like-selecting-by-row-names-in-base-r" class="section level2">
 <h2 class="hasAnchor">
-<a href="#top_n-top_frac-first-rows-by-value" class="anchor"></a>top_n, top_frac: first rows by value</h2>
+<a href="#filter-row-based-on-providing-values-and-use-order-of-values-like-selecting-by-row-names-in-base-r" class="anchor"></a>filter row based on providing values and use order of values (like selecting by row.names in base R)</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">mtcars1=<span class="kw">as_tibble</span>(mtcars,<span class="dt">rownames=</span><span class="st">"car"</span>)</a>
+<a class="sourceLine" id="cb15-2" title="2">selectedCars=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Lotus Europa"</span> ,<span class="st">"Maserati Bora"</span>,<span class="st">"Ferrari Dino"</span> )</a>
+<a class="sourceLine" id="cb15-3" title="3"></a>
+<a class="sourceLine" id="cb15-4" title="4">mtcars1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/filter">filter</a></span>(car <span class="op">%in%</span><span class="st"> </span>selectedCars) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/match">match</a></span>(car,(selectedCars)))</a></code></pre></div>
+<pre><code>## # A tibble: 3 x 12
+##   car       mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lotus ~  30.4     4  95.1   113  3.77  1.51  16.9     1     1     5     2
+## 2 Masera~  15       8 301     335  3.54  3.57  14.6     0     1     5     8
+## 3 Ferrar~  19.7     6 145     175  3.62  2.77  15.5     0     1     5     6</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="co">#Or</span></a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="kw">enframe</span>(selectedCars,<span class="dt">name=</span><span class="ot">NULL</span>,<span class="dt">value=</span><span class="st">"car"</span>)<span class="op">%&gt;%</span><span class="st"> </span><span class="kw">left_join</span>(mtcars1)</a></code></pre></div>
+<pre><code>## Joining, by = "car"</code></pre>
+<pre><code>## # A tibble: 3 x 12
+##   car       mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lotus ~  30.4     4  95.1   113  3.77  1.51  16.9     1     1     5     2
+## 2 Masera~  15       8 301     335  3.54  3.57  14.6     0     1     5     8
+## 3 Ferrar~  19.7     6 145     175  3.62  2.77  15.5     0     1     5     6</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">car=</span>selectedCars,<span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">left_join</span>(mtcars1)</a></code></pre></div>
+<pre><code>## Joining, by = "car"</code></pre>
+<pre><code>##             car  mpg cyl  disp  hp drat    wt qsec vs am gear carb
+## 1  Lotus Europa 30.4   4  95.1 113 3.77 1.513 16.9  1  1    5    2
+## 2 Maserati Bora 15.0   8 301.0 335 3.54 3.570 14.6  0  1    5    8
+## 3  Ferrari Dino 19.7   6 145.0 175 3.62 2.770 15.5  0  1    5    6</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">mtcars1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">semi_join</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">car=</span>selectedCars,<span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>))</a></code></pre></div>
+<pre><code>## Joining, by = "car"</code></pre>
+<pre><code>## # A tibble: 3 x 12
+##   car       mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+##   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lotus ~  30.4     4  95.1   113  3.77  1.51  16.9     1     1     5     2
+## 2 Ferrar~  19.7     6 145     175  3.62  2.77  15.5     0     1     5     6
+## 3 Masera~  15       8 301     335  3.54  3.57  14.6     0     1     5     8</code></pre>
+</div>
+<div id="top_n-top_frac-first-rows-by-a-variable-value-if-n-is-positive-selects-the-top-rows--if-negative-selects-the-bottom-rows--it-takes-all-rows-when-having-tie-in-top_n--can-add-slice1-if-only-need-first-one" class="section level2">
+<h2 class="hasAnchor">
+<a href="#top_n-top_frac-first-rows-by-a-variable-value-if-n-is-positive-selects-the-top-rows--if-negative-selects-the-bottom-rows--it-takes-all-rows-when-having-tie-in-top_n--can-add-slice1-if-only-need-first-one" class="anchor"></a>top_n, top_frac: first rows by a variable value, If n is positive, selects the top rows. If negative, selects the bottom rows. It takes all rows when having tie in top_n. can add %&gt;% slice(1) if only need first one</h2>
 </div>
 <div id="slice-first-rows-by-position" class="section level2">
 <h2 class="hasAnchor">
@@ -160,8 +215,8 @@
 <div id="mutate-make-new-variable" class="section level2">
 <h2 class="hasAnchor">
 <a href="#mutate-make-new-variable" class="anchor"></a>mutate: Make new variable</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">table1 <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rate =</span> cases <span class="op">/</span><span class="st"> </span>population <span class="op">*</span><span class="st"> </span><span class="dv">10000</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">table1 <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">rate =</span> cases <span class="op">/</span><span class="st"> </span>population <span class="op">*</span><span class="st"> </span><span class="dv">10000</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 5
 ##   country      year  cases population  rate
 ##   &lt;chr&gt;       &lt;int&gt;  &lt;int&gt;      &lt;int&gt; &lt;dbl&gt;
@@ -179,11 +234,11 @@
 <div id="group_by-takes-an-existing-tbl-and-converts-it-into-a-grouped-tbl" class="section level2">
 <h2 class="hasAnchor">
 <a href="#group_by-takes-an-existing-tbl-and-converts-it-into-a-grouped-tbl" class="anchor"></a>group_by: takes an existing tbl and converts it into a grouped tbl</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">by_cyl &lt;-<span class="st"> </span>mtcars <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(cyl)</a>
-<a class="sourceLine" id="cb16-2" title="2"></a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="co"># grouping doesn't change how the data looks (apart from listing</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="co"># how it's grouped):</span></a>
-<a class="sourceLine" id="cb16-5" title="5">by_cyl</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">by_cyl &lt;-<span class="st"> </span>mtcars <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(cyl)</a>
+<a class="sourceLine" id="cb28-2" title="2"></a>
+<a class="sourceLine" id="cb28-3" title="3"><span class="co"># grouping doesn't change how the data looks (apart from listing</span></a>
+<a class="sourceLine" id="cb28-4" title="4"><span class="co"># how it's grouped):</span></a>
+<a class="sourceLine" id="cb28-5" title="5">by_cyl</a></code></pre></div>
 <pre><code>## # A tibble: 32 x 11
 ## # Groups:   cyl [3]
 ##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
@@ -199,11 +254,11 @@
 ##  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
 ## 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
 ## # ... with 22 more rows</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="co"># It changes how it acts with the other dplyr verbs:</span></a>
-<a class="sourceLine" id="cb18-2" title="2">by_cyl <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb18-3" title="3">  <span class="dt">disp =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(disp),</a>
-<a class="sourceLine" id="cb18-4" title="4">  <span class="dt">hp =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(hp)</a>
-<a class="sourceLine" id="cb18-5" title="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="co"># It changes how it acts with the other dplyr verbs:</span></a>
+<a class="sourceLine" id="cb30-2" title="2">by_cyl <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb30-3" title="3">  <span class="dt">disp =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(disp),</a>
+<a class="sourceLine" id="cb30-4" title="4">  <span class="dt">hp =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(hp)</a>
+<a class="sourceLine" id="cb30-5" title="5">)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 3
 ##     cyl  disp    hp
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
@@ -214,9 +269,9 @@
 <div id="count-count-number-per-factor" class="section level2">
 <h2 class="hasAnchor">
 <a href="#count-count-number-per-factor" class="anchor"></a>count: Count number per factor</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="co">#sum (count) of manufacturer</span></a>
-<a class="sourceLine" id="cb20-2" title="2">mpg <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb20-3" title="3"><span class="st">  </span><span class="kw">count</span>(manufacturer)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="co">#sum (count) of manufacturer</span></a>
+<a class="sourceLine" id="cb32-2" title="2">mpg <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="st">  </span><span class="kw">count</span>(manufacturer)</a></code></pre></div>
 <pre><code>## # A tibble: 15 x 2
 ##    manufacturer     n
 ##    &lt;chr&gt;        &lt;int&gt;
@@ -235,9 +290,9 @@
 ## 13 subaru          14
 ## 14 toyota          34
 ## 15 volkswagen      27</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="co">#sum of hwy by manufacturer</span></a>
-<a class="sourceLine" id="cb22-2" title="2">mpg <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb22-3" title="3"><span class="st">  </span><span class="kw">count</span>(manufacturer,<span class="dt">wt=</span>hwy)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="co">#sum of hwy by manufacturer</span></a>
+<a class="sourceLine" id="cb34-2" title="2">mpg <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb34-3" title="3"><span class="st">  </span><span class="kw">count</span>(manufacturer,<span class="dt">wt=</span>hwy)</a></code></pre></div>
 <pre><code>## # A tibble: 15 x 2
 ##    manufacturer     n
 ##    &lt;chr&gt;        &lt;int&gt;
@@ -260,101 +315,101 @@
 <div id="gather-takes-multiple-columns-and-collapses-into-key-value-pairs" class="section level2">
 <h2 class="hasAnchor">
 <a href="#gather-takes-multiple-columns-and-collapses-into-key-value-pairs" class="anchor"></a>gather: takes multiple columns and collapses into key-value pairs</h2>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="co"># From http://stackoverflow.com/questions/1181060</span></a>
-<a class="sourceLine" id="cb24-2" title="2">stocks &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb24-3" title="3">  <span class="dt">time =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">'2009-01-01'</span>) <span class="op">+</span><span class="st"> </span><span class="dv">0</span><span class="op">:</span><span class="dv">9</span>,</a>
-<a class="sourceLine" id="cb24-4" title="4">  <span class="dt">X =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb24-5" title="5">  <span class="dt">Y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb24-6" title="6">  <span class="dt">Z =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">4</span>)</a>
-<a class="sourceLine" id="cb24-7" title="7">)</a>
-<a class="sourceLine" id="cb24-8" title="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(stocks)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="co"># From http://stackoverflow.com/questions/1181060</span></a>
+<a class="sourceLine" id="cb36-2" title="2">stocks &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb36-3" title="3">  <span class="dt">time =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">'2009-01-01'</span>) <span class="op">+</span><span class="st"> </span><span class="dv">0</span><span class="op">:</span><span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb36-4" title="4">  <span class="dt">X =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb36-5" title="5">  <span class="dt">Y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb36-6" title="6">  <span class="dt">Z =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb36-7" title="7">)</a>
+<a class="sourceLine" id="cb36-8" title="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(stocks)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 4
-##   time            X      Y       Z
-##   &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
-## 1 2009-01-01  2.91  -0.297 -1.04  
-## 2 2009-01-02  0.573 -1.88  -0.980 
-## 3 2009-01-03  0.484 -1.42   5.67  
-## 4 2009-01-04  0.427  2.70   5.29  
-## 5 2009-01-05  2.69   0.692  5.82  
-## 6 2009-01-06 -1.51   1.06  -0.0359</code></pre>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="co">#use everything except "time" as values. "stock" and "price" as new variable names for key and value</span></a>
-<a class="sourceLine" id="cb26-2" title="2"><span class="kw">gather</span>(stocks, <span class="st">"stock"</span>, <span class="st">"price"</span>, <span class="op">-</span>time)</a></code></pre></div>
+##   time            X      Y     Z
+##   &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+## 1 2009-01-01  1.07  -0.306  1.51
+## 2 2009-01-02 -1.18   0.790  3.04
+## 3 2009-01-03 -0.649  3.30  -3.03
+## 4 2009-01-04 -0.241 -0.106 -4.02
+## 5 2009-01-05 -1.27  -1.07  -3.85
+## 6 2009-01-06 -1.67   3.53  -3.58</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="co">#use everything except "time" as values. "stock" and "price" as new variable names for key and value</span></a>
+<a class="sourceLine" id="cb38-2" title="2"><span class="kw">gather</span>(stocks, <span class="st">"stock"</span>, <span class="st">"price"</span>, <span class="op">-</span>time)</a></code></pre></div>
 <pre><code>## # A tibble: 30 x 3
 ##    time       stock  price
 ##    &lt;date&gt;     &lt;chr&gt;  &lt;dbl&gt;
-##  1 2009-01-01 X      2.91 
-##  2 2009-01-02 X      0.573
-##  3 2009-01-03 X      0.484
-##  4 2009-01-04 X      0.427
-##  5 2009-01-05 X      2.69 
-##  6 2009-01-06 X     -1.51 
-##  7 2009-01-07 X     -1.36 
-##  8 2009-01-08 X     -1.30 
-##  9 2009-01-09 X      0.977
-## 10 2009-01-10 X     -1.26 
+##  1 2009-01-01 X      1.07 
+##  2 2009-01-02 X     -1.18 
+##  3 2009-01-03 X     -0.649
+##  4 2009-01-04 X     -0.241
+##  5 2009-01-05 X     -1.27 
+##  6 2009-01-06 X     -1.67 
+##  7 2009-01-07 X     -1.02 
+##  8 2009-01-08 X     -1.51 
+##  9 2009-01-09 X     -1.31 
+## 10 2009-01-10 X      1.45 
 ## # ... with 20 more rows</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="co">#use X, Y, Z as values, so don't need -time. "stock" and "price" as new variable names for key and value</span></a>
-<a class="sourceLine" id="cb28-2" title="2">stocks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(<span class="st">"X"</span>, <span class="st">"Y"</span>,<span class="st">"Z"</span>,<span class="dt">key=</span><span class="st">"stock"</span>,<span class="dt">value=</span><span class="st">"price"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="co">#use X, Y, Z as values, so don't need -time. "stock" and "price" as new variable names for key and value</span></a>
+<a class="sourceLine" id="cb40-2" title="2">stocks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(<span class="st">"X"</span>, <span class="st">"Y"</span>,<span class="st">"Z"</span>,<span class="dt">key=</span><span class="st">"stock"</span>,<span class="dt">value=</span><span class="st">"price"</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 30 x 3
 ##    time       stock  price
 ##    &lt;date&gt;     &lt;chr&gt;  &lt;dbl&gt;
-##  1 2009-01-01 X      2.91 
-##  2 2009-01-02 X      0.573
-##  3 2009-01-03 X      0.484
-##  4 2009-01-04 X      0.427
-##  5 2009-01-05 X      2.69 
-##  6 2009-01-06 X     -1.51 
-##  7 2009-01-07 X     -1.36 
-##  8 2009-01-08 X     -1.30 
-##  9 2009-01-09 X      0.977
-## 10 2009-01-10 X     -1.26 
+##  1 2009-01-01 X      1.07 
+##  2 2009-01-02 X     -1.18 
+##  3 2009-01-03 X     -0.649
+##  4 2009-01-04 X     -0.241
+##  5 2009-01-05 X     -1.27 
+##  6 2009-01-06 X     -1.67 
+##  7 2009-01-07 X     -1.02 
+##  8 2009-01-08 X     -1.51 
+##  9 2009-01-09 X     -1.31 
+## 10 2009-01-10 X      1.45 
 ## # ... with 20 more rows</code></pre>
 </div>
 <div id="spread-opposite-of-gathering--use-it-when-an-observation-is-scattered-across-multiple-rows-" class="section level2">
 <h2 class="hasAnchor">
 <a href="#spread-opposite-of-gathering--use-it-when-an-observation-is-scattered-across-multiple-rows-" class="anchor"></a>spread: opposite of gathering. use it when an observation is scattered across multiple rows.</h2>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1">stocksm &lt;-<span class="st"> </span>stocks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(stock, price, <span class="op">-</span>time)</a>
-<a class="sourceLine" id="cb30-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(stocksm)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1">stocksm &lt;-<span class="st"> </span>stocks <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gather</span>(stock, price, <span class="op">-</span>time)</a>
+<a class="sourceLine" id="cb42-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(stocksm)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   time       stock  price
 ##   &lt;date&gt;     &lt;chr&gt;  &lt;dbl&gt;
-## 1 2009-01-01 X      2.91 
-## 2 2009-01-02 X      0.573
-## 3 2009-01-03 X      0.484
-## 4 2009-01-04 X      0.427
-## 5 2009-01-05 X      2.69 
-## 6 2009-01-06 X     -1.51</code></pre>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">stocksm <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(stock, price)</a></code></pre></div>
+## 1 2009-01-01 X      1.07 
+## 2 2009-01-02 X     -1.18 
+## 3 2009-01-03 X     -0.649
+## 4 2009-01-04 X     -0.241
+## 5 2009-01-05 X     -1.27 
+## 6 2009-01-06 X     -1.67</code></pre>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1">stocksm <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(stock, price)</a></code></pre></div>
 <pre><code>## # A tibble: 10 x 4
-##    time            X      Y       Z
-##    &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
-##  1 2009-01-01  2.91  -0.297 -1.04  
-##  2 2009-01-02  0.573 -1.88  -0.980 
-##  3 2009-01-03  0.484 -1.42   5.67  
-##  4 2009-01-04  0.427  2.70   5.29  
-##  5 2009-01-05  2.69   0.692  5.82  
-##  6 2009-01-06 -1.51   1.06  -0.0359
-##  7 2009-01-07 -1.36  -0.687  2.93  
-##  8 2009-01-08 -1.30  -3.04  -2.85  
-##  9 2009-01-09  0.977  0.604  8.07  
-## 10 2009-01-10 -1.26  -0.437 -2.75</code></pre>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1">stocksm <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(time, price)</a></code></pre></div>
+##    time            X       Y      Z
+##    &lt;date&gt;      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+##  1 2009-01-01  1.07  -0.306   1.51 
+##  2 2009-01-02 -1.18   0.790   3.04 
+##  3 2009-01-03 -0.649  3.30   -3.03 
+##  4 2009-01-04 -0.241 -0.106  -4.02 
+##  5 2009-01-05 -1.27  -1.07   -3.85 
+##  6 2009-01-06 -1.67   3.53   -3.58 
+##  7 2009-01-07 -1.02   1.97   -0.714
+##  8 2009-01-08 -1.51  -0.0688  2.94 
+##  9 2009-01-09 -1.31  -1.48    1.68 
+## 10 2009-01-10  1.45   1.09    4.52</code></pre>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">stocksm <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">spread</span>(time, price)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 11
 ##   stock `2009-01-01` `2009-01-02` `2009-01-03` `2009-01-04` `2009-01-05`
 ##   &lt;chr&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
-## 1 X            2.91         0.573        0.484        0.427        2.69 
-## 2 Y           -0.297       -1.88        -1.42         2.70         0.692
-## 3 Z           -1.04        -0.980        5.67         5.29         5.82 
+## 1 X            1.07        -1.18        -0.649       -0.241        -1.27
+## 2 Y           -0.306        0.790        3.30        -0.106        -1.07
+## 3 Z            1.51         3.04        -3.03        -4.02         -3.85
 ## # ... with 5 more variables: `2009-01-06` &lt;dbl&gt;, `2009-01-07` &lt;dbl&gt;,
 ## #   `2009-01-08` &lt;dbl&gt;, `2009-01-09` &lt;dbl&gt;, `2009-01-10` &lt;dbl&gt;</code></pre>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="co">#If duplicate row identifiers and want to keep all of them</span></a>
-<a class="sourceLine" id="cb36-2" title="2"><span class="co">#https://github.com/tidyverse/tidyr/issues/426</span></a>
-<a class="sourceLine" id="cb36-3" title="3"><span class="co">#https://www.r-bloggers.com/workaround-for-tidyrspread-with-duplicate-row-identifiers/</span></a>
-<a class="sourceLine" id="cb36-4" title="4">df=<span class="kw">tibble</span>(<span class="dt">age=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">21</span>,<span class="dv">17</span>,<span class="dv">32</span>,<span class="dv">38</span>,<span class="dv">35</span>),<span class="dt">gender=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Male"</span>,<span class="st">"Female"</span>,<span class="st">"Female"</span>,<span class="st">"Male"</span>,<span class="st">"Male"</span>))</a>
-<a class="sourceLine" id="cb36-5" title="5">df &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb36-6" title="6"><span class="st">  </span><span class="kw">group_by</span>(gender) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb36-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">grouped_id =</span> <span class="kw">row_number</span>())</a>
-<a class="sourceLine" id="cb36-8" title="8">df</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="co">#If duplicate row identifiers and want to keep all of them</span></a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="co">#https://github.com/tidyverse/tidyr/issues/426</span></a>
+<a class="sourceLine" id="cb48-3" title="3"><span class="co">#https://www.r-bloggers.com/workaround-for-tidyrspread-with-duplicate-row-identifiers/</span></a>
+<a class="sourceLine" id="cb48-4" title="4">df=<span class="kw">tibble</span>(<span class="dt">age=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">21</span>,<span class="dv">17</span>,<span class="dv">32</span>,<span class="dv">38</span>,<span class="dv">35</span>),<span class="dt">gender=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Male"</span>,<span class="st">"Female"</span>,<span class="st">"Female"</span>,<span class="st">"Male"</span>,<span class="st">"Male"</span>))</a>
+<a class="sourceLine" id="cb48-5" title="5">df &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb48-6" title="6"><span class="st">  </span><span class="kw">group_by</span>(gender) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb48-7" title="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">grouped_id =</span> <span class="kw">row_number</span>())</a>
+<a class="sourceLine" id="cb48-8" title="8">df</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 3
 ## # Groups:   gender [2]
 ##     age gender grouped_id
@@ -364,9 +419,9 @@
 ## 3    32 Female          2
 ## 4    38 Male            2
 ## 5    35 Male            3</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb38-2" title="2"><span class="st">  </span><span class="kw">spread</span>(gender, age) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb38-3" title="3"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>grouped_id)</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb50-2" title="2"><span class="st">  </span><span class="kw">spread</span>(gender, age) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb50-3" title="3"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>grouped_id)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 2
 ##   Female  Male
 ##    &lt;dbl&gt; &lt;dbl&gt;
@@ -377,23 +432,23 @@
 <div id="separate-pulls-apart-one-column-into-multiple-columns-by-splitting-wherever-a-separator-character-appears" class="section level2">
 <h2 class="hasAnchor">
 <a href="#separate-pulls-apart-one-column-into-multiple-columns-by-splitting-wherever-a-separator-character-appears" class="anchor"></a>separate: pulls apart one column into multiple columns, by splitting wherever a separator character appears</h2>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="st">"a.b"</span>, <span class="st">"a.d"</span>, <span class="st">"b.c"</span>))</a>
-<a class="sourceLine" id="cb40-2" title="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="st">"a.b"</span>, <span class="st">"a.d"</span>, <span class="st">"b.c"</span>))</a>
+<a class="sourceLine" id="cb52-2" title="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"A"</span>, <span class="st">"B"</span>))</a></code></pre></div>
 <pre><code>##      A    B
 ## 1 &lt;NA&gt; &lt;NA&gt;
 ## 2    a    b
 ## 3    a    d
 ## 4    b    c</code></pre>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="co"># If you just want the second variable:</span></a>
-<a class="sourceLine" id="cb42-2" title="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="st">"B"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1"><span class="co"># If you just want the second variable:</span></a>
+<a class="sourceLine" id="cb54-2" title="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="ot">NA</span>, <span class="st">"B"</span>))</a></code></pre></div>
 <pre><code>##      B
 ## 1 &lt;NA&gt;
 ## 2    b
 ## 3    d
 ## 4    c</code></pre>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="co">#use extra and fill arguments to control what happens</span></a>
-<a class="sourceLine" id="cb44-2" title="2">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"a b"</span>, <span class="st">"a b c"</span>, <span class="ot">NA</span>))</a>
-<a class="sourceLine" id="cb44-3" title="3">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1"><span class="co">#use extra and fill arguments to control what happens</span></a>
+<a class="sourceLine" id="cb56-2" title="2">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"a b"</span>, <span class="st">"a b c"</span>, <span class="ot">NA</span>))</a>
+<a class="sourceLine" id="cb56-3" title="3">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>))</a></code></pre></div>
 <pre><code>## Warning: Expected 2 pieces. Additional pieces discarded in 1 rows [3].</code></pre>
 <pre><code>## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 1 rows [1].</code></pre>
 <pre><code>##      a    b
@@ -401,23 +456,23 @@
 ## 2    a    b
 ## 3    a    b
 ## 4 &lt;NA&gt; &lt;NA&gt;</code></pre>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1"><span class="co"># The same behaviour drops the c but no warnings</span></a>
-<a class="sourceLine" id="cb48-2" title="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">extra =</span> <span class="st">"drop"</span>, <span class="dt">fill =</span> <span class="st">"right"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" title="1"><span class="co"># The same behaviour drops the c but no warnings</span></a>
+<a class="sourceLine" id="cb60-2" title="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>), <span class="dt">extra =</span> <span class="st">"drop"</span>, <span class="dt">fill =</span> <span class="st">"right"</span>)</a></code></pre></div>
 <pre><code>##      a    b
 ## 1    a &lt;NA&gt;
 ## 2    a    b
 ## 3    a    b
 ## 4 &lt;NA&gt; &lt;NA&gt;</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1"><span class="co"># If only want to split specified number of times use extra = "merge"</span></a>
-<a class="sourceLine" id="cb50-2" title="2">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"x: 123"</span>, <span class="st">"y: error: 7"</span>))</a>
-<a class="sourceLine" id="cb50-3" title="3">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"key"</span>, <span class="st">"value"</span>), <span class="st">": "</span>, <span class="dt">extra =</span> <span class="st">"merge"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1"><span class="co"># If only want to split specified number of times use extra = "merge"</span></a>
+<a class="sourceLine" id="cb62-2" title="2">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"x: 123"</span>, <span class="st">"y: error: 7"</span>))</a>
+<a class="sourceLine" id="cb62-3" title="3">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(x, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"key"</span>, <span class="st">"value"</span>), <span class="st">": "</span>, <span class="dt">extra =</span> <span class="st">"merge"</span>)</a></code></pre></div>
 <pre><code>##   key    value
 ## 1   x      123
 ## 2   y error: 7</code></pre>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1"><span class="co"># convert = TRUE detects column classes</span></a>
-<a class="sourceLine" id="cb52-2" title="2"><span class="co"># Argument col can take quasiquotation to work with strings</span></a>
-<a class="sourceLine" id="cb52-3" title="3">var &lt;-<span class="st"> "x"</span></a>
-<a class="sourceLine" id="cb52-4" title="4">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(<span class="op">!!</span>var, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"key"</span>,<span class="st">"value"</span>), <span class="st">":"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1"><span class="co"># convert = TRUE detects column classes</span></a>
+<a class="sourceLine" id="cb64-2" title="2"><span class="co"># Argument col can take quasiquotation to work with strings</span></a>
+<a class="sourceLine" id="cb64-3" title="3">var &lt;-<span class="st"> "x"</span></a>
+<a class="sourceLine" id="cb64-4" title="4">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(<span class="op">!!</span>var, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"key"</span>,<span class="st">"value"</span>), <span class="st">":"</span>)</a></code></pre></div>
 <pre><code>## Warning: Expected 2 pieces. Additional pieces discarded in 1 rows [2].</code></pre>
 <pre><code>##   key  value
 ## 1   x    123
@@ -426,7 +481,7 @@
 <div id="unite-is-the-inverse-of-separate-it-combines-multiple-columns-into-a-single-column-" class="section level2">
 <h2 class="hasAnchor">
 <a href="#unite-is-the-inverse-of-separate-it-combines-multiple-columns-into-a-single-column-" class="anchor"></a>unite: is the inverse of separate(): it combines multiple columns into a single column.</h2>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">unite</span>(mtcars, <span class="st">"vs_am"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"vs"</span>,<span class="st">"am"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1"><span class="kw">unite</span>(mtcars, <span class="st">"vs_am"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"vs"</span>,<span class="st">"am"</span>))</a></code></pre></div>
 <pre><code>##                      mpg cyl  disp  hp drat    wt  qsec vs_am gear carb
 ## Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46   0_1    4    4
 ## Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02   0_1    4    4
@@ -465,15 +520,15 @@
 <div id="separate_rows-separate-a-collapsed-column-into-multiple-rows" class="section level2">
 <h2 class="hasAnchor">
 <a href="#separate_rows-separate-a-collapsed-column-into-multiple-rows" class="anchor"></a>separate_rows: Separate a collapsed column into multiple rows</h2>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tidyr)</a>
-<a class="sourceLine" id="cb57-2" title="2"><span class="co">#If more than one column, should have the same number of rows after seprate</span></a>
-<a class="sourceLine" id="cb57-3" title="3">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(</a>
-<a class="sourceLine" id="cb57-4" title="4">  <span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,</a>
-<a class="sourceLine" id="cb57-5" title="5">  <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"d,e,f"</span>, <span class="st">"g,h"</span>),</a>
-<a class="sourceLine" id="cb57-6" title="6">  <span class="dt">z =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"1"</span>, <span class="st">"2,3,4"</span>, <span class="st">"5,6"</span>),</a>
-<a class="sourceLine" id="cb57-7" title="7">  <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb57-8" title="8">)</a>
-<a class="sourceLine" id="cb57-9" title="9"><span class="kw">separate_rows</span>(df, y, z, <span class="dt">convert =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tidyr)</a>
+<a class="sourceLine" id="cb69-2" title="2"><span class="co">#If more than one column, should have the same number of rows after seprate</span></a>
+<a class="sourceLine" id="cb69-3" title="3">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb69-4" title="4">  <span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,</a>
+<a class="sourceLine" id="cb69-5" title="5">  <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"d,e,f"</span>, <span class="st">"g,h"</span>),</a>
+<a class="sourceLine" id="cb69-6" title="6">  <span class="dt">z =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"1"</span>, <span class="st">"2,3,4"</span>, <span class="st">"5,6"</span>),</a>
+<a class="sourceLine" id="cb69-7" title="7">  <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb69-8" title="8">)</a>
+<a class="sourceLine" id="cb69-9" title="9"><span class="kw">separate_rows</span>(df, y, z, <span class="dt">convert =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>##   x y z
 ## 1 1 a 1
 ## 2 2 d 2
@@ -497,12 +552,12 @@
 <div id="tidyeval" class="section level2">
 <h2 class="hasAnchor">
 <a href="#tidyeval" class="anchor"></a>tidyeval</h2>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" title="1"><span class="co">#sym() creates a symbol from a string and syms() creates a list of symbols from a character vector.</span></a>
-<a class="sourceLine" id="cb59-2" title="2"></a>
-<a class="sourceLine" id="cb59-3" title="3">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"a b"</span>, <span class="st">"a b c"</span>, <span class="ot">NA</span>))</a>
-<a class="sourceLine" id="cb59-4" title="4"></a>
-<a class="sourceLine" id="cb59-5" title="5">var &lt;-<span class="st"> "x"</span></a>
-<a class="sourceLine" id="cb59-6" title="6">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(<span class="op">!!</span>var, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"key"</span>,<span class="st">"value"</span>,<span class="st">"note"</span>), <span class="st">" "</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb71-1" title="1"><span class="co">#sym() creates a symbol from a string and syms() creates a list of symbols from a character vector.</span></a>
+<a class="sourceLine" id="cb71-2" title="2"></a>
+<a class="sourceLine" id="cb71-3" title="3">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"a"</span>, <span class="st">"a b"</span>, <span class="st">"a b c"</span>, <span class="ot">NA</span>))</a>
+<a class="sourceLine" id="cb71-4" title="4"></a>
+<a class="sourceLine" id="cb71-5" title="5">var &lt;-<span class="st"> "x"</span></a>
+<a class="sourceLine" id="cb71-6" title="6">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(<span class="op">!!</span>var, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"key"</span>,<span class="st">"value"</span>,<span class="st">"note"</span>), <span class="st">" "</span>)</a></code></pre></div>
 <pre><code>## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 2 rows [1,
 ## 2].</code></pre>
 <pre><code>##    key value note
@@ -510,13 +565,13 @@
 ## 2    a     b &lt;NA&gt;
 ## 3    a     b    c
 ## 4 &lt;NA&gt;  &lt;NA&gt; &lt;NA&gt;</code></pre>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">n=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">grep</a></span>(<span class="st">" "</span>,x))) <span class="co">#2</span></a></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">n=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">grep</a></span>(<span class="st">" "</span>,x))) <span class="co">#2</span></a></code></pre></div>
 <pre><code>##   n
 ## 1 2</code></pre>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">n=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">grep</a></span>(<span class="st">" "</span>,<span class="op">!!</span>var))) <span class="co">#0, as it grep in value of x</span></a></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">n=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">grep</a></span>(<span class="st">" "</span>,<span class="op">!!</span>var))) <span class="co">#0, as it grep in value of x</span></a></code></pre></div>
 <pre><code>##   n
 ## 1 0</code></pre>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">n=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">grep</a></span>(<span class="st">" "</span>,<span class="op">!!</span><span class="kw">sym</span>(var)))) <span class="co">#2, correct</span></a></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" title="1">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">n=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">grep</a></span>(<span class="st">" "</span>,<span class="op">!!</span><span class="kw">sym</span>(var)))) <span class="co">#2, correct</span></a></code></pre></div>
 <pre><code>##   n
 ## 1 2</code></pre>
 </div>
@@ -528,10 +583,12 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li>
+<li><a href="#vroom-package-fast-reading-of-delimited-files">vroom package: Fast reading of delimited files</a></li>
+      <li>
 <a href="#dplyr-package">dplyr package</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#join">join</a></li>
-      <li><a href="#top_n-top_frac-first-rows-by-value">top_n, top_frac: first rows by value</a></li>
+      <li><a href="#filter-row-based-on-providing-values-and-use-order-of-values-like-selecting-by-row-names-in-base-r">filter row based on providing values and use order of values (like selecting by row.names in base R)</a></li>
+      <li><a href="#top_n-top_frac-first-rows-by-a-variable-value-if-n-is-positive-selects-the-top-rows--if-negative-selects-the-bottom-rows--it-takes-all-rows-when-having-tie-in-top_n--can-add-slice1-if-only-need-first-one">top_n, top_frac: first rows by a variable value, If n is positive, selects the top rows. If negative, selects the bottom rows. It takes all rows when having tie in top_n. can add %&gt;% slice(1) if only need first one</a></li>
       <li><a href="#slice-first-rows-by-position">slice: first rows by position</a></li>
       <li><a href="#between">between</a></li>
       </ul>

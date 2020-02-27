@@ -53,6 +53,12 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/AdvancedR.html">Advanced R</a>
+    </li>
+    <li>
+      <a href="../articles/EasierStatisticModels.html">Statistic Methods Example</a>
+    </li>
+    <li>
       <a href="../articles/limmaTestAndDesign.html">limma Test and Design</a>
     </li>
     <li>
@@ -63,6 +69,12 @@
     </li>
     <li>
       <a href="../articles/RforDataScienceNotes.html">R for Data Science Notes</a>
+    </li>
+    <li>
+      <a href="../articles/RnaSeqSampleSize2.html">Development of RnaSeqSampleSize version 2</a>
+    </li>
+    <li>
+      <a href="../articles/RPackageExamples.html">R Packages Examples</a>
     </li>
   </ul>
 </li>
@@ -83,7 +95,7 @@
                         <h4 class="author">Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>
 </h4>
             
-            <h4 class="date"><small>2020-01-03</small></h4>
+            <h4 class="date"><small>2020-02-26</small></h4>
       
       
       <div class="hidden name"><code>reportExample.Rmd</code></div>
@@ -143,10 +155,10 @@
 N
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Pre
+Pre (200)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Post
+Post (200)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Test Statistic
@@ -208,7 +220,7 @@ McNemar’s chi-squared=0.01; P=0.92
 </p>
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-Feature6=189; Feature7=164; Both=159
+Feature6 (189); Feature7 (164); Both=159
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 -0.673 -0.044 0.582 (0.036±1.055)
@@ -319,7 +331,7 @@ E
 </tbody>
 <tfoot><tr>
 <td colspan="5">
-a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x±s represents X±SD.<br> Tests used: McNemar’s chi-squared test for symmetry of rows and columns in a two-dimensional contingency table;Wilcoxon Signed Rank Test for continuous variable;
+For categorical variable, numbers after proportions are counts; For continuous variable, a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c in different categories. x±s represents Mean±SD.<br> Tests used: McNemar’s chi-squared test for symmetry of rows and columns in a two-dimensional contingency table; Fisher’s exact test for categorical variable; Wilcoxon Signed Rank Test for continuous variable;
 </td>
 </tr></tfoot>
 </table>
@@ -338,10 +350,10 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 N
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Post/Group2
+Post/Group2 (100)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Pre/Group1
+Pre/Group1 (100)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Test Statistic
@@ -403,7 +415,7 @@ McNemar’s chi-squared=0; P=1
 </p>
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-Post/Group2=93; Pre/Group1=96; Both=93
+Post/Group2 (93); Pre/Group1 (96); Both=93
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 -0.651 0.125 0.916 (0.093±1.112)
@@ -498,7 +510,7 @@ D
 </tbody>
 <tfoot><tr>
 <td colspan="5">
-a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x±s represents X±SD.<br> Tests used: McNemar’s chi-squared test for symmetry of rows and columns in a two-dimensional contingency table;Wilcoxon Signed Rank Test for continuous variable;
+For categorical variable, numbers after proportions are counts; For continuous variable, a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c in different categories. x±s represents Mean±SD.<br> Tests used: McNemar’s chi-squared test for symmetry of rows and columns in a two-dimensional contingency table; Fisher’s exact test for categorical variable; Wilcoxon Signed Rank Test for continuous variable;
 </td>
 </tr></tfoot>
 </table>
@@ -542,10 +554,10 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 N
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Group 1
+Group 1 (200)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Group 2
+Group 2 (200)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Test Statistic
@@ -607,7 +619,7 @@ X-squared=0.01; P=0.917
 </p>
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-Feature6=189; Feature7=164
+Feature6 (189); Feature7 (164)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 -0.653 -0.018 0.591 (0.049±1.027)
@@ -718,7 +730,7 @@ E
 </tbody>
 <tfoot><tr>
 <td colspan="5">
-a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x±s represents X±SD.<br> Tests used: Chi-squared test for categorical variable;Non-Paired Wilcoxon Rank Sum Test for continuous variable;
+For categorical variable, numbers after proportions are counts; For continuous variable, a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c in different categories. x±s represents Mean±SD.<br> Tests used: Chi-squared test for categorical variable; Non-Paired Wilcoxon Rank Sum Test for continuous variable;
 </td>
 </tr></tfoot>
 </table>
@@ -736,10 +748,10 @@ a b c (x±s). a b c represent the lower quartile a, the median b, and the upper 
 N
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Post/Group2
+Post/Group2 (100)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-Pre/Group1
+Pre/Group1 (100)
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Test Statistic
@@ -801,7 +813,7 @@ X-squared=0.02; P=0.888
 </p>
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
-Post/Group2=93; Pre/Group1=96
+Post/Group2 (93); Pre/Group1 (96)
 </td>
 <td style="padding: 0px 10px 0px; text-align: center;">
 -0.651 0.125 0.916 (0.093±1.112)
@@ -896,7 +908,7 @@ D
 </tbody>
 <tfoot><tr>
 <td colspan="5">
-a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x±s represents X±SD.<br> Tests used: Chi-squared test for categorical variable;Non-Paired Wilcoxon Rank Sum Test for continuous variable;
+For categorical variable, numbers after proportions are counts; For continuous variable, a b c (x±s). a b c represent the lower quartile a, the median b, and the upper quartile c in different categories. x±s represents Mean±SD.<br> Tests used: Chi-squared test for categorical variable; Non-Paired Wilcoxon Rank Sum Test for continuous variable;
 </td>
 </tr></tfoot>
 </table>
