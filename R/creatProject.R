@@ -28,11 +28,7 @@ creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
   file.symlink(dataDir,paste0(sourceDir,"/","data"))
 
   #Copy templateFile file to project folder
-  #Didn't use use_template as want to keep the templateFile run-able
-  if (file.exists(rmarkdownFile)) {
-    stop(paste0(rmarkdownFile," exists. Can't make project folder and replace it!"))
-  }
-
+  #Didn't use use_template in create_project as want to keep the templateFile run-able
   if (!file.exists(templateFile)) {
     warning(paste0(templateFile," doesn't exists. Can't copy it to project folder!"))
   }
@@ -41,7 +37,12 @@ creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
   #Change report working folder in markdown file
   templateFileContent=gsub("##PreDefinedForChangingWorkingFolder##",paste0('setwd("',dataDir,'")'),templateFileContent)
 
-  cat(paste(templateFileContent, collapse="\n"), file=rmarkdownFile)
+  if (file.exists(rmarkdownFile)) {
+    warning(paste0(rmarkdownFile," exists. Can't replace it!"))
+  } else {
+    cat(paste(templateFileContent, collapse="\n"), file=rmarkdownFile)
+  }
+
 #  message(paste("Project ",basename(projectName), "has been created at ",sourceDir))
   writeWorkList(pi,project,note,projectDate,workListFile=paste0(sourcePDir,"/workList.txt"))
   usethis::proj_activate(sourceDir)
@@ -51,8 +52,14 @@ creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
 #'
 writeWorkList=function(pi,project,note=note,projectDate=gsub("-","",Sys.Date()),workListFile="d:/source/r_cqs/workList.txt") {
   workListContent=readr::read_tsv(workListFile)
-  workListContent=rbind(workListContent,c(pi,project,projectDate,note,""))
-  write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
+  workListContentThisProject=workListContent %>% filter(PI==pi,Project==project,Date==projectDate)
+  if (nrow(workListContentThisProject)>0) {
+    projectName=paste0(pi,"/",projectDate,"_",project)
+    warning(paste0("Project ",projectName," alreaday in workListFile. Not changed."))
+  } else {
+    workListContent=rbind(workListContent,c(pi,project,projectDate,note,""))
+    write.table(workListContent,workListFile,sep = "\t",quote =FALSE,row.names = FALSE)
+  }
 }
 
 #' @export
