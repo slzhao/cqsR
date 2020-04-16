@@ -115,10 +115,36 @@ aaParallel <- future_apply(mypar[1:6,],1, get.v)
 # Reproduce Real Examples in Paper
 
 ```{r}
+#This matches with Table 2
+exemplary.data=betaToData(Betas=c(1.61,0.77),phi=0.25,sampleSize=10,error=10^(-7))
+dataToPower(exemplary.data,alpha=0.05)
+exemplary.data=betaToData(Betas=c(1.61,0.77),phi=0.25,sampleSize=20,error=10^(-7))
+dataToPower(exemplary.data,alpha=0.05)
+
+#3.1 Simulation studies, Table 3
+exemplary.data=betaToData(Betas=c(1.61,log(1.5)),phi=0.25,sampleSize=86,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.01,m=10000,m1=10000*0.01)
+
+
+#3.2.1 Transcript regulation data set
+exemplary.data=betaToData(Betas=c(log(1.67),log(4)),phi=0.6513,sampleSize=20,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267,m1=13267*0.1)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267,m1=13267*0.01)
+
+#Table 5
+exemplary.data=betaToData(Betas=c(log(2.5),log(1.1)),phi=1,sampleSize=1576,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.01,m=13267,m1=13267*0.1)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267,m1=13267*0.1)
+
 
 exemplary.data=betaToData(Betas=c(log(2.5),log(2)),phi=0.6513,sampleSize=70,error=10^(-7))
 dataToPower(exemplary.data)
 est_power_fdr(exemplary.data,fdr=0.1,m=13267)
+
+
 
 ```
 
