@@ -195,14 +195,49 @@ options(datadist='ddist')
 
 varForSurvivalModel1=c("FeatureCategory1","Feature2")
 (fmla<-as.formula(paste0("Surv(FeatureAbs1, FeatureYN1)~",paste0(varForSurvivalModel1,collapse="+"))))
-fmi=cph(fmla,data=rawData)
+fmi=cph(fmla,data=rawData,x=TRUE, y=TRUE)
 
 print(fmi)
 #showOddsRatio2(fmi)
 plot(Predict(fmi))
 
+validate(fmi) #
+
 ```
 
+### Concordance and C-index
+
+https://stats.stackexchange.com/questions/169834/cox-regression-covariate-specific-concordance-independent-of-distribution-of-cov
+
+```{r}
+testData=data.frame(FeatureYN1=c(0,1),FeatureAbs1=1:10,FeatureYN2=as.factor(rep(c(0,1),each=5)),FeatureAbs2=c(1,2,3,4,5),FeatureYN3=as.factor(c(0,1)),FeatureYN4=as.factor(c(0,0,0,1,0,1,0,1,0,1)))
+
+ddist <- datadist(testData)
+options(datadist='ddist')
+
+varForSurvivalModel1=c("FeatureYN3")
+(fmla<-as.formula(paste0("Surv(FeatureAbs1, FeatureYN1)~",paste0(varForSurvivalModel1,collapse="+"))))
+fmi=cph(fmla,data=testData)
+
+print(fmi)
+plot(Predict(fmi))
+#Dxy are equal to 2 * (C - 0.5), so C-index=(Dxy+1)/2=0.75
+
+rcorr.cens(testData$FeatureAbs2, Surv(testData$FeatureAbs1, testData$FeatureYN1)) #0.75
+
+fit1 <- coxph(fmla,data=testData)
+concordance(fit1) #0.75
+
+library(survcomp)
+concordance.index(x=testData$FeatureAbs2, surv.time=testData$FeatureAbs1, surv.event=testData$FeatureYN1,outx=FALSE) #0.25, if using x=-testData$FeatureAbs2, getting 0.75
+
+
+concordance.index(x=testData$FeatureYN3, surv.time=testData$FeatureAbs1,surv.event=testData$FeatureYN1,outx=TRUE)
+concordance.index(x=testData$FeatureYN4, surv.time=testData$FeatureAbs1,surv.event=testData$FeatureYN1,outx=TRUE)
+
+
+
+```
 
 
 ##Missing values
