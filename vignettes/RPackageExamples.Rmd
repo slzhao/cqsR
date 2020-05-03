@@ -1,0 +1,21 @@
+---
+title: "R Packages Examples"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# editData
+
+An RStudio addin for editing a 'data.frame' or a 'tibble'. See <https://github.com/cardiomoon/editData> and <https://cran.r-project.org/web/packages/editData/README.html> .
+
+# rhandsontable
+
+A htmlwidget based on the handsontable.js library. Providing tables in Excel-like appearance and powerful Excel-like features. See <https://jrowen.github.io/rhandsontable/> .
+
+
+# flexdashboard: easier shiny daashboard, with R markdown integration 
+
+https://rmarkdown.rstudio.com/flexdashboard/

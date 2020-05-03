@@ -5,3 +5,7 @@ R functions and collections for CQS projects
 
 remotes::install_github("slzhao/cqsR")
 
+## Documents
+
+https://slzhao.github.io/cqsR/
+

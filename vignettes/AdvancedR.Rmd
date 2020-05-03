@@ -1,0 +1,44 @@
+---
+title: "Advanced R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R functions and options
+
+## Debug
+
+### recover() to back to upper level of environment when using browser
+
+https://stackoverflow.com/questions/9796843/move-up-a-frame-debug-r-environment
+
+```{r}
+
+```
+
+## pkg development in usethis
+
+### edit_r_profile, edit_r_environ, ...
+
+If you are sharing code that requires login credentials to databases and the like, you can use the .Reviron file to avoid posting those credentials to Github or other spaces where they might be at risk. .Renviron is a file where you can store important environment variables, and is easily editable using the function edit_r_environ() inside the usethis package. As an example, you can set an alias for your remote database credentials in .Renviron, for example:
+
+```{r}
+DSN = "database_name"
+UID = "User ID"
+PASS = "Password"
+```
+
+Then in your shared script, you can call these variables. For example:
+
+```{r}
+db <- DBI::dbConnect(
+  drv = odbc::odbc(),
+  dsn = Sys.getenv("DSN"),
+  uid = Sys.getenv("UID"),
+  pwd = Sys.getenv("PASS")
+)
+```
+

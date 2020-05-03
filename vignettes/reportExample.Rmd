@@ -1,0 +1,160 @@
+--- 
+title: "Report Example"
+author: "Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>"
+date: "<small>`r Sys.Date()`</small>"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
+    number_sections: true
+    # toc_float: 
+    #   collapsed: true
+    code_folding: hide
+    # theme: cerulean
+    # keep_md: true
+description: "some description ..."
+---
+```{r setup,echo=FALSE}
+#require(Hmisc)    # provides knitrSet and other functions
+#knitrSet(lang='markdown', fig.path='png/', fig.align='left', w=6.5, h=4.5, cache=TRUE)
+# If using blogdown: knitrSet(lang='blogdown')
+
+
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 3000)
+
+#Hmisc package html Special characters issue
+options(htmlSpecialType='&')
+```
+
+
+<!-- # Notes -->
+<!-- ## Hiding/Moving TOC: -->
+<!-- http://biostat.mc.vanderbilt.edu/wiki/Main/KnitrHtmlTemplate -->
+
+<!-- `r source("https://raw.githubusercontent.com/harrelfe/Hmisc/master/R/hidingTOC.r")` -->
+<!-- `r hidingTOC(buttonLabel="Outline")` -->
+
+<!-- ## More themes: -->
+<!-- http://www.datadreaming.org/post/r-markdown-theme-gallery/ -->
+
+
+<!-- # Functions and packages -->
+
+```{r,message=FALSE,warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(RColorBrewer)
+library(reshape2)
+library(formattable)
+library(rms)
+library(htmlTable)
+
+
+#source('D:/source/cqsR/R/summaryTableFunctions.R')
+#devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
+library(cqsR)
+
+```
+
+
+# Make/Load Data
+
+```{r}
+set.seed(123)
+rawData<-matrix(nrow=200,ncol=10,rnorm(200*10))
+row.names(rawData)<-paste0("Sample",1:200)
+colnames(rawData)<-paste0("Feature",1:10)
+rawData<-data.frame(rawData,FeatureYN1=sample(c(rep(0,100),rep(1,100)),200),FeatureYN2=as.character(sample(c(rep(0,100),rep(1,100)),200)),FeatureGroup1=as.character(sample(c(rep("Pre/Group1",100),rep("Post/Group2",100)),200)),FeatureCategory1=sample(c("D","E"),200,replace = TRUE),FeatureCategory2=sample(c("A","B","C","D"),200,replace = TRUE),stringsAsFactors = TRUE)
+
+#make some NAs
+rawData[c(30:40),"Feature6"]=NA
+rawData[c(35:70),"Feature7"]=NA
+rawData[c(1:6),"FeatureYN2"]=NA
+
+```
+
+# Table: Paired Test
+## Data format: Two columns, Feature6 (Pre) and Feature7 (Post)
+```{r,results='asis'}
+
+tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"),pairedTest = TRUE)
+printSummaryTable(tableOut)
+
+```
+
+## Data format: One data column (Feature6) and one group column (FeatureGroup1, define Pre and Post)
+```{r,results='asis'}
+
+tableOut=summaryTable(rawData,groupCol="FeatureGroup1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"),pairedTest = TRUE)
+printSummaryTable(tableOut)
+
+```
+
+
+# Same result in regular paired tests to make sure the table is correct
+```{r}
+#First table
+matrixForTest=table(rawData$FeatureYN2,rawData$FeatureYN1)
+mcnemar.test(matrixForTest)
+
+#Second table
+dataOneGroup1=as.character(rawData[which(rawData$FeatureYN1==0),"FeatureYN2"])
+dataOneGroup2=as.character(rawData[which(rawData$FeatureYN1==1),"FeatureYN2"])
+matrixForTest=table(dataOneGroup1,dataOneGroup2)
+mcnemar.test(matrixForTest)
+
+```
+
+
+# Table: Not Paired Test
+## Data format: Two columns, Feature6 (Group 1) and Feature7 (Group 2)
+```{r,results='asis'}
+tableOut=summaryTable(rawData,varCols=c("FeatureYN2","Feature6","FeatureCategory1"),varColsPaired=c("FeatureYN1","Feature7","FeatureCategory2"))
+printSummaryTable(tableOut)
+
+```
+
+## Data format: One data column (Feature6) and one group column (FeatureGroup1, define Group 1 and Group 2)
+```{r,results='asis'}
+
+tableOut=summaryTable(rawData,groupCol="FeatureGroup1",varCols=c("FeatureYN2","Feature6","FeatureCategory2"))
+printSummaryTable(tableOut)
+
+```
+
+# Table: Same result as Not Paired Test in Hmisc package
+
+```{r,results='asis'}
+
+outVar="FeatureGroup1"
+varForTable1=c("FeatureYN2","Feature6","FeatureCategory2")
+formulaForTable<-as.formula(paste0(paste(varForTable1, collapse=" + "),"~",outVar))
+s <- summaryM(formulaForTable, data=rawData,
+							overall=TRUE, test=TRUE)
+
+html(s, exclude1=FALSE,  what=c('%'),digits=3, prmsd=TRUE)
+
+```
+
+
+
+# Table: Continuous Group Variable
+
+```{r,results='asis'}
+temp<-summaryTableContinus(rawData,variables=c("Feature1","Feature2","FeatureYN1","FeatureCategory2"),groupVariable="Feature3")
+printSummaryTableContinus(temp)
+```
+
+
+# Table Example: Showing data.frame in a html table
+```{r,results='asis'}
+library(htmlTable)
+htmlTable(iris[1:3,1:3])
+
+
+kable(iris[1:3,1:3], 
+      caption="A test table")
+```
+
+

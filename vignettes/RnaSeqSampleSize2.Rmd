@@ -1,0 +1,155 @@
+--- 
+title: "Development of RnaSeqSampleSize version 2"
+author: "Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>"
+date: "<small>`r Sys.Date()`</small>"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
+    number_sections: true
+    # toc_float: 
+    #   collapsed: true
+    code_folding: hide
+    # theme: cerulean
+    # keep_md: true
+description: "some description ..."
+---
+```{r setup,echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 3000)
+
+```
+
+
+<!-- # Notes -->
+<!-- ## Hiding/Moving TOC: -->
+<!-- http://biostat.mc.vanderbilt.edu/wiki/Main/KnitrHtmlTemplate -->
+
+<!-- `r source("https://raw.githubusercontent.com/harrelfe/Hmisc/master/R/hidingTOC.r")` -->
+<!-- `r hidingTOC(buttonLabel="Outline")` -->
+
+<!-- ## More themes: -->
+<!-- http://www.datadreaming.org/post/r-markdown-theme-gallery/ -->
+
+
+<!-- # Functions and packages -->
+
+```{r,message=FALSE,warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(RColorBrewer)
+library(reshape2)
+library(RnaSeqSampleSize)
+library(DESeq2)
+
+#source('D:/source/cqsR/R/summaryTableFunctions.R')
+#devtools::source_url("https://raw.github.com/slzhao/cqsR/master/R/summaryTableFunctions.R")
+library(cqsR)
+
+```
+
+
+# Make/Load Data
+
+```{r}
+set.seed(123)
+rawData<-matrix(nrow=200,ncol=10,sample(1:1000,2000,replace = TRUE))
+row.names(rawData)<-paste0("Gene",1:200)
+colnames(rawData)<-paste0("Sample",1:10)
+
+rawDataDesign=data.frame(
+                          #Sample=colnames(rawData),
+                         #Group1=c(rep("Treat1",3),rep("Treat2",3),rep("Control",4)),
+                         Group1=c(rep("Treat",5),rep("Control",5)),
+                         Group2=rep(c("Strain1","Strain2"),5))
+
+```
+
+
+# Estimate distribution of genes by DESeq2
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = rawData,
+                              colData = rawDataDesign,
+                              design = ~ Group1+Group2)
+dds <- estimateSizeFactors(dds)
+
+dds <- estimateDispersions(dds) #this not work sometimes
+
+dds <- nbinomLRT(dds, reduced = ~ Group2) #interested in Group1, so compare with model with only Group2
+mypar<-data.frame(coef(dds),disp=dispersions(dds))
+colnames(mypar)[1:3]<-c("b0","b1","b2")
+
+#Only one factor
+dds <- DESeqDataSetFromMatrix(countData = rawData,
+                              colData = rawDataDesign,
+                              design = ~ Group1)
+dds <- estimateSizeFactors(dds)
+dds <- estimateDispersions(dds)
+dds <- nbinomLRT(dds, reduced = ~ 1) 
+myparOneFactor<-data.frame(coef(dds),disp=dispersions(dds))
+colnames(mypar)[1:3]<-c("b0","b1")
+
+```
+
+# Estimation
+```{r}
+source('D:/source/cqsR/R/RnaSeqSampleSize2.R')
+
+aa<-apply(mypar[1:6,], 1, get.v)
+
+
+
+```
+
+# Test of parallel Estimation
+```{r}
+library("future.apply")
+plan(multiprocess) ## Run in parallel on local computer
+
+aaParallel <- future_apply(mypar[1:6,],1, get.v)
+
+
+
+```
+
+# Reproduce Real Examples in Paper
+
+```{r}
+#This matches with Table 2
+exemplary.data=betaToData(Betas=c(1.61,0.77),phi=0.25,sampleSize=10,error=10^(-7))
+dataToPower(exemplary.data,alpha=0.05)
+exemplary.data=betaToData(Betas=c(1.61,0.77),phi=0.25,sampleSize=20,error=10^(-7))
+dataToPower(exemplary.data,alpha=0.05)
+
+#3.1 Simulation studies, Table 3
+exemplary.data=betaToData(Betas=c(1.61,log(1.5)),phi=0.25,sampleSize=86,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.01,m=10000,m1=10000*0.01)
+
+
+#3.2.1 Transcript regulation data set
+exemplary.data=betaToData(Betas=c(log(1.67),log(4)),phi=0.6513,sampleSize=20,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267,m1=13267*0.1)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267,m1=13267*0.01)
+
+#Table 5
+exemplary.data=betaToData(Betas=c(log(2.5),log(1.1)),phi=1,sampleSize=1576,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.01,m=13267,m1=13267*0.1)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267,m1=13267*0.1)
+
+
+exemplary.data=betaToData(Betas=c(log(2.5),log(2)),phi=0.6513,sampleSize=70,error=10^(-7))
+dataToPower(exemplary.data)
+est_power_fdr(exemplary.data,fdr=0.1,m=13267)
+
+
+
+```
+
+
+
+
+
+
