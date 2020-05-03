@@ -32,6 +32,8 @@ matchGrToVcfObj=function(gr,vcfYield,perfectMatch=FALSE,extracVcfCols=NULL,extra
 #'
 readVcfAndMatchGr=function(vcfFile,variantsTableGRange,variantsTableInVcfAnnotation=NULL,genomeVersion="hg19",extracVcfInfos="AF") {
   #  vcfFile="/scratch/cqs/references/TOPMed/bravo-dbsnp-all.vcf.gz"
+  tab <- TabixFile(vcfFile, yieldSize=10)
+  vcf <- readVcf(tab, genomeVersion)
   extracVcfInfos=intersect(row.names(info(header(vcf))),extracVcfInfos)
 
   readVcfParam <- ScanVcfParam(info=extracVcfInfos, geno=NA,fixed=c("ALT","FILTER"))
