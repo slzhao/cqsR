@@ -47,7 +47,8 @@ makePBS=function(
 
     pbsCommand=paste0("
 cd ",resultDir,"
-",command
+",command,"
+"
 )
 
     writeLines(paste0(

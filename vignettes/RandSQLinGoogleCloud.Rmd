@@ -1,0 +1,94 @@
+---
+title: "R and SQL in google cloud"
+author: "Shilin Zhao"
+date: "4/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction of google cloud SQL and set up
+
+https://cloud.google.com/blog/products/gcp/google-cloud-platform-for-data-scientists-using-r-with-google-cloud-sql-for-mysql
+https://cloud.google.com/blog/products/gcp/google-cloud-platform-for-data-scientists-using-r-with-google-bigquery
+
+
+# Works in R
+
+https://github.com/r-dbi/RMySQL
+
+```{r,eval=FALSE}
+library("RMySQL")
+
+host="35.239.107.106"
+username="root"
+password=""
+database="COVID19Prediction"
+
+con=dbConnect(RMySQL::MySQL(),host =host,username=username,password=password,dbname=database)
+
+dbListTables(con)
+#dbWriteTable(con, "mtcars", mtcars)
+dbListTables(con)
+
+
+dbListFields(con, "mtcars")
+dbReadTable(con, "mtcars")
+
+# You can fetch all results:
+res <- dbSendQuery(con, "SELECT * FROM mtcars WHERE cyl = 4")
+dbFetch(res)
+dbClearResult(res)
+
+
+```
+
+
+## Simple shiny app to read and write database
+
+
+```{r,eval=FALSE}
+library("RMySQL")
+
+host="35.239.107.106"
+username="root"
+password="COVID19@VUMC.MODEL"
+database="COVID19Prediction"
+
+library(shiny)
+
+ shinyApp(
+  ui = fluidPage(
+    numericInput("n", "n", 1),
+    plotOutput("plot")
+  ),
+  server = function(input, output) {
+    con=dbConnect(RMySQL::MySQL(),host =host,username=username,password=password,dbname=database)
+    COVID19PredictionParameter=dbReadTable(con, "COVID19PredictionParameter")
+
+    output$plot <- renderPlot( plot(COVID19PredictionParameter[2,1],COVID19PredictionParameter[3,1]) )
+  }
+)
+
+
+con=dbConnect(RMySQL::MySQL(),host =host,username=username,password=password,dbname=database)
+
+dbListTables(con)
+#dbWriteTable(con, "mtcars", mtcars)
+dbListTables(con)
+
+
+dbListFields(con, "mtcars")
+dbReadTable(con, "mtcars")
+
+# You can fetch all results:
+res <- dbSendQuery(con, "SELECT * FROM mtcars WHERE cyl = 4")
+dbFetch(res)
+dbClearResult(res)
+
+
+```
+
+
