@@ -87,10 +87,15 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
 
           dataOneVariableCountAll=rowSums(matrixForTest)
         }
+        if (is.na(pValue)) {
+          dataOneVariableTestResult=""
+        } else {
+          dataOneVariableTestResult=c(paste0(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; ")),showP(pValue)),rep("",length(dataOneVariableCountAll)))
+        }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
                            c("",countToPercent(dataOneVariableCountAll)),
                            rbind(c(rep("",ncol(matrixForTest))),countToPercent(matrixForTest)),
-                           c(paste0(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; ")),showP(pValue)),rep("",length(dataOneVariableCountAll)))
+                           dataOneVariableTestResult
         )
       } else { #paired test mcnemar.test
         dataForTable=data.frame(Pre=dataOneGroup1,Post=dataOneGroup2)
@@ -127,11 +132,16 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           dataOneVariableCount1=rowSums(matrixForTest)
           dataOneVariableCount2=colSums(matrixForTest)
         }
+        if (is.na(pValue)) {
+          dataOneVariableTestResult=""
+        } else {
+          dataOneVariableTestResult=c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCount1)))
+        }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
                            c("",countToPercent(rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2)))),
                            c("",countToPercent(dataOneVariableCount1)),
                            c("",countToPercent(dataOneVariableCount2)),
-                           c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCount1)))
+                           dataOneVariableTestResult
         )
       }
       tableAll<-rbind(tableAll,tableOneOut)
@@ -143,7 +153,11 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
       }
       pValue=testResult$p.value
       statistic=testResult$statistic
-      dataOneVariableTestResult=paste(paste0(names(statistic),"=",statistic),"; ",showP(pValue),collapse="; ")
+      if (is.na(pValue)) {
+        dataOneVariableTestResult=""
+      } else {
+        dataOneVariableTestResult=paste(paste0(names(statistic),"=",statistic),"; ",showP(pValue),collapse="; ")
+      }
 
       temp1=which(!is.na(rawDataPairedOrderedGroup1[,varCol]))
       temp2=which(!is.na(rawDataPairedOrderedGroup2[,varColPaired]))
