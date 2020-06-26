@@ -136,7 +136,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
           } else { # character
             varOneRef <- unique(dataForModel[, varOneToExtract])[1]
           }
-          summaryArgList <- list(modelResult, varOneRef, est.all = FALSE)
+          summaryArgList <- list(quote(modelResult), varOneRef, est.all = FALSE)
           names(summaryArgList)[2] <- varOneToExtract
           modelResultSummary <- round(do.call(summary, summaryArgList), 3)
           #browser()
