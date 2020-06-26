@@ -150,11 +150,11 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
         } else { # interested var is continous
           pValueOne <- paste(pValueOne, collapse = "; ")
           varOneMedianValue <- median(dataForModel[, varOneToExtract], na.rm = TRUE)
-          summaryArgList <- list(modelResult, c(varOneMedianValue, varOneMedianValue + 1), est.all = FALSE)
+          summaryArgList <- list(quote(modelResult), c(varOneMedianValue, varOneMedianValue + 1), est.all = FALSE)
           names(summaryArgList)[2] <- varOneToExtract
           #print(summaryArgList)
           modelResultSummaryUnit <- round(do.call(summary, summaryArgList), 3) # Value of One Unit Change (from median+1 to median)
-          summaryArgList <- list(modelResult, varOneToExtract, est.all = FALSE)
+          summaryArgList <- list(quote(modelResult), varOneToExtract, est.all = FALSE)
           #print(summaryArgList)
           modelResultSummary <- round(do.call(summary, summaryArgList), 3) # Value at 75% Quantile to 25% Quantile
           # varOneOut=c(coefficientOne,pValueOne,modelResultSummaryUnit[2,c(4,6,7)],modelResultSummary[2,c(1,2,3,4,6,7)])

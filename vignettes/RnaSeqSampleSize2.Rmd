@@ -114,7 +114,7 @@ aaParallel <- future_apply(mypar[1:6,],1, get.v)
 
 # Reproduce Real Examples in Paper
 
-```{r}
+```{r,eval=FALSE}
 #This matches with Table 2
 exemplary.data=betaToData(Betas=c(1.61,0.77),phi=0.25,sampleSize=10,error=10^(-7))
 dataToPower(exemplary.data,alpha=0.05)

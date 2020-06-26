@@ -33,7 +33,7 @@ PASS = "Password"
 
 Then in your shared script, you can call these variables. For example:
 
-```{r}
+```{r,eval=FALSE}
 db <- DBI::dbConnect(
   drv = odbc::odbc(),
   dsn = Sys.getenv("DSN"),

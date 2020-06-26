@@ -63,7 +63,7 @@ for (i in 1:length(temp1)) {
 
 ### Model and Table
 
-```{r,comment="",results='asis'}
+```{r,comment=""}
 outVar="FeatureYN1"
 varForTable=c("Feature1", "Feature2","Feature3","FeatureCategory1")
 

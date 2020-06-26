@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cqsR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -65,6 +65,9 @@
       <a href="../articles/matchVcfToGr.html">Untitled</a>
     </li>
     <li>
+      <a href="../articles/RandSQLinGoogleCloud.html">R and SQL in google cloud</a>
+    </li>
+    <li>
       <a href="../articles/reportExample.html">Report Example</a>
     </li>
     <li>
@@ -95,7 +98,7 @@
                         <h4 class="author">Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>
 </h4>
             
-            <h4 class="date"><small>2020-02-26</small></h4>
+            <h4 class="date"><small>2020-06-26</small></h4>
       
       
       <div class="hidden name"><code>RnaSeqSampleSize2.Rmd</code></div>
@@ -666,10 +669,39 @@
 <div id="reproduce-real-examples-in-paper" class="section level1">
 <h1 class="hasAnchor">
 <a href="#reproduce-real-examples-in-paper" class="anchor"></a>Reproduce Real Examples in Paper</h1>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="fl">2.5</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">2</span>)),<span class="dt">phi=</span><span class="fl">0.6513</span>,<span class="dt">sampleSize=</span><span class="dv">70</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
-<a class="sourceLine" id="cb33-2" title="2"><span class="kw">dataToPower</span>(exemplary.data)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="co">#This matches with Table 2</span></a>
+<a class="sourceLine" id="cb33-2" title="2">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.61</span>,<span class="fl">0.77</span>),<span class="dt">phi=</span><span class="fl">0.25</span>,<span class="dt">sampleSize=</span><span class="dv">10</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="kw">dataToPower</span>(exemplary.data,<span class="dt">alpha=</span><span class="fl">0.05</span>)</a></code></pre></div>
+<pre><code>## [1] 0.4294029</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.61</span>,<span class="fl">0.77</span>),<span class="dt">phi=</span><span class="fl">0.25</span>,<span class="dt">sampleSize=</span><span class="dv">20</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="kw">dataToPower</span>(exemplary.data,<span class="dt">alpha=</span><span class="fl">0.05</span>)</a></code></pre></div>
+<pre><code>## [1] 0.7122415</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1"><span class="co">#3.1 Simulation studies, Table 3</span></a>
+<a class="sourceLine" id="cb37-2" title="2">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1.61</span>,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="fl">1.5</span>)),<span class="dt">phi=</span><span class="fl">0.25</span>,<span class="dt">sampleSize=</span><span class="dv">86</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb37-3" title="3"><span class="kw">dataToPower</span>(exemplary.data)</a></code></pre></div>
+<pre><code>## [1] 0.8116428</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.01</span>,<span class="dt">m=</span><span class="dv">10000</span>,<span class="dt">m1=</span><span class="dv">10000</span><span class="op">*</span><span class="fl">0.01</span>)</a></code></pre></div>
+<pre><code>## [1] 0.1366154</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1"><span class="co">#3.2.1 Transcript regulation data set</span></a>
+<a class="sourceLine" id="cb41-2" title="2">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="fl">1.67</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">4</span>)),<span class="dt">phi=</span><span class="fl">0.6513</span>,<span class="dt">sampleSize=</span><span class="dv">20</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb41-3" title="3"><span class="kw">dataToPower</span>(exemplary.data)</a></code></pre></div>
+<pre><code>## [1] 0.7860664</code></pre>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.1</span>,<span class="dt">m=</span><span class="dv">13267</span>,<span class="dt">m1=</span><span class="dv">13267</span><span class="op">*</span><span class="fl">0.1</span>)</a></code></pre></div>
+<pre><code>## [1] 0.5686321</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.1</span>,<span class="dt">m=</span><span class="dv">13267</span>,<span class="dt">m1=</span><span class="dv">13267</span><span class="op">*</span><span class="fl">0.01</span>)</a></code></pre></div>
+<pre><code>## [1] 0.2858171</code></pre>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="co">#Table 5</span></a>
+<a class="sourceLine" id="cb47-2" title="2">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="fl">2.5</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="fl">1.1</span>)),<span class="dt">phi=</span><span class="dv">1</span>,<span class="dt">sampleSize=</span><span class="dv">1576</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb47-3" title="3"><span class="kw">dataToPower</span>(exemplary.data)</a></code></pre></div>
+<pre><code>## [1] 0.3628025</code></pre>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.01</span>,<span class="dt">m=</span><span class="dv">13267</span>,<span class="dt">m1=</span><span class="dv">13267</span><span class="op">*</span><span class="fl">0.1</span>)</a></code></pre></div>
+<pre><code>## [1] 0.04344502</code></pre>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.1</span>,<span class="dt">m=</span><span class="dv">13267</span>,<span class="dt">m1=</span><span class="dv">13267</span><span class="op">*</span><span class="fl">0.1</span>)</a></code></pre></div>
+<pre><code>## [1] 0.1656871</code></pre>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1">exemplary.data=<span class="kw">betaToData</span>(<span class="dt">Betas=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="fl">2.5</span>),<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="dv">2</span>)),<span class="dt">phi=</span><span class="fl">0.6513</span>,<span class="dt">sampleSize=</span><span class="dv">70</span>,<span class="dt">error=</span><span class="dv">10</span><span class="op">^</span>(<span class="op">-</span><span class="dv">7</span>))</a>
+<a class="sourceLine" id="cb53-2" title="2"><span class="kw">dataToPower</span>(exemplary.data)</a></code></pre></div>
 <pre><code>## [1] 0.8195874</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.1</span>,<span class="dt">m=</span><span class="dv">13267</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">est_power_fdr</span>(exemplary.data,<span class="dt">fdr=</span><span class="fl">0.1</span>,<span class="dt">m=</span><span class="dv">13267</span>)</a></code></pre></div>
 <pre><code>## [1] 0.3282692</code></pre>
 </div>
   </div>

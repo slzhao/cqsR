@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cqsR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/matchVcfToGr.html">Untitled</a>
+    </li>
+    <li>
+      <a href="../articles/RandSQLinGoogleCloud.html">R and SQL in google cloud</a>
     </li>
     <li>
       <a href="../articles/reportExample.html">Report Example</a>
@@ -113,6 +116,25 @@
 <p><a href="https://stackoverflow.com/questions/9796843/move-up-a-frame-debug-r-environment" class="uri">https://stackoverflow.com/questions/9796843/move-up-a-frame-debug-r-environment</a></p>
 </div>
 </div>
+<div id="pkg-development-in-usethis" class="section level2">
+<h2 class="hasAnchor">
+<a href="#pkg-development-in-usethis" class="anchor"></a>pkg development in usethis</h2>
+<div id="edit_r_profile-edit_r_environ" class="section level3">
+<h3 class="hasAnchor">
+<a href="#edit_r_profile-edit_r_environ" class="anchor"></a>edit_r_profile, edit_r_environ, …</h3>
+<p>If you are sharing code that requires login credentials to databases and the like, you can use the .Reviron file to avoid posting those credentials to Github or other spaces where they might be at risk. .Renviron is a file where you can store important environment variables, and is easily editable using the function edit_r_environ() inside the usethis package. As an example, you can set an alias for your remote database credentials in .Renviron, for example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">DSN =<span class="st"> "database_name"</span></a>
+<a class="sourceLine" id="cb1-2" title="2">UID =<span class="st"> "User ID"</span></a>
+<a class="sourceLine" id="cb1-3" title="3">PASS =<span class="st"> "Password"</span></a></code></pre></div>
+<p>Then in your shared script, you can call these variables. For example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">db &lt;-<span class="st"> </span>DBI<span class="op">::</span><span class="kw"><a href="https://dbi.r-dbi.org/reference/dbConnect.html">dbConnect</a></span>(</a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="dt">drv =</span> odbc<span class="op">::</span><span class="kw">odbc</span>(),</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="dt">dsn =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">"DSN"</span>),</a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="dt">uid =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">"UID"</span>),</a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="dt">pwd =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">"PASS"</span>)</a>
+<a class="sourceLine" id="cb2-6" title="6">)</a></code></pre></div>
+</div>
+</div>
 </div>
   </div>
 
@@ -124,6 +146,7 @@
 <li>
 <a href="#r-functions-and-options">R functions and options</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#debug">Debug</a></li>
+      <li><a href="#pkg-development-in-usethis">pkg development in usethis</a></li>
       </ul>
 </li>
       </ul>
