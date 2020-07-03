@@ -81,7 +81,9 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           pValue=testResult$p.value
           if ("statistic" %in% names(testResult)) {
             statistic=testResult$statistic
-          } else {
+          } else if ("estimate" %in% names(testResult)) {
+            statistic=testResult$estimate
+          }else {
             statistic=""
           }
 
