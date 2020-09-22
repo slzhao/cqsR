@@ -166,10 +166,15 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
             varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], modelResultSummaryUnit[varOneInd, c(4)], pValueOne, matrix(modelResultSummaryUnit[varOneInd + 1, c(4, 6, 7)], ncol = 3), matrix(modelResultSummary[varOneInd + 1, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
           }
         }
-        if (modelType == "ols") { #no odds ratio
+        if (modelType == "ols") { #linear regression no odds ratio
           colnames(varOneOut) <- c(
             "InterestedVar", "P", "Effect (One Unit)", "Effect (Lower 95%)", "Effect (Upper 95%)",
             "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Effect (Diff: 75%-25%)", "Effect (Diff, Lower 95%)", "Effect (Diff, Upper 95%)"
+          )
+        } if (modelType == "cph") { #hazard ratio
+          colnames(varOneOut) <- c(
+            "InterestedVar", "Effect (One Unit)", "P", "Hazard Ratio (One Unit)", "HR (Lower 95%)", "HR (Upper 95%)",
+            "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Hazard Ratio (Diff: 75%-25%)", "HR (Diff, Lower 95%)", "HR (Diff, Upper 95%)"
           )
         } else {
           colnames(varOneOut) <- c(
