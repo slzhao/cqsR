@@ -1,0 +1,62 @@
+---
+title: "DESeq2 test and design"
+author: "Shilin Zhao"
+date: "9/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# DESeq2 Design
+
+https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+?results
+
+Different methods of using contrast
+* condition effect for genotype I (main effect): 
+results(dds, contrast=c("condition","B","A")) #Regular contrast, compare B vs A in condition;
+
+* condition effect for genotype III (the main effect *plus* the interaction term): 
+results(dds, contrast=list( c("condition_B_vs_A","genotypeIII.conditionB") )) #list(c(A,B)) to get effect of comprasionA + comprasionB;
+
+* condition effect in genotype III vs genotype II (condition effect is different in III compared to II): results(dds, contrast=list("genotypeIII.conditionB", "genotypeII.conditionB")) #list(A,B) to get effect of comprasionA - comprasionB;
+
+* condition effect for genotypeIII (genotypeIII was NOT in resultsNames(dds)): results(dds, contrast=c("group", "IIIB", "IIIA"))
+
+
+
+
+```{r}
+library(DESeq2)
+example(results)
+
+#some test
+dds <- makeExampleDESeqDataSet(n=100,m=12)
+dds$genotype <- factor(rep(rep(c("I","II"),each=3),2))
+
+design(dds) <- ~ genotype + condition + genotype:condition
+dds <- DESeq(dds) 
+resultsNames(dds)
+
+# Note: design with interactions terms by default have betaPrior=FALSE
+
+# the condition effect for genotype I (the main effect)
+results(dds, contrast=c("condition","B","A"))
+
+# the condition effect for genotype II
+# this is, by definition, the main effect *plus* the interaction term
+# (the extra condition effect in genotype II compared to genotype I).
+results(dds, list( c("condition_B_vs_A","genotypeII.conditionB") ))
+
+# the interaction term, answering: is the condition effect *different* across genotypes?
+results(dds, name="genotypeII.conditionB")
+ 
+
+
+
+
+
+```
+
