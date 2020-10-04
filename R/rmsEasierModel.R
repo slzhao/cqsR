@@ -171,7 +171,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
             "InterestedVar", "P", "Effect (One Unit)", "Effect (Lower 95%)", "Effect (Upper 95%)",
             "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Effect (Diff: 75%-25%)", "Effect (Diff, Lower 95%)", "Effect (Diff, Upper 95%)"
           )
-        } if (modelType == "cph") { #hazard ratio
+        } else if (modelType == "cph") { #hazard ratio
           colnames(varOneOut) <- c(
             "InterestedVar", "Effect (One Unit)", "P", "Hazard Ratio (One Unit)", "HR (Lower 95%)", "HR (Upper 95%)",
             "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Hazard Ratio (Diff: 75%-25%)", "HR (Diff, Lower 95%)", "HR (Diff, Upper 95%)"
