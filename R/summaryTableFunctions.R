@@ -22,7 +22,9 @@
 
 #' @export
 #'
-summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,pairedTest=FALSE,minUnique=5,NotPairedCatTestFun=chisq.test) {
+summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,
+                       pairedTest=FALSE,minUnique=5,NotPairedCatTestFun=chisq.test,includeStatistic=FALSE,
+                       includeVarLabel=TRUE) {
   if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
     stop(pate0("at least one of groupCol or varColsPaired should be defined"))
   }
@@ -64,6 +66,12 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
     } else {
       varColLabel=paste0(varCol," (",groupColLabel[1],") vs ",varColPaired," (",groupColLabel[2],")")
     }
+    if (includeVarLabel) {
+      varColLabelInData=label(rawData)[varCol]
+      if (!is.na(varColLabelInData) & varColLabelInData!="") {
+        varColLabel=paste0(varColLabel," (",varColLabelInData,")")
+      }
+    }
     if (length(unique(rawData[,varCol]))<minUnique | is.factor(rawData[,varCol]) | is.character(rawData[,varCol])) { #categorical, or less than minUnique of unique numbers, make it a categorical data
       #make factor or numeric into character to match variables
       dataOneGroup1=as.character(rawDataPairedOrderedGroup1[,varCol])
@@ -79,13 +87,18 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
         } else {
           testResult=NotPairedCatTestFun(matrixForTest)
           pValue=testResult$p.value
-          if ("statistic" %in% names(testResult)) {
-            statistic=testResult$statistic
-          } else if ("estimate" %in% names(testResult)) {
-            statistic=testResult$estimate
-          }else {
+          if (includeStatistic) {
+            if ("statistic" %in% names(testResult)) {
+              statistic=testResult$statistic
+            } else if ("estimate" %in% names(testResult)) {
+              statistic=testResult$estimate
+            }else {
+              statistic=""
+            }
+          } else {
             statistic=""
           }
+
 
           dataOneVariableCountAll=rowSums(matrixForTest)
         }
@@ -130,14 +143,19 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           }
 
           pValue=mcnemar.test(matrixForTest)$p.value
-          statistic=mcnemar.test(matrixForTest)$statistic
+          if (includeStatistic) {
+            statistic=mcnemar.test(matrixForTest)$statistic
+          } else {
+            statistic=""
+          }
+
           dataOneVariableCount1=rowSums(matrixForTest)
           dataOneVariableCount2=colSums(matrixForTest)
         }
         if (is.na(pValue)) {
           dataOneVariableTestResult=""
         } else {
-          dataOneVariableTestResult=c(paste0(names(statistic),"=",round(statistic,2),"; ",showP(pValue)),rep("",length(dataOneVariableCount1)))
+          dataOneVariableTestResult=c(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; "),showP(pValue)),rep("",length(dataOneVariableCount1)))
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
                            c("",countToPercent(rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2)))),
@@ -154,11 +172,15 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
         testResult=wilcox.test(rawDataPairedOrderedGroup1[,varCol],rawDataPairedOrderedGroup2[,varColPaired],paired = TRUE)
       }
       pValue=testResult$p.value
-      statistic=testResult$statistic
+      if (includeStatistic) {
+        statistic=testResult$statistic
+      } else {
+        statistic=""
+      }
       if (is.na(pValue)) {
         dataOneVariableTestResult=""
       } else {
-        dataOneVariableTestResult=paste(paste0(names(statistic),"=",statistic),"; ",showP(pValue),collapse="; ")
+        dataOneVariableTestResult=paste(ifelse(statistic=="","",paste0(names(statistic),"=",statistic,"; ")),showP(pValue),collapse="; ")
       }
 
       temp1=which(!is.na(rawDataPairedOrderedGroup1[,varCol]))
@@ -281,7 +303,8 @@ summaryFun<-function(x,digits=3) {
 
 #' @export
 #'
-summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,minUnique=5) {
+summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,minUnique=5,
+                               includeStatistic=FALSE,includeVarLabel=TRUE) {
   pDigital=max(c(digital,3))
 
 
@@ -305,7 +328,12 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
       #    temp<-wilcox.test(dataForTableOne[,groupVariable]~dataOneVariable)
       if (length(unique(dataOneVariable))>1) {
         temp<-kruskal.test(dataForTableOne[,groupVariable]~as.factor(dataOneVariable))
-        dataOneVariableTestResult<-paste0(names(temp$statistic),"=",round(temp$statistic,digital),", ",showP(temp$p.value,pDigital))
+        if (includeStatistic) {
+          statistic=round(temp$statistic,digital)
+        } else {
+          statistic=""
+        }
+        dataOneVariableTestResult<-paste0(ifelse(statistic=="","",paste0(names(statistic),"=",statistic,", ")),showP(temp$p.value,pDigital))
         dataOneVariableTestResult<-makeTestNameForTable(dataOneVariableTestResult)
       } else {
         dataOneVariableTestResult=""
@@ -314,7 +342,14 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
 
       #			paste0(variables[i]," (",sum(dataOneVariableCount),")")
       #			paste(names(dataOneVariableCount)," (",dataOneVariableCount,")",sep="")
-      tableOneOut<-cbind(c(paste0('<p align="left"><b>',variables[i],'</b></p>'),paste0(" ",names(dataOneVariableCount)," ")),
+      varColLabel=variables[i]
+      if (includeVarLabel) {
+        varColLabelInData=label(rawData)[varColLabel]
+        if (!is.na(varColLabelInData) & varColLabelInData!="") {
+          varColLabel=paste0(variables[i]," (",varColLabelInData,")")
+        }
+      }
+      tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount)," ")),
                          c(sum(dataOneVariableCount),dataOneVariableCount),
                          c("",dataOneVariableSummary),
                          c(dataOneVariableTestResult,rep("",dataOneVariableUniqueNum))
@@ -333,8 +368,21 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
       } else {
         dataOneVariableSummary<-round(c(temp$estimate),digital)
       }
-      dataOneVariableTestResult<-paste0(names(temp$statistic),"=",round(temp$statistic,digital),", ",showP(temp$p.value,pDigital))
-      tableOneOut<-c(paste0('<p align="left"><b>',variables[i],'</b></p>'),
+      if (includeStatistic) {
+        statistic=round(temp$statistic,digital)
+      } else {
+        statistic=""
+      }
+      dataOneVariableTestResult<-paste0(ifelse(statistic=="","",paste0(names(statistic),"=",statistic,", ")),showP(temp$p.value,pDigital))
+
+      varColLabel=variables[i]
+      if (includeVarLabel) {
+        varColLabelInData=label(rawData)[varColLabel]
+        if (!is.na(varColLabelInData) & varColLabelInData!="") {
+          varColLabel=paste0(variables[i]," (",varColLabelInData,")")
+        }
+      }
+      tableOneOut<-c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),
                      dataOneVariableCount,
                      dataOneVariableSummary,
                      dataOneVariableTestResult

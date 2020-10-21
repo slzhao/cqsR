@@ -8,7 +8,7 @@
 #'
 creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
                          sourcePDir=paste0(Sys.getenv("SOURCEDIR","d:/source/"),"/r_cqs"),
-                         dataPDir=Sys.getenv("WORKDIR","D:/OneDriveWork/OneDriveVanderbilt/work"),
+                         dataPDir=Sys.getenv("WORKDIR","D:/workSync"),
                          templateFile="D:/source/r_cqs/myPkg/example/reportExample.Rmd") {
   projectName=paste0(pi,"/",projectDate,"_",project)
   sourceDir=paste0(sourcePDir,"/",projectName)
