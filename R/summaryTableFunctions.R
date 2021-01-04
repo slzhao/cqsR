@@ -67,7 +67,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
       varColLabel=paste0(varCol," (",groupColLabel[1],") vs ",varColPaired," (",groupColLabel[2],")")
     }
     if (includeVarLabel) {
-      varColLabelInData=label(rawData)[varCol]
+      varColLabelInData=label(dataForTable)[varCol]
       if (!is.na(varColLabelInData) & varColLabelInData!="") {
         varColLabel=paste0(varColLabel," (",varColLabelInData,")")
       }

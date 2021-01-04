@@ -1,0 +1,278 @@
+---
+title: "Notes for BioC packages realted to genomes"
+author:
+- name: Shilin Zhao
+  affiliation: CQS
+  email: zhaoshilin@gmail.com
+package: packageName
+output:
+  BiocStyle::html_document
+abstract: |
+  Using BioC vignette style
+vignette: |
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Database Mapping: biomaRt package
+
+Mroe details at: 
+https://bioconductor.org/packages/devel/bioc/vignettes/biomaRt/inst/doc/biomaRt.html
+https://useast.ensembl.org/info/data/biomart/biomart_r_package.html
+
+
+```{r,message=FALSE}
+library(biomaRt)
+listEnsembl()
+#listEnsembl("GRCh=37") 
+listEnsemblArchives()
+
+#ensembl = useMart("ensembl",dataset="hsapiens_gene")
+
+grch37 = useEnsembl(biomart="ensembl",GRCh=37) #hg19 genome version
+grch37 
+grch37 = useDataset("hsapiens_gene_ensembl",mart=grch37)
+
+#list species in database
+ensembl = useMart("ensembl")
+print(listDatasets(ensembl)[1:5,])
+
+ensembl = useDataset("hsapiens_gene_ensembl",mart=ensembl)
+ensembl = useMart("ENSEMBL_MART_ENSEMBL",dataset="hsapiens_gene_ensembl",host="aug2017.archive.ensembl.org")
+
+#listFilters and listAttributes
+filters = listFilters(ensembl)
+print(filters[1:5,])
+
+attributes = listAttributes(ensembl)
+print(attributes[1:5,])
+
+#Searching for datasets, filters and attributes
+searchDatasets(mart = ensembl, pattern = "hsapiens")
+searchAttributes(mart = ensembl, pattern = "hgnc")
+searchFilters(mart = ensembl, pattern = "ensembl.*id")
+
+#Example 1
+x=c("Q04837","P0C0L4","P0C0L5","O75379","Q13068","A2MYD1","P60709","P30462","P30475","P30479")
+filters="uniprotswissprot"
+attributes =c(filters,"entrezgene")
+
+newIdTable<-getBM(attributes =attributes,filters=filters,values=x,mart = ensembl)
+newIdTable
+
+#Example 2
+getBM(attributes = c('ensembl_gene_id',"external_gene_name","description","chromosome_name","start_position","end_position","mirbase_accession","mirbase_id","mirbase_trans_name"), 
+      filters = c("chromosomal_region"),
+      values = c("22:16221959:16221970","22:46509623:46509634","22:19199671:19199682","6:72113298:72113319","1:41220043:41220064"),
+      mart = grch37)
+
+
+
+```
+
+# GenomicRanges package
+
+https://bioconductor.org/packages/release/bioc/html/GenomicRanges.html
+
+```{r,message=FALSE}
+library(GenomicRanges)
+library(rtracklayer)
+
+gr <- GRanges(
+  seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
+  ranges = IRanges(101:110, end = 111:120, names = head(letters, 10)),
+  strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
+  score = 1:10,GC = seq(1, 0, length=10))
+gr
+seqnames(gr)
+ranges(gr)
+strand(gr)
+granges(gr)
+mcols(gr)
+seqlengths(gr)
+names(gr)
+length(gr)
+
+sp <- split(gr, rep(1:2, each=5))
+
+chrRange <- makeGRangesFromDataFrame(data.frame(chr=c("chr1","chr7","chr19"), 
+				start=c(120005017,68370602,10989011), 
+				end=c(248835104,136137817,22780428)))
+
+
+#gr_obj =  import("file.bed")
+
+#findOverlaps
+
+
+```
+
+
+
+# Genome feature: TxDb and Ensembldb
+
+```{r,message=FALSE}
+library(EnsDb.Hsapiens.v75)
+edb=EnsDb.Hsapiens.v75
+edb
+
+## list all database tables along with their columns
+## for example we can use "proteins" to extract columns in "protein" table
+listTables(edb)
+
+## list columns from a specific table
+listColumns(edb, "tx")
+
+#An example to extract from the table
+Tx <- transcripts(edb,
+          columns = c(listColumns(edb , "tx"), "gene_name"),
+          filter = TxBiotypeFilter("nonsense_mediated_decay"),
+          return.type = "DataFrame")
+nrow(Tx)
+Tx
+BCLs <- genes(edb,
+          columns = c("gene_name", "entrezid", "gene_biotype"),
+          filter = GenenameFilter("BCL", condition = "startsWith"),
+          return.type = "DataFrame")
+nrow(BCLs)
+BCLs
+
+#These methods allow to calculate the lengths of features (transcripts, genes, CDS, 3' or 5' UTRs) defined in an EnsDb object or database.
+mean(lengthOf(edb, of = "tx",
+          filter = AnnotationFilterList(
+          GeneBiotypeFilter(c("snRNA", "snoRNA", "rRNA")),
+          SeqNameFilter(c("X", "Y")))))
+mean(lengthOf(edb, of = "tx",
+          filter = ~ gene_biotype == "protein_coding" &
+          seq_name %in% c("X", "Y")))
+
+
+##Generic functions to extract genomic features of a given type grouped based on another type of genomic feature.
+#transcriptsBy(x, by=c("gene", "exon", "cds"), ...)
+#exonsBy(x, by=c("tx", "gene"), ...)
+#cdsBy(x, by=c("tx", "gene"), ...)
+#intronsByTranscript(x, ...)
+#fiveUTRsByTranscript(x, ...)
+#threeUTRsByTranscript(x, ...)
+
+yCds <- cdsBy(edb, filter = SeqNameFilter("Y"))
+yCds
+
+#Using a GRangesFilter we can retrieve all features from the database that are either within or overlapping the specified genomic region. 
+## Define the filter
+grf <- GRangesFilter(GRanges("11", ranges = IRanges(114129278, 114129328),
+                 strand = "+"), type = "any")
+## Query genes:
+transcripts(edb, filter = grf)
+gn <- genes(edb, filter = grf)
+gn
+
+## Next we retrieve all transcripts for that gene so that we can plot them.
+txs <- transcripts(edb, filter = GenenameFilter(gn$gene_name))
+
+
+#The functions listGenebiotypes and listTxbiotypes can be used to get an overview of allowed/available gene and transcript biotype
+listGenebiotypes(edb)
+listTxbiotypes(edb)
+
+
+
+
+supportedFilters(edb)
+
+#exons, genes or transcripts
+
+
+#A simple use case for the filter framework would be to get all transcripts for the gene BCL2L11
+Tx <- transcripts(edb, filter = list(GenenameFilter("BCL2L11")))
+Tx
+
+## Use a filter expression to perform the filtering.
+transcripts(edb, filter = ~ genename == "ZBTB16")
+genes(edb, filter = ~ genename == "ZBTB16")
+
+## Adding a filter to an EnsDb enables this filter (globally) on all subsequent queries on that object. For example, we could thus filter an EnsDb to (virtually) contain only features encoded on chromosome Y.
+edb_y <- addFilter(edb, SeqNameFilter("Y"))
+## Get all lincRNAs on chromosome Y
+genes(edb_y, filter = ~ gene_biotype == "lincRNA")
+
+```
+
+
+
+# vcf file
+```{r}
+library(VariantAnnotation)
+vcfFile <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
+hdr <- scanVcfHeader(vcfFile)
+info(hdr) 
+geno(hdr)
+
+param = ScanVcfParam(fixed=c("ALT","FILTER"),geno=c("GT","DS"))
+vcf = readVcf(vcfFile, "hg19", param=param)
+
+temp1<-as.character(seqnames(vcf))
+temp2<-start((vcf))
+temp3<-end((vcf))
+vcfFilter<-fixed(vcf)$FILTER
+vcfInfo(vcf)$INDEL
+vcfAD<-geno(vcf)$AD
+vcfGT<-geno(vcf)$GT
+head(fixed(vcf)$ALT)
+head(fixed(vcf)$REF)
+vcfAlt<-unstrsplit(CharacterList(fixed(vcf)$ALT),sep=",")
+vcfREF<-as.character(fixed(vcf)$REF)
+vcfSamples<-samples(header(vcf))
+
+
+```
+
+
+# More details
+For BioC vignette style
+http://bioconductor.org/packages/release/bioc/vignettes/BiocStyle/inst/doc/AuthoringRmdVignettes.html
+
+
+For Ensembldb package
+https://bioconductor.org/packages/release/bioc/html/ensembldb.html
+
+
+
+# Functions
+
+```{r,message=FALSE}
+#chromosomes on a genome object
+genomePkg="BSgenome.Hsapiens.UCSC.hg38"
+library(genomePkg,character.only=T)
+Genome=get(genomePkg)
+
+seqlevels(Genome)
+#keepSeqlevels
+keepSeqlevels(Genome)
+#dropSeqlevels
+
+standardChromosomes(Genome)
+#keepStandardChromosomes
+
+seqlengths(Genome)
+
+seqlevelsStyle(Genome)
+#seqlevelsStyle(Genome)<-"NCBI"
+
+
+#get sequence
+getSeq(Genome, "chr1", 100, 150)
+#Or
+Genome[["chr19"]]
+
+```
+
+
+
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```

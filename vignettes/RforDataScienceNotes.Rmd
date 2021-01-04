@@ -17,7 +17,17 @@ library(tidyverse)
 #library(dplyr)
 ```
 
-# vroom package: Fast reading of delimited files 
+
+# read data
+## read excel
+
+```{r}
+library(readxl)
+readxl_example()
+
+```
+
+## vroom package: Fast reading of delimited files 
 
 https://github.com/r-lib/vroom
 https://vroom.r-lib.org/articles/vroom.html
@@ -129,6 +139,9 @@ stocks %>% gather("X", "Y","Z",key="stock",value="price")
 ```
 
 ## spread: opposite of gathering. use it when an observation is scattered across multiple rows.
+
+Or use pivot_wider as spread is retired
+
 ```{r}
 stocksm <- stocks %>% gather(stock, price, -time)
 head(stocksm)
