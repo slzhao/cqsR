@@ -1,0 +1,70 @@
+---
+title: "SPC charts"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Thoughts
+
+
+
+If I understand it correctly, there are three different (but related) tests in SPC charts:
+1.	If a point is a special cause variation: Shewhart’s 3-sigma rule was used in this situation and the point will be labeled by a red dot in qicharts2.
+2.	If there is any special cause variation in the whole SPC charts: You mentioned “Western Electric rules” and your “Anhøj rules” in qicharts2 vignette and the center line will be a red dashed line in qicharts2 if this was found by Anhøj rules.
+3.	If (and when) we should recompute the limits (Identifying Shifts): and 
+
+
+
+# using qicharts2 package and Anhoj rules
+
+https://cran.r-project.org/web/packages/qicharts2/vignettes/qicharts2.html
+
+https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-018-0564-0
+
+```{r}
+library(tidyverse)
+#library(dplyr)
+library(qicharts2)
+
+
+```
+
+
+
+# When to make "Shifts" on PSC charts
+
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6221583/
+
+“eight-point rule” (EPR) (sometimes 7 or 9, depending on the set of rules being used) has become the predominant way to identify a centerline shift—that is, the process has shifted if 8 or more consecutive points occur on the same side of the center line. 
+
+
+## An test example for qicharts2 package
+
+```{r}
+
+rm(cdi)
+library(qicharts2)
+
+i=25:31
+cdi$n[i]=cdi$n[i]+8
+i=32
+cdi$n[i]=cdi$n[i]+5
+
+#There are some special cause variations (red dashed line)
+qic(month, n,    notes    = notes,    data     = cdi)
+
+#part=24, the second part still has special cause variations (red dashed line)
+qic(month, n,    notes    = notes,    data     = cdi,part=24)
+
+#part=29 gets better result (no red dashed line)
+qic(month, n,    notes    = notes,    data     = cdi,part=29)
+
+
+```
+
+# SPC charts vs regression 
+
+https://www.propharmagroup.com/blog/which-best-regression-versus-control-charting/
