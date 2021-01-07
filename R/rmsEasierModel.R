@@ -109,7 +109,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
         print(modelResult)
       }
       if (printModelFigure) {
-        print(plot(Predict(modelResult)))
+        print(plot(Predict(modelResult),ylab=outVar))
       }
 
 
