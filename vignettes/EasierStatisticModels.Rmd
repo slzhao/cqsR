@@ -205,6 +205,28 @@ validate(fmi) #
 
 ```
 
+### Estimate median follow up time by reverse Kaplan-Meier 
+
+https://publicifsv.sund.ku.dk/~tag/Teaching/share/R-tutorials/Advanced-statistics/SurvivalAnalysis.html#:~:text=The%20median%20potential%20follow%2Dup,had%20there%20been%20no%20events.
+
+```{r,eval=FALSE}
+
+# method 1
+library(prodlim)
+library(pec)
+data(GBSG2,package="pec")
+quantile(prodlim(Hist(time,cens)~1,data=GBSG2,reverse=TRUE))
+
+# method 2
+library(survival)
+GBSG2$cens1=1-GBSG2$cens
+quantile(survfit(Surv(time,cens1)~1,data=GBSG2))
+
+
+```
+
+
+
 ### Concordance and C-index
 
 https://stats.stackexchange.com/questions/169834/cox-regression-covariate-specific-concordance-independent-of-distribution-of-cov

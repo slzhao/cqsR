@@ -87,6 +87,15 @@ table1 %>%
 
 ## mutate+case_when
 
+```{r}
+x <- 1:50
+case_when(
+  x %% 35 == 0 ~ "fizz buzz",
+  x %% 5 == 0 ~ "fizz",
+  x %% 7 == 0 ~ "buzz",
+  TRUE ~ as.character(x)
+)
+```
 
 ## group_by: takes an existing tbl and converts it into a grouped tbl 
 ```{r}
