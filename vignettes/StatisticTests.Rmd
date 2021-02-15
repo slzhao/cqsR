@@ -1,0 +1,120 @@
+---
+title: "StatisticTests"
+author: "test"
+date: "2/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Influence of log transformation on variables and outcome on model
+
+Seems transformation is NOT necessary even if data is highly skewed.
+
+```{r}
+set.seed(123)
+
+x=rgamma(1000, 0.1)+abs(rnorm(1000)/20)
+y=3*x+abs(rnorm(1000)/2)
+hist(x)
+hist(y)
+plot(x,y)
+plot(log(x),log(y),main="Log Transformation on both X and Y")
+summary(lm(y~x))
+
+summary(lm(y~log(x)))
+
+summary(lm(log(y)~log(x)))
+
+```
+
+## Test
+
+https://stats.stackexchange.com/questions/12715/should-quantitative-predictors-be-transformed-to-be-normally-distributed
+
+```{r}
+library(rms)
+rawData=data.frame(x,y)
+
+d <- datadist(rawData)
+options(datadist="d")
+
+modelResult=ols(y~x,data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(log(y)~log(x),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(sqrt(x),5),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(log(x),5),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(x,5),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(x,3),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+#This is not working. Not sure why
+#modelResult=ols(y ~ rcs(x^(1/3)),data=rawData)
+#modelResult
+#plot(Predict(modelResult))
+
+
+```
+
+## If we added one bigger outlier to the data. Should we change the model method?
+
+
+```{r}
+x=c(x,9)
+y=c(y,50)
+plot(x,y)
+plot(log(x),log(y),main="Log Transformation on both X and Y")
+
+rawData=data.frame(x,y)
+d <- datadist(rawData)
+options(datadist="d")
+
+modelResult=ols(y~x,data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(log(y)~log(x),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(sqrt(x),5),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(log(x),5),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(x,5),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+modelResult=ols(y~rcs(x,3),data=rawData)
+modelResult
+plot(Predict(modelResult))
+
+#This is not working. Not sure why
+#modelResult=ols(y ~ rcs(x^(1/3)),data=rawData)
+#modelResult
+#plot(Predict(modelResult))
+
+
+```
+

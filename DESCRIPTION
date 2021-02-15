@@ -1,7 +1,7 @@
 Package: cqsR
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.5
+Version: 0.1.6
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
@@ -15,4 +15,4 @@ Depends:
     VariantAnnotation
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

@@ -74,10 +74,12 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
 #' @export
 #'
 modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL, nonLinearVars = NULL, extractStats = NULL,
-                       modelType = "lrm", printModel = FALSE, printModelFigure = printModel,returnKable = FALSE,uniqueSampleSize=5) {
+                       modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
+                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5) {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
   modelFun <- get(modelType)
   modelResultAll <- NULL
+  modelAll <- list()
 
   for (outVar in outVars) {
     for (varOne in interestedVars) {
@@ -111,7 +113,9 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
       if (printModelFigure) {
         print(plot(Predict(modelResult),ylab=outVar))
       }
-
+      if (returnModel) {
+        modelAll=c(modelAll,list(modelResult))
+      }
 
       # extract result, may have many variables in varOne
       for (i in 1:length(varOne)) {
@@ -200,10 +204,58 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
     }
   }
   row.names(modelResultAll) <- NULL
-  if (returnKable) {
+
+  if (returnModel) {
+    return(modelAll)
+  } else if (returnKable) {
     temp <- apply(modelResultAll, 2, function(x) all(x == "")) # remove spaces
     kable(modelResultAll[, which(!temp)],caption ="Regression Model Result Summary")
   } else {
     return(modelResultAll)
   }
 }
+
+#' summary/predict model result based on variable's value
+#' @export
+#'
+easierSummaryByValue=function(modelResult,varOneToExtract,varOneToExtractValues) {
+  if ("lrm" %in% class(modelResult)) {
+    modelType="lrm"
+  } else if ("ols" %in% class(modelResult)) {
+    modelType="ols"
+  } else {
+    modelType="cph"
+  }
+
+  summaryArgList <- list(quote(modelResult), c((varOneToExtractValues[1]), (varOneToExtractValues[2])), est.all = FALSE)
+  names(summaryArgList)[2] <- varOneToExtract
+  #print(summaryArgList)
+  #browser()
+  modelResultSummary <- round(do.call(summary, summaryArgList), 3)
+  varOneInd <- grep(varOneToExtract, row.names(modelResultSummary))
+  #browser()
+  if (modelType == "ols") { #one row, no odds ratio
+    varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], matrix(modelResultSummary[varOneInd, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
+  } else {
+    varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], matrix(modelResultSummary[varOneInd + 1, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
+  }
+
+  modelFormula=paste0(modelType,"(",as.character(as.expression(modelResult$sformula)),")")
+  varOneOut=c(modelFormula,varOneOut)
+
+  if (modelType == "ols") { #linear regression no odds ratio
+    names(varOneOut) <- c(
+      "Formula","InterestedVar", "Value 1", "Value 2", "Value Diff", "Effect (Diff)", "Effect (Diff, Lower 95%)", "Effect (Diff, Upper 95%)"
+    )
+  } else if (modelType == "cph") { #hazard ratio
+    names(varOneOut) <- c(
+      "Formula","InterestedVar", "Value 1", "Value 2", "Value Diff", "Hazard Ratio (Diff)", "HR (Diff, Lower 95%)", "HR (Diff, Upper 95%)"
+    )
+  } else {
+    names(varOneOut) <- c(
+      "Formula","InterestedVar", "Value 1", "Value 2", "Value Diff", "Odds Ratio (Diff)", "OR (Diff, Lower 95%)", "OR (Diff, Upper 95%)"
+    )
+  }
+  return(varOneOut)
+}
+
