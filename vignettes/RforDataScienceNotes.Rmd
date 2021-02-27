@@ -129,7 +129,7 @@ mpg %>%
 
 ```
 
-## gather:  takes multiple columns and collapses into key-value pairs
+## gather:  takes multiple columns and collapses into key-value pairs, or use pivot_longer
 
 ```{r}
 # From http://stackoverflow.com/questions/1181060

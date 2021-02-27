@@ -75,7 +75,7 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
 #'
 modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL, nonLinearVars = NULL, extractStats = NULL,
                        modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
-                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5) {
+                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,reportAnovaP=FALSE) {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
   modelFun <- get(modelType)
   modelResultAll <- NULL
@@ -123,12 +123,17 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
         varOneInd <- grep(varOneToExtract, names(modelResult$coefficients))
 
         if (length(varOneInd) > 0) {
-          #        coefficientOne<-round(modelResult$coefficients[varOneInd],3)
-          pValueOne <- (pnorm(abs(modelResult$coef / sqrt(diag(modelResult$var))), lower.tail = F) * 2)[varOneInd]
+          if (reportAnovaP) {
+            pValueOne=anova(modelResult)[varOneToExtract,"P"]
+          } else {
+            if (modelType=="ols") { #ols, linear regression
+              pValueOne=summary.lm(modelResult)$coefficients[varOneInd,"Pr(>|t|)"]
+            } else { #lrm or cph, wald Z test to get p value
+              pValueOne <- (pnorm(abs(modelResult$coef / sqrt(diag(modelResult$var))), lower.tail = F) * 2)[varOneInd]
+            }
+          }
           pValueOne <- showP(pValueOne, text = "", digits = 4)
 
-          #        coefficientOne=paste(coefficientOne,collapse="; ")
-#          pValueOne <- paste(pValueOne, collapse = "; ") #for continus variable only, add this in next part
         } else {
           warning(paste0("Can't find interested var name in model result: ", paste(varOneToExtract, collapse = ", ")))
           next
@@ -205,11 +210,13 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
   }
   row.names(modelResultAll) <- NULL
 
+  if (returnKable) {
+    temp <- apply(modelResultAll, 2, function(x) all(x == "")) # remove spaces
+    print(kable(modelResultAll[, which(!temp)],caption ="Regression Model Result Summary"))
+  }
+
   if (returnModel) {
     return(modelAll)
-  } else if (returnKable) {
-    temp <- apply(modelResultAll, 2, function(x) all(x == "")) # remove spaces
-    kable(modelResultAll[, which(!temp)],caption ="Regression Model Result Summary")
   } else {
     return(modelResultAll)
   }

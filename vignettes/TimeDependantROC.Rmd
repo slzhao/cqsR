@@ -1,0 +1,37 @@
+---
+title: "Time Dependant ROC and AUC"
+author: "test"
+date: "2/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Review paper: Time-dependent ROC curve analysis in medical research: current methods and applications https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-017-0332-6
+
+
+# timeROC package
+
+timeROC to run model/make object
+compare to compare two models
+confint to get confidence interval
+
+```{r}
+
+
+
+```
+
+# pROC package
+
+https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-77
+Comparison part introduced the comprasion by bootstrao method 
+
+roc.test include DeLong test for single ROC. Can also use "bootstrap" method, which is the same as "compare" in timeROC pacakge.
+
+# nsROC package
+
+cdROC can also make a time-dependent ROC curve. BUt can't do test between two models.
+
