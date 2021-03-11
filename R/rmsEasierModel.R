@@ -67,6 +67,126 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
   }
 }
 
+#export p and coef from modelResult
+#varOne is interested Vars
+#' @export
+#'
+exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TRUE) {
+  supportedModelTypes=c("lrm", "ols", "cph")
+  modelType=intersect(class(modelResult),supportedModelTypes)[1]
+  if (length(modelType)==0) {
+    stop("Can't find modelType. Now only supports ",paste(supportedModelTypes,collapse=";"))
+  }
+
+  modelResultOut=NULL
+
+  ######################
+  #get p value
+  ######################
+  for (i in 1:length(varOne)) {
+    varOneToExtract <- varOne[i]
+    varOneInd <- grep(varOneToExtract, names(modelResult$coefficients))
+
+    if (length(varOneInd) > 0) {
+      if (reportAnovaP) {
+        pValueOne=anova(modelResult)[varOneToExtract,"P"]
+      } else {
+        if (modelType=="ols") { #ols, linear regression
+          pValueOne=summary.lm(modelResult)$coefficients[varOneInd,"Pr(>|t|)"]
+        } else { #lrm or cph, wald Z test to get p value
+          pValueOne <- (pnorm(abs(modelResult$coef / sqrt(diag(modelResult$var))), lower.tail = F) * 2)[varOneInd]
+        }
+      }
+      pValueOne <- showP(pValueOne, text = "", digits = 4)
+
+    } else {
+      warning(paste0("Can't find interested var name in model result: ", paste(varOneToExtract, collapse = ", ")))
+      next
+    }
+
+    ######################
+    #get coef/effect
+    ######################
+
+    ##get data limits and type
+    #varLimitsTable=get(options("datadist")[[1]])[["limits"]][,varOneToExtract,drop=FALSE]
+    #modelResult$Design
+
+    varOneToExtractType=modelResult$Design$assume[which(modelResult$Design$name==varOneToExtract)]
+    if (varOneToExtractType=="rcspline") { #non linear effect for continous variable. May have more than one p values
+      pValueOne <- paste(pValueOne, collapse = "; ")
+    }
+
+    varOneToExtractLimits=modelResult$Design$limits[,which(modelResult$Design$name==varOneToExtract),drop=FALSE]
+    varOneRef=varOneToExtractLimits["Adjust to",]
+
+
+    if (varOneToExtractType=="category") { # interested var is factor
+      summaryArgList <- list(quote(modelResult), varOneRef, est.all = FALSE)
+      names(summaryArgList)[2] <- varOneToExtract
+      modelResultSummary <- round(do.call(summary, summaryArgList), 3)
+      #browser()
+      varOneInd <- grep(varOneToExtract, row.names(modelResultSummary))
+      if (modelType == "ols") { #one row, no odds ratio
+        varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], pValueOne, matrix(modelResultSummary[varOneInd, c(4, 6, 7)], ncol = 3), matrix("", ncol = 6, nrow = length(varOneInd)), stringsAsFactors = FALSE)
+      } else { #two rows, second row odds ratio
+        varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], modelResultSummary[varOneInd, c(4)], pValueOne, matrix(modelResultSummary[varOneInd + 1, c(4, 6, 7)], ncol = 3), matrix("", ncol = 6, nrow = length(varOneInd)), stringsAsFactors = FALSE)
+      }
+    } else { # interested var is continous, need both +1 effect and 25%-75% quantile change effect
+      #varOneRef is median value
+      summaryArgList <- list(quote(modelResult), c(varOneRef, varOneRef + 1), est.all = FALSE)
+      names(summaryArgList)[2] <- varOneToExtract
+      #print(summaryArgList)
+      modelResultSummaryUnit <- round(do.call(summary, summaryArgList), 3) # Value of One Unit Change (from median+1 to median)
+      summaryArgList <- list(quote(modelResult), varOneToExtract, est.all = FALSE)
+      #print(summaryArgList)
+      modelResultSummary <- round(do.call(summary, summaryArgList), 3) # Value at 75% Quantile to 25% Quantile
+      # varOneOut=c(coefficientOne,pValueOne,modelResultSummaryUnit[2,c(4,6,7)],modelResultSummary[2,c(1,2,3,4,6,7)])
+      varOneInd <- grep(varOneToExtract, row.names(modelResultSummary))
+      #browser()
+      if (modelType == "ols") { #one row, no odds ratio
+        varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], pValueOne, matrix(modelResultSummaryUnit[varOneInd , c(4, 6, 7)], ncol = 3), matrix(modelResultSummary[varOneInd, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
+      } else {
+        varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], modelResultSummaryUnit[varOneInd, c(4)], pValueOne, matrix(modelResultSummaryUnit[varOneInd + 1, c(4, 6, 7)], ncol = 3), matrix(modelResultSummary[varOneInd + 1, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
+      }
+    }
+
+    if (modelType == "ols") { #linear regression no odds ratio
+      colnames(varOneOut) <- c(
+        "InterestedVar", "P", "Effect (One Unit)", "Effect (Lower 95%)", "Effect (Upper 95%)",
+        "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Effect (Diff: 75%-25%)", "Effect (Diff, Lower 95%)", "Effect (Diff, Upper 95%)"
+      )
+    } else if (modelType == "cph") { #hazard ratio
+      colnames(varOneOut) <- c(
+        "InterestedVar", "Effect (One Unit)", "P", "Hazard Ratio (One Unit)", "HR (Lower 95%)", "HR (Upper 95%)",
+        "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Hazard Ratio (Diff: 75%-25%)", "HR (Diff, Lower 95%)", "HR (Diff, Upper 95%)"
+      )
+    } else {
+      colnames(varOneOut) <- c(
+        "InterestedVar", "Effect (One Unit)", "P", "Odds Ratio (One Unit)", "OR (Lower 95%)", "OR (Upper 95%)",
+        "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Odds Ratio (Diff: 75%-25%)", "OR (Diff, Lower 95%)", "OR (Diff, Upper 95%)"
+      )
+    }
+
+    #recored event level as sometimes event is factor and need to know which level is event (1)
+    if (modelType == "lrm") {
+      outVarEvent=paste(paste0(rev(names(modelResult$freq)),"(",rev((modelResult$freq)),")"),collapse=" : ")
+      varOneOut <- data.frame(Event=outVarEvent,varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
+    }
+
+    varOneOut <- data.frame(Formula = paste0(modelType, " (", as.character(as.expression(modelResult$sformula)), ")"),varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
+
+    if (!is.null(extractStats)) {
+      varOneOut <- c(varOneOut, round(modelResult$stats[extractStats], 3))
+    }
+    modelResultOut <- rbind(modelResultOut, varOneOut)
+  }
+
+  return(modelResultOut)
+
+}
+
+
 
 
 # make report table for multipl logistic regression models
@@ -75,7 +195,7 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
 #'
 modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL, nonLinearVars = NULL, extractStats = NULL,
                        modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
-                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,reportAnovaP=FALSE) {
+                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,reportAnovaP=TRUE) {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
   modelFun <- get(modelType)
   modelResultAll <- NULL
@@ -105,7 +225,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
 
       ddist <<- datadist(dataForModel, n.unique = uniqueSampleSize)
       options(datadist = "ddist")
-      modelResult <- modelFun(formulaForModel, data = dataForModel)
+      modelResult <- modelFun(formulaForModel, data = dataForModel,x=TRUE,y=TRUE)
       if (printModel) {
         print(paste0("Model formula: ",as.character(as.expression(formulaForModel))))
         print(modelResult)
@@ -118,94 +238,8 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
       }
 
       # extract result, may have many variables in varOne
-      for (i in 1:length(varOne)) {
-        varOneToExtract <- varOne[i]
-        varOneInd <- grep(varOneToExtract, names(modelResult$coefficients))
-
-        if (length(varOneInd) > 0) {
-          if (reportAnovaP) {
-            pValueOne=anova(modelResult)[varOneToExtract,"P"]
-          } else {
-            if (modelType=="ols") { #ols, linear regression
-              pValueOne=summary.lm(modelResult)$coefficients[varOneInd,"Pr(>|t|)"]
-            } else { #lrm or cph, wald Z test to get p value
-              pValueOne <- (pnorm(abs(modelResult$coef / sqrt(diag(modelResult$var))), lower.tail = F) * 2)[varOneInd]
-            }
-          }
-          pValueOne <- showP(pValueOne, text = "", digits = 4)
-
-        } else {
-          warning(paste0("Can't find interested var name in model result: ", paste(varOneToExtract, collapse = ", ")))
-          next
-        }
-
-        if (is.factor(dataForModel[, varOneToExtract]) || is.character(dataForModel[, varOneToExtract])) { # interested var is factor
-          if (is.factor(dataForModel[, varOneToExtract])) {
-            varOneRef <- levels(dataForModel[, varOneToExtract])[1]
-          } else { # character
-            varOneRef <- unique(dataForModel[, varOneToExtract])[1]
-          }
-          summaryArgList <- list(quote(modelResult), varOneRef, est.all = FALSE)
-          names(summaryArgList)[2] <- varOneToExtract
-          modelResultSummary <- round(do.call(summary, summaryArgList), 3)
-          #browser()
-          varOneInd <- grep(varOneToExtract, row.names(modelResultSummary))
-          if (modelType == "ols") { #one row, no odds ratio
-            varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], pValueOne, matrix(modelResultSummary[varOneInd, c(4, 6, 7)], ncol = 3), matrix("", ncol = 6, nrow = length(varOneInd)), stringsAsFactors = FALSE)
-          } else { #two rows, second row odds ratio
-            varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], modelResultSummary[varOneInd, c(4)], pValueOne, matrix(modelResultSummary[varOneInd + 1, c(4, 6, 7)], ncol = 3), matrix("", ncol = 6, nrow = length(varOneInd)), stringsAsFactors = FALSE)
-          }
-
-        } else { # interested var is continous
-          pValueOne <- paste(pValueOne, collapse = "; ")
-          varOneMedianValue <- median(dataForModel[, varOneToExtract], na.rm = TRUE)
-          summaryArgList <- list(quote(modelResult), c(varOneMedianValue, varOneMedianValue + 1), est.all = FALSE)
-          names(summaryArgList)[2] <- varOneToExtract
-          #print(summaryArgList)
-          modelResultSummaryUnit <- round(do.call(summary, summaryArgList), 3) # Value of One Unit Change (from median+1 to median)
-          summaryArgList <- list(quote(modelResult), varOneToExtract, est.all = FALSE)
-          #print(summaryArgList)
-          modelResultSummary <- round(do.call(summary, summaryArgList), 3) # Value at 75% Quantile to 25% Quantile
-          # varOneOut=c(coefficientOne,pValueOne,modelResultSummaryUnit[2,c(4,6,7)],modelResultSummary[2,c(1,2,3,4,6,7)])
-          varOneInd <- grep(varOneToExtract, row.names(modelResultSummary))
-          #browser()
-          if (modelType == "ols") { #one row, no odds ratio
-            varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], pValueOne, matrix(modelResultSummaryUnit[varOneInd , c(4, 6, 7)], ncol = 3), matrix(modelResultSummary[varOneInd, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
-          } else {
-            varOneOut <- data.frame(row.names(modelResultSummary)[varOneInd], modelResultSummaryUnit[varOneInd, c(4)], pValueOne, matrix(modelResultSummaryUnit[varOneInd + 1, c(4, 6, 7)], ncol = 3), matrix(modelResultSummary[varOneInd + 1, c(1, 2, 3, 4, 6, 7)], ncol = 6), stringsAsFactors = FALSE)
-          }
-        }
-        if (modelType == "ols") { #linear regression no odds ratio
-          colnames(varOneOut) <- c(
-            "InterestedVar", "P", "Effect (One Unit)", "Effect (Lower 95%)", "Effect (Upper 95%)",
-            "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Effect (Diff: 75%-25%)", "Effect (Diff, Lower 95%)", "Effect (Diff, Upper 95%)"
-          )
-        } else if (modelType == "cph") { #hazard ratio
-          colnames(varOneOut) <- c(
-            "InterestedVar", "Effect (One Unit)", "P", "Hazard Ratio (One Unit)", "HR (Lower 95%)", "HR (Upper 95%)",
-            "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Hazard Ratio (Diff: 75%-25%)", "HR (Diff, Lower 95%)", "HR (Diff, Upper 95%)"
-          )
-        } else {
-          colnames(varOneOut) <- c(
-            "InterestedVar", "Effect (One Unit)", "P", "Odds Ratio (One Unit)", "OR (Lower 95%)", "OR (Upper 95%)",
-            "Value (25% Quantile)", "Value (75% Quantile)", "Value Diff (75%-25%)", "Odds Ratio (Diff: 75%-25%)", "OR (Diff, Lower 95%)", "OR (Diff, Upper 95%)"
-          )
-        }
-        #recored event level as sometimes event is factor and need to know which level is event (1)
-        if (modelType == "lrm") {
-          outVarEvent=paste(paste0(rev(names(modelResult$freq)),"(",rev((modelResult$freq)),")"),collapse=" : ")
-          varOneOut <- data.frame(Event=outVarEvent,varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
-        }
-
-        varOneOut <- data.frame(Formula = paste0(modelType, " (", as.character(as.expression(formulaForModel)), ")"),varOneOut, stringsAsFactors = FALSE, check.names = FALSE)
-
-        if (!is.null(extractStats)) {
-          varOneOut <- c(varOneOut, round(modelResult$stats[extractStats], 3))
-        }
-        modelResultAll <- rbind(modelResultAll, varOneOut)
-
-
-      }
+      modelResultOut=exportModelResult(modelResult,varOne,reportAnovaP = reportAnovaP)
+      modelResultAll=rbind(modelResultAll,modelResultOut)
     }
   }
   row.names(modelResultAll) <- NULL
