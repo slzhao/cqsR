@@ -67,7 +67,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
       varColLabel=paste0(varCol," (",groupColLabel[1],") vs ",varColPaired," (",groupColLabel[2],")")
     }
     if (includeVarLabel) {
-      varColLabelInData=label(dataForTable)[varCol]
+      varColLabelInData=label(rawData)[varCol]
       if (!is.na(varColLabelInData) & varColLabelInData!="") {
         varColLabel=paste0(varColLabel," (",varColLabelInData,")")
       }
@@ -225,11 +225,14 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
 #'
 printSummaryTable<-function(tableOut) {
   plSignLabel=markupSpecs[["html"]]$plminus
+  anyContinuousResults=any(grepl("V=|W=",tableOut[,"Test Statistic"])) | any(apply(tableOut,1,function(x) any(grepl(plSignLabel,x))))
+  anyCategoricalResults=any(grepl("X-squared",tableOut[,"Test Statistic"])) | !all(grepl("^<p align=",tableOut[,1]))
+
   summaryFootContent=""
-  if (any(grepl("X-squared",tableOut[,"Test Statistic"])) | !all(grepl("^<p align=",tableOut[,1]))) { #have categorical variable
+  if (anyCategoricalResults) { #have categorical variable
     summaryFootContent=paste0(summaryFootContent,"For categorical variable, numbers after proportions are counts; ")
   }
-  if (any(grepl("V=|W=",tableOut[,"Test Statistic"]))) { #have continuous variable
+  if (anyContinuousResults) { #have continuous variable
     summaryFootContent=paste0(summaryFootContent, "For continuous variable, a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c in different categories. x",plSignLabel,"s represents Mean",plSignLabel,"SD.")
   }
 
@@ -240,6 +243,9 @@ printSummaryTable<-function(tableOut) {
   }
   testFootContentPairedWilcox=ifelse(any(grepl("V=",tableOut[,"Test Statistic"])),"Wilcoxon Signed Rank Test for continuous variable; ","")
   testFootContentNonPairedWilcox=ifelse(any(grepl("W=",tableOut[,"Test Statistic"])),"Non-Paired Wilcoxon Rank Sum Test for continuous variable; ","")
+  if (testFootContentPairedWilcox=="" & testFootContentNonPairedWilcox=="" & anyContinuousResults) {
+    testFootContentNonPairedWilcox="Wilcoxon Rank Sum Test for continuous variable; "
+  }
   if (testFootContentMcNemar!="" | testFootContentChisq!="" | testFootContentPairedWilcox!="" | testFootContentNonPairedWilcox!="") {
     testFootContentAll=paste0("
 Tests used: ",testFootContentMcNemar,testFootContentChisq,testFootContentPairedWilcox,testFootContentNonPairedWilcox)
