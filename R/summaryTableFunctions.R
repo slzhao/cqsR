@@ -23,7 +23,8 @@
 #' @export
 #'
 summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupColLabel=NULL,
-                       pairedTest=FALSE,minUnique=5,NotPairedCatTestFun=chisq.test,includeStatistic=FALSE,
+                       pairedTest=FALSE,minUnique=5,NotPairedCatTestFun=chisq.test,
+                       includeStatistic=FALSE,reportRowPercent=FALSE,
                        includeVarLabel=TRUE) {
   if (is.null(groupCol) & is.null(varColsPaired)) { #at least one of groupCol or varColsPaired should be defined
     stop(pate0("at least one of groupCol or varColsPaired should be defined"))
@@ -95,8 +96,17 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
             }else {
               statistic=""
             }
+
+            #add CI of statistic value
+            if ("conf.int" %in% names(testResult) & statistic!="") {
+              statisticCI=round(testResult$conf.int,2)
+              statisticCI=paste0(" (",statisticCI[1],",",statisticCI[2],")")
+            } else {
+              statisticCI=""
+            }
           } else {
             statistic=""
+            statisticCI=""
           }
 
 
@@ -105,11 +115,11 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
         if (is.na(pValue)) {
           dataOneVariableTestResult=""
         } else {
-          dataOneVariableTestResult=c(paste0(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; ")),showP(pValue)),rep("",length(dataOneVariableCountAll)))
+          dataOneVariableTestResult=c(paste0(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),statisticCI,"; ")),showP(pValue)),rep("",length(dataOneVariableCountAll)))
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCountAll)," ")),
-                           c("",countToPercent(dataOneVariableCountAll)),
-                           rbind(c(rep("",ncol(matrixForTest))),countToPercent(matrixForTest)),
+                           c("",countToPercent(dataOneVariableCountAll,reportRowPercent=reportRowPercent)),
+                           rbind(c(rep("",ncol(matrixForTest))),countToPercent(matrixForTest,reportRowPercent=reportRowPercent)),
                            dataOneVariableTestResult
         )
       } else { #paired test mcnemar.test
@@ -158,9 +168,9 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
           dataOneVariableTestResult=c(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; "),showP(pValue)),rep("",length(dataOneVariableCount1)))
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
-                           c("",countToPercent(rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2)))),
-                           c("",countToPercent(dataOneVariableCount1)),
-                           c("",countToPercent(dataOneVariableCount2)),
+                           c("",countToPercent(rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2)),reportRowPercent=reportRowPercent)),
+                           c("",countToPercent(dataOneVariableCount1,reportRowPercent=reportRowPercent)),
+                           c("",countToPercent(dataOneVariableCount2,reportRowPercent=reportRowPercent)),
                            dataOneVariableTestResult
         )
       }
@@ -413,16 +423,22 @@ makeTestNameForTable<-function(x) {
 
 #' @export
 #'
-countToPercent<-function(x) {
+countToPercent<-function(x,reportRowPercent=FALSE) {
   #xTotal=sum(x,na.rm=TRUE)
   #xPercent=as.integer(x/xTotal*100)
 
   x=as.matrix(x)
-  xTotal=colSums(x,na.rm=TRUE)
-  xPercent=round(t(t(x)/xTotal)*100,0)
-  xOUt=paste0(xPercent,"% (",x,")")
-  dim(xOUt) <-dim(x)
-  return(xOUt)
+  if (reportRowPercent) {
+    xTotal=rowSums(x,na.rm=TRUE)
+    xPercent=round(x/xTotal*100,0)
+  } else {
+    xTotal=colSums(x,na.rm=TRUE)
+    xPercent=round(t(t(x)/xTotal)*100,0)
+  }
+
+  xOut=paste0(xPercent,"% (",x,")")
+  dim(xOut) <-dim(x)
+  return(xOut)
 }
 
 #' @export

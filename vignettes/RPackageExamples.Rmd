@@ -19,3 +19,193 @@ A htmlwidget based on the handsontable.js library. Providing tables in Excel-lik
 # flexdashboard: easier shiny daashboard, with R markdown integration 
 
 https://rmarkdown.rstudio.com/flexdashboard/
+
+
+
+# Clustering for categorical data
+
+https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.476.4707&rep=rep1&type=pdf
+
+CFA, MCA and LCA are well known methods in categorical data analyses. CFA is applied as an instrument in terms of type exploration and confirmation. MCA and LCA are used by means of a more detailed description and 
+explanation of statistically signifi cant types.
+
+An example application paper: https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-019-6488-8
+
+## CA and MCA analysis in R
+http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/
+http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/114-mca-multiple-correspondence-analysis-in-r-essentials/
+
+
+
+# nomclust: Caculate distance and clustering of categorical data
+
+https://www.researchgate.net/publication/286927797_nomclust_An_R_Package_for_Hierarchical_Clustering_of_Objects_Characterized_by_Nominal_Variables
+
+```{r}
+
+library(nomclust)
+
+data(data20)
+
+
+```
+
+# klaR: K-Modes clustering (k means to categorical data)
+
+https://dabblingwithdata.wordpress.com/2016/10/10/clustering-categorical-data-with-r/
+
+# cba (ROCK): A robost clustering for categorical data
+
+http://www.inf.ed.ac.uk/teaching/courses/dme/studpres/Rock.pdf
+https://dabblingwithdata.wordpress.com/2016/10/10/clustering-categorical-data-with-r/
+
+
+# poLCA: An R Package for Polytomous Variable Latent Class Analysis: clustering for polytomous outcome variables
+
+https://www.jstatsoft.org/article/view/v042i10
+
+```{r}
+library(poLCA)
+?poLCA
+
+data(election)
+f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
+             MORALB,CARESB,KNOWB,LEADB,DISHONB,INTELB)~PARTY
+#please note all outcomes are factors
+
+#decide the best number of nclass
+resultAll=list()
+for (nclass in 3:9) {
+  #nes2a <- poLCA(f2a,election,nclass=nclass,nrep=5)
+  resultAll[[nclass]] <- poLCA(f2a,election,nclass=nclass,nrep=5)
+}
+resultAllTable=NULL
+for (nclass in 3:9) {
+  resultOne=resultAll[[nclass]]
+  resultAllTable=rbind(resultAllTable,c(nclass=nclass,DegreeFreedom=resultOne$npar,AIC=resultOne$aic,BIC=resultOne$bic,Gsq=resultOne$Gsq))
+}
+plot(resultAllTable[,3],type="b")
+
+
+
+
+
+
+
+```
+
+
+# ggfortify: Data Visualization Tools for Statistical Analysis Results
+
+https://cran.r-project.org/web/packages/ggfortify/index.html
+
+## Plot PCA and factor analysis
+
+https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
+
+```{r}
+
+library(ggfortify)
+df <- iris[1:4]
+pca_res <- prcomp(df, scale. = TRUE)
+
+autoplot(pca_res, data = iris, colour = 'Species',loadings = TRUE)
+
+```
+
+
+
+# NMF: Run NMF in R
+
+Package: https://cran.r-project.org/web/packages/NMF/vignettes/NMF-vignette.pdf
+Method Paper: https://www.pnas.org/content/101/12/4164
+
+##  Use case: Golub dataset
+```{r}
+
+library(NMF)
+
+data(esGolub)
+esGolub
+esGolub <- esGolub[1:200,]
+
+#data format, samples in column, features in row
+esGolub@assayData$exprs[1:4,1:4]
+dim(esGolub)
+#Features  Samples
+#     200       38
+
+
+#Multiple runs
+res.multirun <- nmf(esGolub, 3, nrun=5)
+
+
+```
+
+
+### Single run
+```{r}
+
+res <- nmf(esGolub, 3)
+res
+
+#fitted model
+fit(res)
+#fitted result
+V.hat <- fitted(res)
+dim(V.hat)
+# performance measures and compare with input data
+summary(res)
+summary(res, target=esGolub)
+summary(res, class=esGolub$Cell)
+
+#The basis matrix (i.e. matrix W or the metagenes) and the mixture coefficient matrix (i.e matrix H or the metagene expression profiles)
+# get matrix W
+w <- basis(res)
+dim(w)
+# get matrix H
+h <- coef(res)
+dim(h)
+
+#Extracting metagene-specific features
+# only compute the scores
+s <- featureScore(res)
+summary(s)
+# compute the scores and characterize each metagene
+s <- extractFeatures(res)
+str(s)
+
+
+
+
+```
+
+
+### Multiple runs
+```{r}
+
+res.multirun <- nmf(esGolub, 3, nrun=5)
+res.multirun #By default, the returned object only contains the best fit over all the runs
+res <- nmf(esGolub, 3, nrun=5, .options=list(keep.all=TRUE)) #can keep all runs
+
+
+```
+
+
+### Parallel computations
+
+https://cran.r-project.org/web/packages/NMF/vignettes/NMF-vignette.pdf. Page 17.
+Automaticlly. Based on the doParallel and parallel packages. Use .pbackend='mpi' or .pbackend=NULL
+
+
+
+
+
+# iClusterPlus: Omics Data Integration
+
+https://bioconductor.org/packages/release/bioc/html/iClusterPlus.html
+
+## NMF based
+https://compgenomr.github.io/book/matrix-factorization-methods-for-unsupervised-multi-omics-data-integration.html
+
+

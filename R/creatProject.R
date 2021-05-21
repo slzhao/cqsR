@@ -15,14 +15,15 @@ creatProject <- function(pi,project,note="",projectDate=gsub("-","",Sys.Date()),
   dataDir=paste0(dataPDir,"/",projectName)
   rmarkdownFile=file.path(paste0(sourceDir,"/R/",basename(projectName), ".Rmd"))
 
-  #create_project will report project under project, use testthat trick to skip it
-  #https://stackoverflow.com/questions/53819291/how-to-create-an-r-package-nested-in-git-directory
-  #usethis::create_project(sourceDir,open =FALSE)
-  testthat::with_mock(
-    check_not_nested = function(path, name) return(),
-    usethis::create_project(sourceDir,open =FALSE),
-    .env = "usethis"
-  )
+  # #create_project will report project under project, use testthat trick to skip it
+  # #https://stackoverflow.com/questions/53819291/how-to-create-an-r-package-nested-in-git-directory
+  # #usethis::create_project(sourceDir,open =FALSE)
+  # testthat::with_mock(
+  #   check_not_nested = function(path, name) return(),
+  #   usethis::create_project(sourceDir,open =FALSE),
+  #   .env = "usethis"
+  # )
+  usethis::create_project(sourceDir,open =FALSE)
 
   dir.create(dataDir)
   file.symlink(dataDir,paste0(sourceDir,"/","data"))
