@@ -1,0 +1,117 @@
+---
+title: "Two Way ANOVA"
+author: "test"
+date: "2/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# two-way ANOVA test with interactions
+
+http://www.sthda.com/english/wiki/two-way-anova-test-in-r
+https://www.scribbr.com/statistics/anova-in-r/
+https://www.scribbr.com/statistics/two-way-anova/
+
+
+## Overall model
+
+```{r}
+my_data <- ToothGrowth
+my_data$dose <- factor(my_data$dose, 
+                  levels = c(0.5, 1, 2),
+                  labels = c("D0.5", "D1", "D2"))
+head(my_data)
+
+res.aov2 <- aov(len ~ supp + dose, data = my_data)
+summary(res.aov2)
+
+res.aov3 <- aov(len ~ supp * dose, data = my_data)
+#res.aov3 <- aov(len ~ supp + dose + supp:dose, data = my_data)  #same
+summary(res.aov3)
+
+
+```
+
+## Tukey multiple pairwise-comparisons
+
+```{r}
+# the Tukey HSD test will be done only for the factor variable “dose”, as supp only has two levels, no need to do pairwise-comparisons
+TukeyHSD(res.aov3, which = "dose")
+
+```
+
+## Multiple comparisons using multcomp package
+
+https://stat.ethz.ch/~meier/teaching/anova/index.html
+
+### A simple example
+
+```{r}
+library(multcomp)
+summary(glht(res.aov2, linfct = mcp(dose = "Tukey")))
+
+
+```
+
+### More details
+
+```{r}
+fit <- aov(weight ~ group, data = PlantGrowth)
+
+
+#c(1, -1/2, -1/2), which compares ctrl versus the average value of trt1 and trt2.
+fit.gh <- glht(fit, linfct = mcp(group = c(1, -1/2, -1/2)))
+summary(fit.gh)
+confint(fit.gh)
+
+K <- rbind(ctrlVsAve=c(1, -1/2, -1/2), ## ctrl vs. average of trt1 and trt2
+           ctrlVsTrt1=c(1, -1, 0))      ## ctrl vs. trt1
+fit.gh <- glht(fit, linfct = mcp(group = K))
+summary(fit.gh)
+
+## Individual p-values
+summary(fit.gh, test = adjusted("none"))
+summary(fit.gh, test = adjusted("bonferroni"))
+summary(fit.gh, test = adjusted("holm"))
+summary(glht(fit, linfct = mcp(group = "Tukey")))
+
+
+
+library(ggplot2)
+ggplot(ToothGrowth, aes(x = factor(dose), y = len, color = supp)) + geom_point() +
+  stat_summary(fun = mean, geom = "line", aes(group = supp), size = 1) + theme_bw()
+
+ToothGrowth$dose=factor(ToothGrowth$dose)
+ToothGrowth$test=rnorm(nrow(ToothGrowth))
+fit1 <- aov(len ~ test+supp  * dose, data = ToothGrowth)
+summary(fit1)
+coef(fit1)
+
+#Please note here contrast is for coefs and Intercept is always 0 and no baseline level here
+contrast=rbind(VC1To0.5=c(0,0,0,1, 0,1,0),
+            OJ1To0.5=c(0,0,0,1,0,0,0)
+            )
+fit1.glht <- glht(fit1, linfct = contrast) #please note no mcp function here
+summary(fit1.glht,test = adjusted("none"))  #Same result as fit.comb.glht 
+
+
+ToothGrowth$combined=interaction(ToothGrowth[, "supp"],factor( ToothGrowth[, "dose"]),sep = "+")
+levels(ToothGrowth$combined)
+fit.comb <- aov(len ~ test+combined, data = ToothGrowth)
+#Please note here contrast is for levels(ToothGrowth$combined) and no Intercept here, baseline level should be -1
+contrast=rbind(VC1To0.5=c(0, -1, 0, 1, 0, 0),
+           OJ1To0.5=c(-1, 0, 1, 0, 0, 0)
+           )
+fit.comb.glht <- glht(fit.comb, linfct = mcp(combined = contrast))
+summary(fit.comb.glht,test = adjusted("none")) #same result as fit1.glht
+
+
+
+```
+
+
+
+
