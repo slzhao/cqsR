@@ -90,11 +90,11 @@ fit1 <- aov(len ~ test+supp  * dose, data = ToothGrowth)
 summary(fit1)
 coef(fit1)
 
-#Please note here contrast is for coefs and Intercept is always 0 and no baseline level here
-contrast=rbind(VC1To0.5=c(0,0,0,1, 0,1,0),
+#Please note here coefsTest is for coefs and Intercept is always 0 and no baseline level here
+coefsTest=rbind(VC1To0.5=c(0,0,0,1, 0,1,0),
             OJ1To0.5=c(0,0,0,1,0,0,0)
             )
-fit1.glht <- glht(fit1, linfct = contrast) #please note no mcp function here
+fit1.glht <- glht(fit1, linfct = coefsTest) #please note no mcp function here
 summary(fit1.glht,test = adjusted("none"))  #Same result as fit.comb.glht 
 
 
@@ -111,6 +111,94 @@ summary(fit.comb.glht,test = adjusted("none")) #same result as fit1.glht
 
 
 ```
+
+
+# A simple example to better understand this
+
+
+```{r}
+# an example data with interaction, gender and smoking effect on age. Somking has interaction with gender
+maleSmokingEffect=3
+femaleSmokingEffect=1
+
+set.seed(123)
+nEach=6
+age=rep(50,nEach*4)+rnorm(nEach*4)
+gender=c(rep(c("Male","Female"),each=nEach),rep(c("Male","Female"),each=nEach))
+smoking=c(rep("Smoking",nEach*2),rep("Non-Smoking",nEach*2))
+age[which(gender=="Male" & smoking=="Smoking")]=age[which(gender=="Male" & smoking=="Smoking")]+maleSmokingEffect
+age[which(gender=="Female" & smoking=="Smoking")]=age[which(gender=="Female" & smoking=="Smoking")]+femaleSmokingEffect
+
+noise=rnorm(nEach*4)
+rawData=data.frame(age,noise,gender,smoking)
+boxplot(age~gender+smoking)
+
+# test different methods with interaction
+library(multcomp)
+
+## Baseline: no interaction
+fit.noInteraction <- aov(age ~noise+gender+smoking, data = rawData)
+summary(fit.noInteraction)
+coef(fit.noInteraction)
+coefsTest=rbind(
+            MaleToFeMale=c(0,0,1,0),
+            SmokingToNonSmoking=c(0,0,0,1)
+            )
+fit.noInteraction.glht <- glht(fit.noInteraction, linfct = coefsTest) #please note no mcp function here
+summary(fit.noInteraction.glht,test = adjusted("none"))  #Same result as fit.comb.glht 
+
+## Method 1: nested interaction
+fit.nestedInteraction <- aov(age ~noise+smoking+gender:smoking, data = rawData)
+summary(fit.nestedInteraction)
+coef(fit.nestedInteraction)
+#                  (Intercept)                         noise                smokingSmoking smokingNon-Smoking:genderMale     smokingSmoking:genderMale 
+#                   49.5276784                     0.1833874                     1.3091535                     0.5514791                     2.6471479
+coefsTest=rbind(
+            MaleSmokingToNonSmoking=c(0,0,1,-1,1),   #please note "-1" here to remove baseline effect of gender in "smokingSmoking:genderMale" and only keep interaction effect
+            FeMaleSmokingToNonSmoking=c(0,0,1,0,0),
+            NonSmokingMaleToFemale=c(0,0,0,1,0),
+            SmokingMaleToFemale=c(0,0,0,0,1)
+            )
+fit.nestedInteraction.glht <- glht(fit.nestedInteraction, linfct = coefsTest) #please note no mcp function here
+summary(fit.nestedInteraction.glht,test = adjusted("none"))  #Same result as fit1.glht and fit.comb.glht 
+
+
+
+## Method 2: regular method
+fit.interaction <- aov(age ~noise+gender*smoking, data = rawData)
+summary(fit.interaction)
+#Please note here coefsTest is for coefs and Intercept is always 0 and no baseline level here
+coef(fit.interaction)
+#              (Intercept)                     noise                genderMale            smokingSmoking genderMale:smokingSmoking 
+#               49.5276784                 0.1833874                 0.5514791                 1.3091535                 2.0956688 
+coefsTest=rbind(
+            MaleSmokingToNonSmoking=c(0,0,0,1,1),
+            FeMaleSmokingToNonSmoking=c(0,0,0,1,0),
+            NonSmokingMaleToFemale=c(0,0,1,0,0),
+            SmokingMaleToFemale=c(0,0,1,0,1)
+            )
+fit1.glht <- glht(fit.interaction, linfct = coefsTest) #please note no mcp function here
+summary(fit1.glht,test = adjusted("none"))  #Same result as fit.comb.glht 
+
+
+## Method 3: Combined
+rawData$combined=interaction(rawData[, "gender"],factor( rawData[, "smoking"]),sep = "+")
+levels(rawData$combined)
+fit.comb <- aov(age ~noise+combined, data = rawData)
+summary(fit.comb)
+#Please note here contrast is for levels(rawData$combined) and no Intercept here, baseline level should be -1. NOT for coef(fit.comb)
+contrast=rbind(MaleSmokingToNonSmoking=c(0, -1, 0, 1),
+           FeMaleSmokingToNonSmoking=c(-1, 0, 1, 0),
+           NonSmokingMaleToFemale=c(-1, 1, 0, 0),
+           SmokingMaleToFemale=c(0, 0, -1, 1)
+           )
+fit.comb.glht <- glht(fit.comb, linfct = mcp(combined = contrast)) #need mcp function here to use a contrast
+summary(fit.comb.glht,test = adjusted("none")) #same result as fit1.glht
+
+
+
+```
+
 
 
 
