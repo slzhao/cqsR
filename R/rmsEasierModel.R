@@ -86,9 +86,10 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
   for (i in 1:length(varOne)) {
     varOneToExtract <- varOne[i]
     varOneInd <- grep(varOneToExtract, names(modelResult$coefficients))
+    varOneToExtractType=modelResult$Design$assume[which(modelResult$Design$name==varOneToExtract)]
 
     if (length(varOneInd) > 0) {
-      if (reportAnovaP) {
+      if (reportAnovaP && varOneToExtractType=="rcspline") { #for continuous variables and with non-linear term only
         pValueOne=anova(modelResult)[varOneToExtract,"P"]
       } else {
         if (modelType=="ols") { #ols, linear regression
@@ -112,8 +113,7 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
     #varLimitsTable=get(options("datadist")[[1]])[["limits"]][,varOneToExtract,drop=FALSE]
     #modelResult$Design
 
-    varOneToExtractType=modelResult$Design$assume[which(modelResult$Design$name==varOneToExtract)]
-    if (varOneToExtractType=="rcspline") { #non linear effect for continous variable. May have more than one p values
+    if (varOneToExtractType=="rcspline") { #non linear effect for continuous variable. May have more than one p values
       pValueOne <- paste(pValueOne, collapse = "; ")
     }
 
@@ -195,7 +195,8 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
 #'
 modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL, nonLinearVars = NULL, extractStats = NULL,
                        modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
-                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,reportAnovaP=TRUE) {
+                       returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,
+                       reportAnovaP=TRUE,adjto.cat='first') {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
   modelFun <- get(modelType)
   modelResultAll <- NULL
@@ -223,7 +224,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
         }
       }
 
-      ddist <<- datadist(dataForModel, n.unique = uniqueSampleSize)
+      ddist <<- datadist(dataForModel, n.unique = uniqueSampleSize,adjto.cat=adjto.cat)
       options(datadist = "ddist")
       modelResult <- modelFun(formulaForModel, data = dataForModel,x=TRUE,y=TRUE)
       if (printModel) {
