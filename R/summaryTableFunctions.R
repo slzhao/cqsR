@@ -248,7 +248,7 @@ printSummaryTable<-function(tableOut) {
 
   testFootContentMcNemar=ifelse(any(grepl("McNemar",tableOut[,"Test Statistic"])),"McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table; ","")
   testFootContentChisq=ifelse(any(grepl("X-squared",tableOut[,"Test Statistic"])),"Chi-squared test for categorical variable; ","")
-  if (testFootContentChisq=="" & !all(grepl("^<p align=",tableOut[,1]))) { #No Chi-squared test used and having categorical data in table
+  if (testFootContentChisq=="" & testFootContentMcNemar==""  & !all(grepl("^<p align=",tableOut[,1]))) { #No Chi-squared test used, no McNemartest used, and having categorical data in table
     testFootContentChisq="Fisher's exact test for categorical variable; "
   }
   testFootContentPairedWilcox=ifelse(any(grepl("V=",tableOut[,"Test Statistic"])),"Wilcoxon Signed Rank Test for continuous variable; ","")
