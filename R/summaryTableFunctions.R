@@ -165,7 +165,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
         if (is.na(pValue)) {
           dataOneVariableTestResult=""
         } else {
-          dataOneVariableTestResult=c(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; "),showP(pValue)),rep("",length(dataOneVariableCount1)))
+          dataOneVariableTestResult=c(paste0(ifelse(statistic=="","",paste0(names(statistic),"=",round(statistic,2),"; ")),showP(pValue)),rep("",length(dataOneVariableCount1)))
         }
         tableOneOut<-cbind(c(paste0('<p align="left"><b>',varColLabel,'</b></p>'),paste0(" ",names(dataOneVariableCount1)," ")),
                            c("",countToPercent(rowSums(cbind(dataOneVariableCount1,dataOneVariableCount2)),reportRowPercent=reportRowPercent)),
@@ -286,6 +286,10 @@ showP<-function(p,digits=3,text="P=",pCut=10^-digits) {
     p[naInd]=1
   } else {
     naInd=NULL
+  }
+  if (any(p>1)) {
+    p[which(p>1)]=1
+    warning("Found p values >1. Set to 1.")
   }
   if (any(p<pCut)) {
     plargerInd<-which(p>=pCut)
