@@ -89,7 +89,7 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
     varOneToExtractType=modelResult$Design$assume[which(modelResult$Design$name==varOneToExtract)]
 
     if (length(varOneInd) > 0) {
-      if (reportAnovaP && varOneToExtractType=="rcspline") { #for continuous variables and with non-linear term only
+      if (reportAnovaP && (varOneToExtractType=="rcspline" | varOneToExtractType=="polynomial")) { #for continuous variables and with non-linear term only
         pValueOne=anova(modelResult)[varOneToExtract,"P"]
       } else {
         if (modelType=="ols") { #ols, linear regression
@@ -193,8 +193,9 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
 ## outVars should be list if doing survival model
 #' @export
 #'
-modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL, nonLinearVars = NULL, extractStats = NULL,
-                       modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
+modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
+                       nonLinearVars = NULL, nonLinearFunName="rcs",nonLinearFunPar=3,
+                       extractStats = NULL,modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
                        returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,
                        reportAnovaP=TRUE,adjto.cat='first') {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
@@ -212,7 +213,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
       }
       if (!is.null(nonLinearVars)) {
         for (nonLinearVarOne in nonLinearVars) {
-          formulaForModel <- gsub(paste0(" ", nonLinearVarOne, " "), paste0(" rcs(", nonLinearVarOne, ",3) "), formulaForModel)
+          formulaForModel <- gsub(paste0(" ", nonLinearVarOne, " "), paste0(" ",nonLinearFunName,"(", nonLinearVarOne, ",",nonLinearFunPar,") "), formulaForModel)
         }
       }
       formulaForModel <- as.formula(formulaForModel)
