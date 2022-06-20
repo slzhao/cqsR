@@ -364,7 +364,7 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
       #			paste(names(dataOneVariableCount)," (",dataOneVariableCount,")",sep="")
       varColLabel=variables[i]
       if (includeVarLabel) {
-        varColLabelInData=label(rawData)[varColLabel]
+        varColLabelInData=label(dataForTable)[varColLabel]
         if (!is.na(varColLabelInData) & varColLabelInData!="") {
           varColLabel=paste0(variables[i]," (",varColLabelInData,")")
         }
@@ -397,7 +397,7 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
 
       varColLabel=variables[i]
       if (includeVarLabel) {
-        varColLabelInData=label(rawData)[varColLabel]
+        varColLabelInData=label(dataForTable)[varColLabel]
         if (!is.na(varColLabelInData) & varColLabelInData!="") {
           varColLabel=paste0(variables[i]," (",varColLabelInData,")")
         }

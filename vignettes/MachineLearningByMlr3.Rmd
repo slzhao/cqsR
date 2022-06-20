@@ -1,0 +1,71 @@
+---
+title: "Machine learning by mlr3"
+author: "test"
+date: "10/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+https://mlr3.mlr-org.com/
+
+
+
+
+# Simple examples
+
+```{r}
+
+library(mlr3)
+library(mlr3learners)
+
+task_penguins <- TaskClassif$new(id = "penguins", backend = palmerpenguins::penguins, target = "species")
+task_penguins
+
+learner <- lrn("classif.rpart", cp = .01)
+
+train_set <- sample(task_penguins$nrow, 0.8 * task_penguins$nrow)
+test_set <- setdiff(seq_len(task_penguins$nrow), train_set)
+
+# train the model
+learner$train(task_penguins, row_ids = train_set)
+
+# predict data
+prediction <- learner$predict(task_penguins, row_ids = test_set)
+
+# calculate performance
+prediction$confusion
+
+# test new data prediction
+newdata=palmerpenguins::penguins[test_set,]
+predictionNewData=learner$predict_newdata(newdata, task = task_penguins)
+predictionNewData$confusion
+
+
+```
+
+# Appendix
+
+## Leaners
+
+```{r}
+
+as.data.table(mlr_learners)
+
+
+```
+
+## Measures
+
+```{r}
+
+as.data.table(mlr_measures)
+
+
+```
+
+
+

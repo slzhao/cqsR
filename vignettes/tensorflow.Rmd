@@ -1,0 +1,189 @@
+---
+title: "Kera and TensorFlow"
+author: "Shilin Zhao"
+date: "2/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+
+library(tensorflow)
+library(keras)
+library(tfhub)
+
+```
+
+
+# Examples
+
+
+## Image processing
+https://tensorflow.rstudio.com/tutorials/advanced/images/transfer-learning-hub/
+
+
+### Test a simple example
+
+
+```{r}
+
+
+#processing image
+image_url <- "https://www.r-project.org/Rlogo.png"
+
+img <- pins::pin(image_url) %>%
+  tensorflow::tf$io$read_file() %>% 
+  tensorflow::tf$image$decode_image(dtype = tf$float32)
+
+dim(img)
+
+
+img %>% 
+  as.array() %>% 
+  as.raster() %>% 
+  plot()
+
+tf$image$extract_glimpse(img,size=c(1L,1L),offsets=c(1,1))
+
+
+
+# tf.image.extract_glimpse(x, size=(2, 2), offsets=[[1, 1]],
+#                         centered=False, normalized=False)
+
+
+# x = [[[[0.0],
+#           [1.0],
+#           [2.0]],
+#          [[3.0],
+#           [4.0],
+#           [5.0]],
+#          [[6.0],
+#           [7.0],
+#           [8.0]]]]
+# x=matrix(0:8,ncol=3)
+# tf$image$extract_glimpse(x, size=c(2L, 2L), offsets=list(c(1,1)))
+
+```
+
+
+
+
+### Using existing ImageNet classifier
+
+```{r}
+
+#download model
+classifier_url ="https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/2"
+image_shape <- c(224L, 224L, 3L)
+classifier <- layer_hub(handle = classifier_url, input_shape = image_shape)
+
+
+#processing image
+image_url <- "https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg"
+
+img <- pins::pin(image_url, name = "grace_hopper") %>%
+  tensorflow::tf$io$read_file() %>% 
+  tensorflow::tf$image$decode_image(dtype = tf$float32) %>% 
+  tensorflow::tf$image$resize(size = image_shape[-3])
+
+img %>% 
+  as.array() %>% 
+  as.raster() %>% 
+  plot()
+
+```
+
+```{r}
+#Add a batch dimension, and pass the image to the model.
+result <- img %>% 
+  tf$expand_dims(0L)
+dim(img) #224 224   3
+dim(result) #1 224 224   3
+
+result=result%>% classifier()
+
+#The result is a 1001 element vector of logits, rating the probability of each class for the image.
+predicted_class <- tf$argmax(result, axis = 1L) %>% as.integer()
+predicted_class
+
+#DECODE THE PREDICTIONS
+labels_url <- "https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt"
+imagenet_labels <- pins::pin(labels_url, "imagenet_labels") %>% readLines()
+
+
+img %>% 
+  as.array() %>% 
+  as.raster() %>% 
+  plot()
+title(paste("Prediction:" , imagenet_labels[predicted_class + 1]))
+
+
+```
+
+
+
+### Testing parameters to use existing ImageNet classifier
+
+1. functions to read image
+2. Image data type, default int8 or float32 (0-1)
+3. array_reshape and imagenet_preprocess_input?
+
+```{r}
+
+image_url <- "https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg"
+
+img1 <- pins::pin(image_url, name = "grace_hopper") %>%
+  tensorflow::tf$io$read_file() %>% 
+  tensorflow::tf$image$decode_image(dtype = tf$float32) 
+
+img2 <- pins::pin(image_url, name = "grace_hopper") %>%
+  tensorflow::tf$io$read_file() %>% 
+  tensorflow::tf$image$decode_image() 
+
+img3 <- pins::pin(image_url) %>% image_load()
+img3  <- image_to_array(img3)
+
+
+img1[1,1,]
+img2[1,1,]
+img3[1,1,]
+
+
+img1Processed <- imagenet_preprocess_input(img1)
+img2Processed <- imagenet_preprocess_input(img2)
+img1Processed[1,1,]
+img2Processed[1,1,]
+
+img3Processed <- imagenet_preprocess_input(img3)
+img3Flatted <- array_reshape(img3, c(1, dim(img3)))
+img3FlattedProcessed <- imagenet_preprocess_input(img3Flatted)
+#same result as img3Processed but one diomntion added at the beginning by array_reshape
+img3Processed[1,1,]
+img3FlattedProcessed[1,1,1,]
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

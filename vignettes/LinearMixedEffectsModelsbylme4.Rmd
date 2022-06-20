@@ -1,0 +1,71 @@
+---
+title: "Linear Mixed-Effects Models by lme4"
+author: "test"
+date: "10/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+https://cran.r-project.org/web/packages/lme4/index.html
+
+
+linear mixed-effects models can be determined using the lmer function in the lme4 package for R
+
+
+
+# Examples
+
+```{r}
+# Example data
+
+library(lme4)
+str(sleepstudy)
+
+```
+
+
+## Simple example: estimates of the standard deviations of the random effects for the intercept and the slope
+
+```{r}
+
+fm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+
+plot(fm1, type = c("p", "smooth"))
+
+```
+
+
+## resp ~ FEexpr + (REexpr1 | factor1) + (REexpr2 | factor2) + ...
+
+
+resp ~ FEexpr + (REexpr1 | factor1) + (REexpr2 | factor2) + ...  
+
+(1 | g), is the simplest possible mixed-model formula, where each level of the grouping factor, g, has its own random intercept.
+
+
+where FEexpr is an expression determining the columns of the fixed-effects model matrix, X,
+and the random-effects terms, (REexpr1 | factor1) and (REexpr2 | factor2), determine
+both the random-effects model matrix, Z (Section 2.3.2), and the structure of the relative
+covariance factor, Λθ
+
+
+# examples
+## Adding group-level predictors in GLMM using lme4
+
+https://biologyforfun.wordpress.com/2017/06/19/adding-group-level-predictors-in-glmm-using-lme4/
+
+```{r}
+
+
+
+
+
+```
+
+
+

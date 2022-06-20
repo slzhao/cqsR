@@ -224,7 +224,7 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
           dataForModel[, temp] <- factor(dataForModel[, temp])
         }
       }
-
+      #browser()
       ddist <<- datadist(dataForModel, n.unique = uniqueSampleSize,adjto.cat=adjto.cat)
       options(datadist = "ddist")
       modelResult <- modelFun(formulaForModel, data = dataForModel,x=TRUE,y=TRUE)

@@ -1,0 +1,324 @@
+---
+title: "CCA"
+date: "2/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+# CCA package examples
+
+https://cran.r-project.org/web/packages/CCA/CCA.pdf
+
+```{r}
+
+library(CCA)
+
+data(nutrimouse)
+X=as.matrix(nutrimouse$gene[,1:10])
+Y=as.matrix(nutrimouse$lipid)
+res.cc=cc(X,Y)
+plot(res.cc$cor,type="b")
+plt.cc(res.cc)
+plt.cc(res.cc,d1=1,d2=3,type="v",var.label=TRUE)
+plt.cc(res.cc,d1=1,d2=2,type="b",var.label=TRUE)
+
+
+
+#understand the meaning
+# CC1_X <- as.matrix(X) %*% res.cc$xcoef[, 1]
+# CC1_Y <- as.matrix(Y) %*% res.cc$ycoef[, 1]
+# CC2_X <- as.matrix(X) %*% res.cc$xcoef[, 2]
+# CC2_Y <- as.matrix(Y) %*% res.cc$ycoef[, 2]
+
+CC_XValues <- as.matrix(X) %*% res.cc$xcoef
+CC_YValues <- as.matrix(Y) %*% res.cc$ycoef
+
+
+
+
+```
+
+
+
+
+
+https://cmdlinetips.com/2020/12/canonical-correlation-analysis-in-r/
+
+
+
+# CCA
+
+
+```{r}
+
+library(tidyverse)
+theme_set(theme_bw(16))
+
+
+```
+
+
+```{r}
+
+link2data <- "https://raw.githubusercontent.com/cmdlinetips/data/master/palmer_penguins.csv"
+penguins <- read_csv(link2data)
+penguins <- penguins %>% drop_na()
+
+```
+
+
+## Prepare data
+
+scale the variables to put them on the same scale.
+
+
+```{r}
+
+X <- penguins %>% 
+  select(bill_depth_mm, bill_length_mm) %>%
+  scale()
+
+
+Y <- penguins %>%
+  select(flipper_length_mm,body_mass_g) %>%
+  scale()
+
+
+```
+
+
+
+## Canonical Correlation Analysis (CCA) with cancor() function in R
+
+
+```{r,message=FALSE}
+
+library(CCA)
+cc_results <- cancor(X,Y)
+
+	
+#str(cc_results)
+
+cc_results$xcoef
+
+cc_results$ycoef
+
+cc_results$cor
+```
+
+
+### canonical covariate pairs
+
+```{r}
+
+CC1_X <- as.matrix(X) %*% cc_results$xcoef[, 1]
+CC1_Y <- as.matrix(Y) %*% cc_results$ycoef[, 1]
+CC2_X <- as.matrix(X) %*% cc_results$xcoef[, 2]
+CC2_Y <- as.matrix(Y) %*% cc_results$ycoef[, 2]
+
+cor(CC1_X,CC1_Y)
+
+cca_df <- penguins %>% 
+  mutate(CC1_X=CC1_X,
+         CC1_Y=CC1_Y,
+         CC2_X=CC2_X,
+         CC2_Y=CC2_Y)
+
+
+cca_df %>% 
+  ggplot(aes(x=CC1_X,y=CC1_Y))+
+  geom_point()
+
+
+cca_df %>% 
+  ggplot(aes(x=species,y=CC1_X, color=species))+
+  geom_boxplot(width=0.5)+
+  geom_jitter(width=0.15)+
+  theme(legend.position="none")
+
+cca_df %>% 
+  ggplot(aes(x=species,y=CC1_Y, color=species))+
+  geom_boxplot(width=0.5)+
+  geom_jitter(width=0.15)
+
+cca_df %>% 
+  ggplot(aes(x=CC1_X,y=CC1_Y, color=species))+
+  geom_point()
+
+cca_df %>% 
+  ggplot(aes(x=CC2_X,y=CC2_Y, color=sex))+
+  geom_point()
+
+```
+
+
+
+
+# rCCA in mixOmics package
+
+http://mixomics.org/case-studies/rcca-nutrimouse-case-study/
+
+
+```{r}
+data(nutrimouse)
+X <- nutrimouse$lipid # extract all lipid concentration variables
+Y <- nutrimouse$gene # extract all gene expression variables
+
+dim(X) # check the dimensions of the X dataframe
+
+
+
+imgCor(X, Y, sideColors = c("purple", "green")) 
+
+
+
+
+```
+
+##  Cross-Validation (ridge) Method
+```{r}
+
+# set grid search values for each regularisation parameter
+grid1 <- seq(0.001, 0.2, length = 10) 
+grid2 <- seq(0.001, 0.2, length = 10)
+
+# optimise the regularisation parameter values
+cv.tune.rcc.nutrimouse <- tune.rcc(X, Y, grid1 = grid1, grid2 = grid2, 
+                                   validation = "loo") 
+
+cv.tune.rcc.nutrimouse # examine the results of CV tuning
+```
+
+
+```{r}
+
+opt.l1 <- cv.tune.rcc.nutrimouse$opt.lambda1 # extract the optimal lambda values
+opt.l2 <- cv.tune.rcc.nutrimouse$opt.lambda2
+
+# formed optimised CV rCCA
+CV.rcc.nutrimouse <- rcc(X, Y, method = "ridge", 
+                         lambda1 = opt.l1, lambda2 = opt.l2) 
+
+```
+
+
+##  Shrinkage (shrinkage) Method
+```{r}
+# run the rCCA method using shrinkage
+shrink.rcc.nutrimouse <- rcc(X,Y, method = 'shrinkage') 
+# examine the optimal lambda values after shrinkage 
+shrink.rcc.nutrimouse$lambda 
+```
+
+## The ncomp Parameter
+
+
+```{r}
+
+par(mfrow=c(1,2))
+# barplot of cross validation method rCCA canonical correlations
+plot(CV.rcc.nutrimouse, type = "barplot", main = "Cross Validation") 
+
+# barplot of shrinkage method rCCA canonical correlations
+plot(shrink.rcc.nutrimouse, type = "barplot", main = "Shrinkage") 
+
+```
+
+
+## Final Model
+
+### variate plot
+
+```{r}
+
+# plot the projection of samples for CV rCCA data
+plotIndiv(CV.rcc.nutrimouse, comp = 1:2, 
+          ind.names = nutrimouse$genotype,
+          group = nutrimouse$diet, rep.space = "XY-variate", 
+          legend = TRUE, title = '(a) Nutrimouse, rCCA CV XY-space')
+
+# plot the projection of samples for shrinkage rCCA data
+plotIndiv(shrink.rcc.nutrimouse, comp = 1:2, 
+          ind.names = nutrimouse$genotype,
+          group = nutrimouse$diet, rep.space = "XY-variate", 
+          legend = TRUE, title = '(b) Nutrimouse, rCCA shrinkage XY-space')
+
+
+plotIndiv(shrink.rcc.nutrimouse, comp = 1:2, 
+          ind.names = nutrimouse$genotype,
+          group = nutrimouse$diet, rep.space = "multi", 
+          legend = TRUE, title = '(c) Nutrimouse, rCCA shrinkage multi-space')
+
+
+
+```
+
+### arrow plot
+
+From this, the relation between each sample's projection into each dataset's variate space can be evaluated. The start of each arrow represents the sample's position in the space spanned by the X variates while the tip represents its position in the Y variate space. The longer each arrow, the higher the disparity between the datasets. 
+
+
+```{r}
+# plot the arrow plot of samples for CV rCCA data
+plotArrow(CV.rcc.nutrimouse, group = nutrimouse$diet, 
+          col.per.group = color.mixo(1:5),
+          title = '(a) Nutrimouse, CV method')
+
+# plot the arrow plot of samples for shrinkage rCCA data
+plotArrow(shrink.rcc.nutrimouse, group = nutrimouse$diet, 
+          col.per.group = color.mixo(1:5),
+          title = '(b) Nutrimouse, shrinkage method')
+```
+
+
+### Variable Plots
+
+analysing the correlation structure between features and the canonical variates. 
+
+
+```{r}
+
+
+plotVar(CV.rcc.nutrimouse, var.names = c(TRUE, TRUE),
+        cex = c(4, 4), cutoff = 0.5,
+        title = '(a) Nutrimouse, rCCA CV comp 1 - 2')
+
+plotVar(shrink.rcc.nutrimouse, var.names = c(TRUE, TRUE),
+        cex = c(4, 4), cutoff = 0.5,
+        title = '(b) Nutrimouse, rCCA shrinkage comp 1 - 2')
+
+
+```
+
+### relevance network plot
+
+
+
+```{r}
+
+network(CV.rcc.nutrimouse, comp = 1:2, interactive = FALSE,
+        lwd.edge = 2,
+        cutoff = 0.5)
+
+```
+
+
+### CIM
+
+```{r}
+
+cim(CV.rcc.nutrimouse, comp = 1:2, xlab = "genes", ylab = "lipids")
+
+
+```
+
+
+
+
+
