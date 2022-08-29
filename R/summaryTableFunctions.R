@@ -130,7 +130,7 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
         #dataOneVariableCount2=table(rawDataPairedOrderedGroup2[,varCol])
 
         matrixForTest=table(dataForTable)
-        if (ncol(matrixForTest)==1 & nrow(matrixForTest)==1) {
+        if (ncol(matrixForTest)<2 & nrow(matrixForTest)<2) {
           pValue=NA
           statistic=NA
         } else {
