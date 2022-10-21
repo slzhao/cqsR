@@ -228,6 +228,15 @@ summaryTable<-function(rawData,groupCol=NULL,varCols,varColsPaired=NULL,groupCol
   }
   row.names(tableAll)<-NULL
   colnames(tableAll)=c("","N",paste0(groupColLabel," (",groupColCount,")"),"Test Statistic")
+  attributes(tableAll)$caption<-paste0("Descriptive Statistics (N=",nrow(rawData),").")
+
+  if (identical(NotPairedCatTestFun,chisq.test)) {
+    NotPairedCatTestFunText="Chi-squared Test for categorical variable; "
+  } else {
+    NotPairedCatTestFunText="Fisher's exact Test for categorical variable; "
+  }
+  attributes(tableAll)$NotPairedCatTestFunText<-NotPairedCatTestFunText
+
   return(tableAll)
 }
 
@@ -247,10 +256,16 @@ printSummaryTable<-function(tableOut) {
   }
 
   testFootContentMcNemar=ifelse(any(grepl("McNemar",tableOut[,"Test Statistic"])),"McNemar's chi-squared test for symmetry of rows and columns in a two-dimensional contingency table; ","")
-  testFootContentChisq=ifelse(any(grepl("X-squared",tableOut[,"Test Statistic"])),"Chi-squared test for categorical variable; ","")
-  if (testFootContentChisq=="" & testFootContentMcNemar==""  & !all(grepl("^<p align=",tableOut[,1]))) { #No Chi-squared test used, no McNemartest used, and having categorical data in table
-    testFootContentChisq="Fisher's exact test for categorical variable; "
+
+  if ("NotPairedCatTestFunText" %in% names(attributes(tableOut))) {
+    testFootContentChisq=attributes(tableOut)$NotPairedCatTestFunText
+  } else {
+    testFootContentChisq=ifelse(any(grepl("X-squared",tableOut[,"Test Statistic"])),"Chi-squared test for categorical variable; ","")
+    if (testFootContentChisq=="" & testFootContentMcNemar==""  & !all(grepl("^<p align=",tableOut[,1]))) { #No Chi-squared test used, no McNemartest used, and having categorical data in table
+      testFootContentChisq="Fisher's exact Test for categorical variable; "
+    }
   }
+
   testFootContentPairedWilcox=ifelse(any(grepl("V=",tableOut[,"Test Statistic"])),"Wilcoxon Signed Rank Test for continuous variable; ","")
   testFootContentNonPairedWilcox=ifelse(any(grepl("W=",tableOut[,"Test Statistic"])),"Non-Paired Wilcoxon Rank Sum Test for continuous variable; ","")
   if (testFootContentPairedWilcox=="" & testFootContentNonPairedWilcox=="" & anyContinuousResults) {
@@ -264,8 +279,14 @@ Tests used: ",testFootContentMcNemar,testFootContentChisq,testFootContentPairedW
   }
   tfootContent=paste0(summaryFootContent,testFootContentAll)
 
+  if ("caption" %in% names(attributes(tableOut))) {
+    tableCaption=attributes(tableOut)$caption
+  } else {
+    tableCaption=NULL
+  }
   htmlTable(tableOut,
             css.cell = 'padding: 0px 10px 0px;',
+            caption = tableCaption,
             #			header =  c("","N",groupVariable,"Test Statistic"),
             header =  colnames(tableOut),
             tfoot=tfootContent
@@ -415,6 +436,7 @@ summaryTableContinus<-function(dataForTable,variables,groupVariable,digital=2,mi
   }
 
   row.names(tableAll)<-NULL
+  attributes(tableAll)$caption<-paste0("Descriptive Statistics (N=",nrow(dataForTable),"). Group variable=",groupVariable)
   return(tableAll)
 }
 
@@ -449,7 +471,13 @@ countToPercent<-function(x,reportRowPercent=FALSE) {
 #'
 printSummaryTableContinus<-function(tableOut,groupVariable="Variable") {
   plSignLabel=markupSpecs[["html"]]$plminus
+  if ("caption" %in% names(attributes(tableOut))) {
+    tableCaption=attributes(tableOut)$caption
+  } else {
+    tableCaption=NULL
+  }
   htmlTable(tableOut,
+            caption =tableCaption,
             css.cell = 'padding: 0px 10px 0px;',
             header =  c("","N",groupVariable,"Test Statistic"),
             tfoot=paste0("One continuous and one categorical variables: a b c (x",plSignLabel,"s). a b c represent the lower quartile a, the median b, and the upper quartile c for continuous variable in different categories. x",plSignLabel,"s represents X",plSignLabel,"SD.
