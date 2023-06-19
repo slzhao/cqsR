@@ -1,0 +1,121 @@
+---
+title: "Colors in R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Colors in ggplot2
+
+[http://www.cookbook-r.com/Graphs/Colors\_(ggplot2)/](http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/){.uri}
+http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually
+
+
+```{r}
+library(tidyverse)
+
+# Two variables
+df <- read.table(header=TRUE, text='
+ cond yval
+    A 2
+    B 2.5
+    C 1.6
+')
+
+# Three variables
+df2 <- read.table(header=TRUE, text='
+ cond1 cond2 yval
+    A      I 2
+    A      J 2.5
+    A      K 1.6
+    B      I 2.2
+    B      J 2.4
+    B      K 1.2
+    C      I 1.7
+    C      J 2.3
+    C      K 1.9
+')
+```
+
+### Concepts
+
+#### Colors: RGB, CMYK, transprency, luminance and saturation
+
+
+
+
+#### fill vs colour
+
+```{r}
+ggplot(df, aes(x=cond, y=yval)) + geom_bar(stat="identity", fill="#FF9999", colour="black")
+
+```
+
+#### Mapping variable values to colors: aes or aes_string
+
+```{r}
+# Bars: x and fill both depend on cond2
+ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity")
+
+# fill depends on cond2
+ggplot(df2, aes(x=cond1, y=yval)) + 
+    geom_bar(aes(fill=cond2,colour=cond1),   # fill depends on cond2
+             stat="identity",
+             position=position_dodge()) # Put bars side-by-side instead of stacked
+
+
+```
+
+### Default colors
+
+By default, the colors for discrete scales are evenly spaced around a HSL color circle. For example, if there are two colors, then they will be selected from opposite points on the circle; if there are three colors, they will be 120° apart on the color circle; and so on. The colors used for different numbers of levels are shown here:
+
+![Colors with different levels (N)](http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/figure/unnamed-chunk-7-1.png)
+
+#### Color selection and color panels
+
+The default color selection uses scale_fill_hue() and scale_colour_hue().
+
+```{r}
+ggplot(df, aes(x=cond, y=yval, colour=cond)) + geom_point(size=2)
+ggplot(df, aes(x=cond, y=yval, colour=cond)) + geom_point(size=2) + scale_colour_hue()
+
+```
+
+#### Setting luminance and saturation (chromaticity)
+
+```{r}
+# Use luminance=45, instead of default 65
+ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") +
+    scale_fill_hue(l=40)
+
+# Reduce saturation (chromaticity) from 100 to 50, and increase luminance
+ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") +
+    scale_fill_hue(c=45, l=80)
+```
+
+![Colors with different levels (N), luminance=45](http://www.cookbook-r.com/Graphs/Colors\_(ggplot2)/figure/unnamed-chunk-10-1.png)
+
+#### Change colors manually
+
+
+
+
+
+### Color functions
+
+```{r}
+
+
+```
+
+## Other color related packages
+https://jmw86069.github.io/colorjam/index.html
+
+```{r}
+library(colorjam)
+library(pals)
+```
+

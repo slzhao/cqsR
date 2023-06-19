@@ -1,0 +1,37 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-06-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(ggplot2)
+```
+
+## axis
+### text
+```{r}
+#change axis text size
+ggplot(mtcars, aes(x=wt, y=mpg)) + geom_point() + theme(axis.text.x = element_text(size=20), axis.text.y = element_text(size=20))
+
+#change axis text direction
+ggplot(mtcars, aes(x=wt, y=mpg)) + geom_point() + theme(axis.text.x = element_text(angle=45, hjust=1), axis.text.y = element_text(angle=45, hjust=1))
+
+```
+
+## colors
+```{r}
+#change break values in color legend by something like pretty
+ggplot(mtcars, aes(x=wt, y=mpg, color=mpg)) + geom_point() + scale_color_gradientn(colours = rainbow(5), breaks = pretty(mtcars$mpg, n=5))
+
+#scale with log transformation and pretty breaks
+ggplot(mtcars, aes(x=wt, y=mpg, color=mpg)) + geom_point() + scale_color_gradientn(colours = rainbow(5), breaks = pretty(log(mtcars$mpg), n=5))
+
+
+```
+

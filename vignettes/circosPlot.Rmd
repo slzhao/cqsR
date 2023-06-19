@@ -1,0 +1,43 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-06-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## by circlize
+
+```{r}
+library(circlize)
+
+
+bucketColors=kelly(length(unique(selectedProteinsMergedTable$bucket))+2)[-c(1:2)]
+col_anno_sector = structure(bucketColors, names = unique(selectedProteinsMergedTable$bucket))
+col_anno_sector
+
+barplotColors=c("red","green")
+
+selectedProteinsMergedTable=selectedProteinsMergedTable %>% group_by(bucket) %>% mutate(BarPos=rank(beta,ties.method="first"))
+
+dataForPlot1=data.frame(bucket=selectedProteinsMergedTable$bucket)
+row.names(dataForPlot1)=selectedProteinsMergedTable$Protein
+
+circos.clear()
+circos.heatmap(dataForPlot1, 
+               col = col_anno_sector,  split=selectedProteinsMergedTable$bucket,
+               rownames.cex=0.7,cluster=FALSE,rownames.side="outside",
+               track.height = 0.05,track.margin=c(0, 0))
+circos.track(selectedProteinsMergedTable$bucket, 
+             x = selectedProteinsMergedTable$BarPos, 
+             y = selectedProteinsMergedTable$beta, 
+             track.height = 0.2,track.margin=c(0.0, 0.0),
+             bg.border="white",
+    panel.fun = function(x, y,colour) {
+    circos.barplot(value=y, pos=x-0.5, col =  ifelse(y > 0, barplotColors[1], barplotColors[2]),border="white")
+})
+
+```
+
