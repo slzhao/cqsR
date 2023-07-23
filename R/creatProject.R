@@ -90,3 +90,24 @@ editWorkList=function(workListFile=paste0(Sys.getenv("SOURCEDIR","d:/source/"),"
   }
 }
 
+#' @export
+#'
+copyTemplateFile <- function(project,projectDate=gsub("-","",Sys.Date()),
+                         sourceDir=getwd(),
+                         templateFile="D:/source/r_cqs/myPkg/example/reportExample.Rmd") {
+  projectName=paste0(projectDate,"_",project)
+  rmarkdownFile=file.path(sourceDir,paste0(basename(projectName), ".Rmd"))
+
+  #Copy templateFile file to project folder
+  if (!file.exists(templateFile)) {
+    warning(paste0(templateFile," doesn't exists. Can't copy it to project folder!"))
+  }
+  templateFileContent=readLines(templateFile)
+  templateFileContent[2]=paste0('title: "',basename(projectName),'"') #Change report title in markdown file
+
+  if (file.exists(rmarkdownFile)) {
+    warning(paste0(rmarkdownFile," exists. Can't replace it!"))
+  } else {
+    cat(paste(templateFileContent, collapse="\n"), file=rmarkdownFile)
+  }
+}
