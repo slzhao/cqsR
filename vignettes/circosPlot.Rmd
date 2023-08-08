@@ -9,9 +9,133 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## by circlize
-
 ```{r}
 library(circlize)
+library(tidyverse)
+
+#dataForPlot1=mtcars %>% rownames_to_column()
+dataForPlot1=data.frame(mtcars)
+
+dataForPlot1$gear=as.factor(dataForPlot1$gear)
+```
+
+### First make sure all features are correctly and consistently ordered
+### Order by value (for example, wt)
+```{r}
+dataForPlot1=dataForPlot1 %>% group_by(gear) %>% mutate(RankedPosition=rank(wt,ties.method="first"))
+#save back rownames
+dataForPlot1=data.frame(dataForPlot1)
+row.names(dataForPlot1)=row.names(mtcars)
+
+#Now all data need to be ordered by this RankedPosition
+
+```
+
+### Order by heatmap (for example, heatmap of mpg, cyl, disp)
+
+CELL_META$subset: the index of subset used in current sector (split)
+CELL_META$row_order: the row ordering of the sub-matrix in the current sector after clustering. 
+
+See the code below. Use **y = row_mean[CELL_META$subset]** to subset row_mean data in current sector, and then use **y = y[CELL_META$row_order]** to reorder the subsetted vector.
+
+See this link for detail: https://jokergoo.github.io/circlize_book/book/circos-heatmap.html#with-other-tracks
+
+```{r}
+col_fun1 = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
+
+circos.clear()
+circos.heatmap(scale(dataForPlot1[,c("mpg","cyl","disp")]), split = dataForPlot1$gear,col=col_fun1,rownames.side = "out")
+row_mean = rowMeans(scale(dataForPlot1[,c("mpg","cyl","disp")]))
+circos.track(ylim = range(row_mean), panel.fun = function(x, y) {
+    y = row_mean[CELL_META$subset]
+    y = y[CELL_META$row_order]
+    circos.lines(CELL_META$cell.xlim, c(0, 0), lty = 2, col = "grey")
+    circos.points(seq_along(y) - 0.5, y, col = ifelse(y > 0, "red", "blue"))
+}, cell.padding = c(0.02, 0, 0.02, 0))
+
+```
+
+### If you need add something before heatmap (for example, a barplot or a color bar)
+
+Similarly, if the points track is put as the first track, the layout should be initialized in advance.
+
+```{r}
+circos.heatmap.initialize(mat1, split = split)
+# This is the same as the previous example
+circos.track(ylim = range(row_mean), panel.fun = function(x, y) {
+    y = row_mean[CELL_META$subset]
+    y = y[CELL_META$row_order]
+    circos.lines(CELL_META$cell.xlim, c(0, 0), lty = 2, col = "grey")
+    circos.points(seq_along(y) - 0.5, y, col = ifelse(y > 0, "red", "blue"))
+}, cell.padding = c(0.02, 0, 0.02, 0))
+circos.heatmap(mat1, col = col_fun1) # no need to specify 'split' here
+
+
+```
+
+### Make category by colors and also add names outside
+```{r}
+
+
+bucketColors=pals::kelly(length(unique(dataForPlot1$gear))+2)[-c(1:2)]
+col_anno_sector = structure(bucketColors, names = as.character(unique(dataForPlot1$gear)))
+
+circos.clear()
+circos.heatmap(dataForPlot1[,"gear",drop=FALSE], 
+               col = col_anno_sector,  split=dataForPlot1$gear,
+               rownames.cex=0.7,cluster=FALSE,rownames.side="outside",
+               track.height = 0.05,track.margin=c(0, 0))
+```
+
+### Add barplot by colors
+```{r}
+circos.track(selectedProteinsMergedTable$bucket, 
+             x = selectedProteinsMergedTable$BarPos, 
+             y = selectedProteinsMergedTable$beta, 
+             track.height = 0.2,track.margin=c(0.0, 0.0),
+             bg.border="white",
+    panel.fun = function(x, y,colour) {
+    circos.barplot(value=y, pos=x-0.5, col =  ifelse(y > 0, barplotColors[1], barplotColors[2]),border="white")
+})
+```
+
+### Add name for each track
+```{r}
+circos.track(track.index = get.current.track.index(), panel.fun = function(x, y) {
+     if(CELL_META$sector.numeric.index == 4) { # the last sector
+        cn = "Max correlation"
+        n = 1
+        circos.text(rep(CELL_META$cell.xlim[2], n) + convert_x(1, "mm"), 
+            1:n - 0.5, cn, 
+            cex = 0.5, adj = c(0, 0.5), facing = "inside")
+     }
+}, bg.border = NA)
+
+#for heatmap
+circos.track(track.index = get.current.track.index(), panel.fun = function(x, y) {
+     if(CELL_META$sector.numeric.index == 4) { # the last sector
+        cn = rev(heatmapNameExpression) #please note the order needs to be reversed as heatmap is from top to bottom and 1:n is from bottom to top
+        n = length(cn)
+        circos.text(rep(CELL_META$cell.xlim[2], n) + convert_x(1, "mm"),
+            1:n - 0.5, cn,
+            cex = 0.5, adj = c(0, 0.5), facing = "inside")
+     }
+}, bg.border = NA)
+```
+
+### Add links or lines
+See this link: https://jokergoo.github.io/circlize_book/book/circos-heatmap.html
+```{r}
+for(i in seq_len(nrow(df_link))) {
+    circos.heatmap.link(df_link$from_index[i],
+                        df_link$to_index[i],
+                        col = rand_color(1))
+}
+```
+
+
+
+```{r}
 
 
 bucketColors=kelly(length(unique(selectedProteinsMergedTable$bucket))+2)[-c(1:2)]
@@ -40,4 +164,22 @@ circos.track(selectedProteinsMergedTable$bucket,
 })
 
 ```
+
+## Other important parameters
+### Before making figure
+```{r}
+#leave space for names
+circos.par(gap.after = c(2, 2, 2, 24))
+```
+
+### When making figure
+```{r}
+               col=featureTypeColor;
+               col=col_fun_feature;
+               rownames.side = "out";
+               track.height = 0.02;
+               track.margin=c(0,0)
+```
+
+
 
