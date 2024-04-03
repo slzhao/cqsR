@@ -71,7 +71,7 @@ nonLinearTest <- function(rawData, outVars, xVars, modelType = "lrm", uniqueSamp
 #varOne is interested Vars
 #' @export
 #'
-exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TRUE) {
+exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TRUE,reportCoxZphP=FALSE) {
   supportedModelTypes=c("lrm", "ols", "cph")
   modelType=intersect(class(modelResult),supportedModelTypes)[1]
   if (length(modelType)==0) {
@@ -179,6 +179,14 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
     if (!is.null(extractStats)) {
       varOneOut <- c(varOneOut, round(modelResult$stats[extractStats], 3))
     }
+
+    if (modelType=="cph" & reportCoxZphP) {
+      modelResultCoxZph=cox.zph(modelResult)$table
+      varOneCoxZphPvalue=modelResultCoxZph[varOneInd,"p"]
+      varOneCoxZphPvalue <- showP(varOneCoxZphPvalue, text = "", digits = 4)
+      varOneOut <- c(varOneOut, CoxZph.P=varOneCoxZphPvalue)
+    }
+
     modelResultOut <- rbind(modelResultOut, varOneOut)
   }
 
@@ -239,8 +247,9 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
         modelAll=c(modelAll,list(modelResult))
       }
 
+      #browser()
       # extract result, may have many variables in varOne
-      modelResultOut=exportModelResult(modelResult,varOne,reportAnovaP = reportAnovaP)
+      modelResultOut=exportModelResult(modelResult,varOne,reportAnovaP = reportAnovaP,extractStats=extractStats)
       modelResultAll=rbind(modelResultAll,modelResultOut)
     }
   }

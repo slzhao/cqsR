@@ -117,5 +117,7 @@ https://jmw86069.github.io/colorjam/index.html
 ```{r}
 library(colorjam)
 library(pals)
+
+mixOmics::color.jet
 ```
 

@@ -1,0 +1,351 @@
+--- 
+title: "20230829_mlr3"
+author: "Shilin Zhao<br><small>Department of Biostatistics<br>Vanderbilt University School of Medicine</small>"
+date: "<small>`r Sys.Date()`</small>"
+output:
+  rmdformats::robobook:
+    highlight: kate
+    number_sections: no
+    code_folding: hide
+    toc_depth: 3
+    toc_float:
+      collapsed: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+editor_options:
+  markdown:
+    wrap: 72
+# output:
+#   html_document:
+#     toc: yes
+#     toc_depth: 2
+#     number_sections: true
+#     # toc_float: 
+#     #   collapsed: true
+#     # code_folding: hide
+#     # theme: cerulean
+#     # keep_md: true
+description: "some description ..."
+---
+
+```{css,echo = FALSE}
+.book .book-body .page-inner {
+    max-width: 1200px;
+}
+``` 
+
+```{r setup,echo=FALSE}
+#require(Hmisc)    # provides knitrSet and other functions
+#knitrSet(lang='markdown', fig.path='png/', fig.align='left', w=6.5, h=4.5, cache=TRUE)
+# If using blogdown: knitrSet(lang='blogdown')
+
+
+knitr::opts_chunk$set(echo = FALSE)
+options(width = 3000)
+
+#Hmisc package html Special characters issue
+options(htmlSpecialType='&')
+```
+
+
+## Simple example
+
+https://mlr3book.mlr-org.com/chapters/chapter1/introduction_and_overview.html
+
+### Train
+```{r}
+library(mlr3)
+task = tsk("penguins")
+split = partition(task)
+learner = lrn("classif.rpart")
+
+learner$train(task, row_ids = split$train)
+learner$model
+
+```
+
+### Predict
+```{r}
+prediction = learner$predict(task, row_ids = split$test)
+prediction
+```
+
+### Performance
+```{r}
+prediction$score(msr("classif.acc"))
+```
+
+### Combine everything together
+```{r}
+library(mlr3verse)
+
+tasks = tsks(c("breast_cancer", "sonar"))
+
+glrn_rf_tuned = as_learner(ppl("robustify") %>>% auto_tuner(
+  tnr("grid_search", resolution = 5),
+  lrn("classif.ranger", num.trees = to_tune(200, 500)),
+  rsmp("holdout")
+))
+glrn_rf_tuned$id = "RF"
+
+glrn_stack = as_learner(ppl("robustify") %>>% ppl("stacking",
+    lrns(c("classif.rpart", "classif.kknn")),
+    lrn("classif.log_reg")
+))
+glrn_stack$id = "Stack"
+
+learners = c(glrn_rf_tuned, glrn_stack)
+bmr = benchmark(benchmark_grid(tasks, learners, rsmp("cv", folds = 3)))
+
+bmr$aggregate(msr("classif.acc"))
+```
+
+## Test real data
+### Get data
+```{r}
+
+setwd("d:\\workSync\\Spatial\\20221019_spatialPaper\\kidneyResults\\")
+dataObj=readRDS("20221121_dataObjProcessedAnalyzedCluster6_updated1.rds")
+
+featureTable=dataObj@assays$ImageFeature@scale.data
+#featureTable=dataObj@assays$ImageFeature@data
+dim(featureTable)
+# [1]  501 3124
+
+targetGene="Podxl"
+targetTable=dataObj@assays$SCT@scale.data[targetGene,]
+#targetTable=dataObj@assays$SCT@data[targetGene,]
+#targetTable=dataObj@assays$SCT@counts[targetGene,]
+
+length(targetTable)
+#3124
+hist(targetTable)
+
+
+```
+
+
+### Trainning model: predict cluster==5
+```{r}
+targetTable01=ifelse(dataObj@meta.data$wnn_cluster6==5,1,0)
+table(targetTable01)
+
+task = as_task_classif(data.frame(scale(t(featureTable)),Target=targetTable01), target = "Target")
+learner = lrn("classif.randomForest")
+
+```
+
+#### classif.randomForest: simple prediction
+```{r}
+split = partition(task)
+learner$train(task, row_ids = split$train)
+learner$model
+
+prediction = learner$predict(task, row_ids = split$test)
+prediction
+```
+
+#### classif.randomForest: Making adjustments for the imblanced design
+
+https://mlr-org.com/gallery/basic/2020-03-30-imbalanced-data/#imbalance-correction
+
+```{r}
+ratio=25
+
+# undersample majority class (relative to majority class)
+po_under = po("classbalancing",
+  id = "undersample", adjust = "major",
+  reference = "major", shuffle = FALSE, ratio = 1 / ratio)
+# reduce majority class by factor '1/ratio'
+table(po_under$train(list(task))$output$truth())
+
+# oversample majority class (relative to majority class)
+po_over = po("classbalancing",
+  id = "oversample", adjust = "minor",
+  reference = "minor", shuffle = FALSE, ratio = ratio)
+# enrich minority class by factor 'ratio'
+table(po_over$train(list(task))$output$truth())
+
+
+# SMOTE enriches the minority class with synthetic data
+gr_smote =
+  po("colapply", id = "int_to_num",
+    applicator = as.numeric, affect_columns = selector_type("integer")) %>>%
+  po("smote", dup_size = ratio) %>>%
+  po("colapply", id = "num_to_int",
+    applicator = function(x) as.integer(round(x, 0L)), affect_columns = selector_type("numeric"))
+# enrich minority class by factor (dup_size + 1)
+table(gr_smote$train(task)[[1L]]$truth())
+```
+
+```{r}
+# create random forest learner
+learner = lrn("classif.randomForest")
+
+# combine learner with pipeline graph
+learner_under = as_learner(po_under %>>% learner)
+learner_under$id = "undersample.randomForest"
+learner_over = as_learner(po_over %>>% learner)
+learner_over$id = "oversample.randomForest"
+learner_smote = as_learner(gr_smote %>>% learner)
+learner_smote$id = "smote.randomForest"
+```
+
+
+```{r}
+resampling = rsmp("cv", folds = 3)
+
+rr = resample(task, learner, resampling)
+rr$aggregate(msr("classif.acc"))
+table(rr$prediction()$truth,rr$prediction()$response)
+
+
+rr = resample(task, learner_under, resampling)
+table(rr$prediction()$truth,rr$prediction()$response)
+
+
+rr = resample(task, learner_over, resampling)
+table(rr$prediction()$truth,rr$prediction()$response)
+
+
+rr = resample(task, learner_smote, resampling)
+table(rr$prediction()$truth,rr$prediction()$response)
+
+
+
+
+
+learner$train(task, row_ids = split$train)
+learner$model
+
+prediction = learner$predict(task, row_ids = split$test)
+prediction
+
+```
+
+
+
+
+
+
+
+
+
+
+#### classif.randomForest: Making adjustments for the imblanced design, orginal method
+```{r}
+temp1=which(targetTable01==1)[-c(1:20)]
+temp2=cbind(featureTable,featureTable[,temp1],featureTable[,temp1],featureTable[,temp1],featureTable[,temp1],featureTable[,temp1],featureTable[,temp1],featureTable[,temp1],featureTable[,temp1],featureTable[,temp1])
+temp3=c(targetTable01,targetTable01[temp1],targetTable01[temp1],targetTable01[temp1],targetTable01[temp1],targetTable01[temp1],targetTable01[temp1],targetTable01[temp1],targetTable01[temp1],targetTable01[temp1])
+
+task = as_task_classif(data.frame(scale(t(temp2)),Target=temp3), target = "Target")
+
+split = partition(task)
+learner$train(task, row_ids = split$train)
+learner$model
+
+temp=split$test[-which(task$data()$Target[split$test]==1)]
+prediction = learner$predict(task, row_ids = c(temp,which(targetTable01==1)[c(1:20)]))
+prediction
+table(prediction$truth,prediction$response)
+
+
+
+
+
+
+
+learner = lrn("classif.randomForest", class_weights = c(positive = 10, negative = 1))
+
+
+sampleAdjustRatio=10
+task_resampled = resample(task, rsmp("bootstrap", repeats = 10, ratio = sampleAdjustRatio))  # Here ratio means you want double the minority class instances
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+Not Using these
+
+#### regr.cv_glmnet
+```{r}
+#task=tsk("mtcars")
+
+split = partition(task)
+learner = lrn("regr.cv_glmnet")
+#learner = lrn("regr.randomForest")
+
+
+learner$train(task, row_ids = split$train)
+learner$model
+
+prediction = learner$predict(task, row_ids = split$test)
+prediction
+
+prediction$score(msr("regr.rmse"))
+plot(prediction)
+
+
+task = as_task_regr(data.frame(scale(t(featureTable)),Target=scale(targetTable)), target = "Target",id="Spot")
+
+removedSpotsInd=which(targetTable<1)
+temp=scale(t(featureTable[,-removedSpotsInd]))
+temp=temp[,-which(apply(temp,2,function(x) all(is.na(x))))]
+task = as_task_regr(data.frame(temp,Target=scale(targetTable[-removedSpotsInd])), target = "Target",id="Spot")
+
+temp=featureTable[1,]+featureTable[2,]
+task = as_task_regr(data.frame(scale(t(featureTable)),Target=scale(temp)), target = "Target",id="Spot")
+
+
+
+#targetTable01=ifelse(dataObj@meta.data$wnn_cluster6==5,1,0)
+targetTable01=ifelse(dataObj@meta.data$wnn_cluster6==2,1,0)
+table(targetTable01)
+
+task = as_task_classif(data.frame(scale(t(featureTable)),Target=targetTable01), target = "Target",id="Spot")
+learner = lrn("classif.randomForest")
+
+split = partition(task)
+learner$train(task, row_ids = split$train)
+learner$model
+
+prediction = learner$predict(task, row_ids = split$test)
+prediction
+
+
+#weighted prediction
+df = task$data()
+df$weights = ifelse(df$Target == "1", 999, 1)
+
+# create new task and role
+task_weighted = as_task_classif(df, target = "Target")
+task_weighted$set_col_roles("weights", roles = "weight")
+
+learner$train(task_weighted, row_ids = split$train)
+learner$model
+
+
+
+
+
+glrn_rf_tuned = as_learner(ppl("robustify") %>% auto_tuner(
+    tnr("grid_search", resolution = 5),
+    lrn("classif.ranger", num.trees = to_tune(200, 500)),
+    rsmp("holdout")
+))
+
+```
+
+
+
+
