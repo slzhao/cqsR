@@ -203,7 +203,7 @@ exportModelResult=function(modelResult, varOne,extractStats=NULL,reportAnovaP=TR
 #'
 modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
                        nonLinearVars = NULL, nonLinearFunName="rcs",nonLinearFunPar=3,
-                       extractStats = NULL,modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
+                       extractStats = NULL,reportCoxZphP=FALSE,modelType = "lrm", printModel = FALSE, printModelFigure = printModel,
                        returnKable = FALSE,returnModel = FALSE,uniqueSampleSize=5,
                        reportAnovaP=TRUE,adjto.cat='first') {
   modelType <- match.arg(modelType, c("lrm", "cph", "ols"))
@@ -249,7 +249,13 @@ modelTable <- function(dataForModelAll, outVars, interestedVars, adjVars = NULL,
 
       #browser()
       # extract result, may have many variables in varOne
-      modelResultOut=exportModelResult(modelResult,varOne,reportAnovaP = reportAnovaP,extractStats=extractStats)
+      modelResultOut=exportModelResult(modelResult,varOne,reportAnovaP = reportAnovaP,extractStats=extractStats,
+                                       reportCoxZphP=reportCoxZphP)
+      if (modelType == "cph") {
+        temp=modelResult$stats[c("Obs","Events")]
+        modelResultOut=cbind(modelResultOut,N=temp[1])
+        modelResultOut=cbind(modelResultOut,Events=temp[2])
+      }
       modelResultAll=rbind(modelResultAll,modelResultOut)
     }
   }
