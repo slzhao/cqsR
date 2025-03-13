@@ -35,3 +35,15 @@ ggplot(mtcars, aes(x=wt, y=mpg, color=mpg)) + geom_point() + scale_color_gradien
 
 ```
 
+## Other ggplot related packages
+
+```{r}
+library(ggforce)
+
+example(gather_set_data)
+example(geom_parallel_sets)
+
+
+```
+
+
